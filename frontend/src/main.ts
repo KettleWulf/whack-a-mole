@@ -3,6 +3,7 @@ import {
 	ClientToServerEvents,
 	Messagedata,
 	ServerToClientEvents,
+	Startgame,
 } from "@shared/types/SocketEvents.types";
 import "./assets/scss/style.scss";
 
@@ -48,7 +49,14 @@ socket.io.on("reconnect", () => {
 	console.log("😊 Reconnected to server:", socket.io.opts.hostname + ":" + socket.io.opts.port);
 });
 
+const startgameCallback = (response: Startgame) => {
+	
+	setTimeout(() => {
+		infoEl.innerHTML += `<p> Virus is on positiion ${response.position} after delay: ${response.startDelay}</p>`
+	}, response.startDelay);
 
+
+}
 
 
 usernameEl.addEventListener("click", ()=> {
@@ -62,11 +70,7 @@ usernameEl.addEventListener("click", ()=> {
 
 startGameEl.addEventListener("click", ()=> {
 	// socket emit start game
-	const payload: Messagedata = {
-		content: "client requested to start game",
-		timestamp: Date.now()
-	}
-	socket.emit("cts_startRequest", payload);
+	socket.emit("cts_startRequest", "ROOMID",startgameCallback);
 });
 
 virusEl.addEventListener("click", ()=> {

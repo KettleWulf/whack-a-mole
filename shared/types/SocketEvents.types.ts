@@ -10,7 +10,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
     // player submitted username
     cts_joinRequest: (payload: Messagedata) => void;
-    cts_startRequest: (payload: Messagedata) => void;
+    cts_startRequest: (roomId: string, callback: (response: Startgame)=> void) => void;
     cts_clickedVirus: (payload: Messagedata) => void;
     cts_quitGame: (payload: Messagedata) => void;
 }
@@ -18,4 +18,9 @@ export interface ClientToServerEvents {
 export interface Messagedata {
     content: string;
     timestamp: number;
+}
+
+export interface Startgame {
+    position: string;
+    startDelay: number;
 }

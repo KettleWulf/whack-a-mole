@@ -65,22 +65,17 @@ export const handleConnection = (
 	io.to(gameRoom.id).emit("stc_Message", message);
 	});
 
-	socket.on("cts_startRequest", (payload)=> {
-		const message: Messagedata = {
-			content: payload.content + "Broadcasting to Gameroom Lobby",
-			timestamp: Date.now(),
+	socket.on("cts_startRequest", (roomId, callback)=> {
+
+		callback({
+			position: "x-y",
+			startDelay: 3500
+		})
+		const payload: Messagedata = {
+			content: "Game is starting",
+			timestamp: Date.now()
 		}
-		const Roomlobby = Gamerooms[0].roomID
-		if (Roomlobby) {
-			io.to(Roomlobby).emit("stc_Message", message);
-		}else {
-			const message: Messagedata = {
-				content: "No Room found",
-				timestamp: Date.now(),
-			}
-			socket.emit("stc_Message", message);
-		}
-		
+		io.to(roomId).emit("stc_Message", payload)
 	});
 
 	socket.on("cts_clickedVirus", (payload)=> {
