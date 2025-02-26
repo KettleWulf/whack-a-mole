@@ -5,6 +5,9 @@ import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Messagedata, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
+import { createGameroom, findPendingGameroom } from "../services/gameroom_service";
+import { User } from "@prisma/client";
+import { createUser } from "../services/user_service";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -21,34 +24,45 @@ export const handleConnection = (
 	socket.on("disconnect", () => {
 		debug("👋 A user disconnected", socket.id);
 	});
-	socket.on("cts_joinRequest", (payload)=> {
-		let gameRoomId: string= "";
+	socket.on("cts_joinRequest", async (payload)=> {
+	/**	Check if a lobby is missing 2nd player
+	 * if no match, create a new Gameroom and set socket as playerOne
+	 * 
+	 *  emit a notification of joining the lobby
+	 *  return;
+	 * 
+	 * if found, assign socket as playerTwo
+	 * emit event to start game
+	 */
+	const gameRoom = await findPendingGameroom();
+	if (!gameRoom) {
+		const createRoom = await createGameroom("Gameroom");
+		const userdata: User = {
+			id: socket.id,
+			username: payload.content,
+			roomId: createRoom.id
+		}
+		await createUser(userdata);
+		socket.join(createRoom.id);
 		const message: Messagedata = {
-			content: payload.content,
-			timestamp: Date.now(),
+			content: "Joined gameroom",
+			timestamp: Date.now()
 		}
-		if (!Gamerooms.length) {
-			gameRoomId = "Lobby:" + socket.id;
-			const GameRoomData: Gameroom = {
-				roomID: gameRoomId,
-				playerOne: socket.id,
-				playerTwo: "",
-				round: 1,
-				score: [0,0]
-	
-			}
-			Gamerooms.push(GameRoomData);
-			message.content = JSON.stringify(GameRoomData);
-			socket.join(gameRoomId);
-			socket.emit("stc_Message", message);
-		};
-		if (!Gamerooms[0].playerTwo && Gamerooms[0].playerOne !== socket.id) {
-			Gamerooms[0].playerTwo = socket.id
-			socket.join(Gamerooms[0].roomID);
-			socket.emit("stc_Message", message);
-			debug("Lobby is now: %O", Gamerooms[0]);
-		}
-
+		io.to(createRoom.id).emit("stc_Message", message);
+		return;
+	}
+	const userdata: User = {
+		id: socket.id,
+		username: payload.content,
+		roomId: gameRoom.id
+	}
+	await createUser(userdata);
+	socket.join(gameRoom.id);
+	const message: Messagedata = {
+		content: "Joined gameroom",
+		timestamp: Date.now()
+	}
+	io.to(gameRoom.id).emit("stc_Message", message);
 	});
 
 	socket.on("cts_startRequest", (payload)=> {
