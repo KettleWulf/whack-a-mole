@@ -10,8 +10,64 @@
 </head>
 
 <body>
-	<div id="app"></div>
-
+	<main>
+        <div id="loby">
+            <div id="sektion1">
+				<h1>Wellcome to a FOO creation!!</h1>
+                <div class="game-logo">
+					<img src="./src/FrontImage1.jpeg" class="logo-image">
+				</div>
+                <div class="player-wrapper">
+                    <form id="player-form">
+                        <div class="create-player">
+                            <label for="playername" class="input-label">Please Insert your Player Name</label>
+                            <input type="text" id="playername" class="input-field" placeholder="Player Name">
+                        </div>
+                        <button type="submit" id="connectBtn">Create</button>
+                    </form>
+                </div>
+            </div>
+            <div id="sektion2">
+                <div class="ongoing-games">
+                    <h5>Ongoing Games</h5>
+                    <div class="ongoing-games-data">
+						<p>Fredrik vs Oki 1-9</p>
+						<p>Fredrik vs Olle 2-8</p>
+						<p>Fredrik vs Oki 10-0</p>
+						<p>Fredrik vs Olle 7-3</p>
+						<p>Fredrik vs Oki 6-4</p>
+						<p>Fredrik vs Olle 5-5</p>
+						<p>Fredrik vs Oki 3-7</p>
+						<p>Fredrik vs Olle 2-8</p>
+						<p>Fredrik vs Oki 9-1</p>
+						<p>Fredrik vs Olle 8-2</p>
+					</div>
+                </div>
+                <div class="games">
+                    <h5>The last 10 Games</h5>
+                    <div class="games-data">
+						<p>Fredrik vs Oki 1-9</p>
+						<p>Fredrik vs Olle 2-8</p>
+						<p>Fredrik vs Oki 10-0</p>
+						<p>Fredrik vs Olle 7-3</p>
+						<p>Fredrik vs Oki 6-4</p>
+						<p>Fredrik vs Olle 5-5</p>
+						<p>Fredrik vs Oki 3-7</p>
+						<p>Fredrik vs Olle 2-8</p>
+						<p>Fredrik vs Oki 9-1</p>
+						<p>Fredrik vs Olle 8-2</p>
+					</div>
+                </div>
+                <div class="highscores">
+                    <h5>Highscores</h5>
+                    <div class="highscores-data">
+						<p>Average response: 2sec</p>
+						<p>Highest Round Score: 10</p>
+					</div>
+                </div>
+            </div>
+        </div>
+    </main>
 	<script type="module" src="/src/main.ts"></script>
 </body>
 </html>
