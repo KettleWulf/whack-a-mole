@@ -50,9 +50,20 @@ socket.io.on("reconnect", () => {
 });
 
 const startgameCallback = (response: Startgame) => {
-	
+	for (let i = 1; i <= 10; i++) {
+		for (let j = 1; j <= 10; j++) {
+			const gridEl = document.createElement("div");
+			gridEl.dataset.coords = `${i}-${j}`
+			gridEl.textContent = `X:${i}  Y:${j}`
+			infoEl.appendChild(gridEl)
+		}
+		
+	}
+		const virusEl = document.querySelector(`[data-coords="${response.position}"]`)!;
+		virusEl.textContent = "IM VIRUS!!"
 	setTimeout(() => {
 		infoEl.innerHTML += `<p> Virus is on positiion ${response.position} after delay: ${response.startDelay}</p>`
+
 	}, response.startDelay);
 
 

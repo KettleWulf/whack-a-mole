@@ -82,7 +82,7 @@ export const handleConnection = (
 	socket.on("cts_startRequest", (roomId, callback)=> {
 
 		callback({
-			position: "x-y",
+			position: "3-6",
 			startDelay: 3500
 		})
 		const payload: Messagedata = {
