@@ -103,7 +103,43 @@ export const handleConnection = (
 		io.to(roomId).emit("stc_Message", payload)
 	});
 
-	socket.on("cts_clickedVirus", (payload)=> {
+	socket.on("cts_clickedVirus", async (payload)=> {
+		// Calculate reactiontime
+		const reactionTime = payload.roundstart - payload.playerclicked;
+
+		// Upload reactiontime to user and get roomId of said players room
+		const user = await prisma.user.update({
+			where: {
+				id: socket.id,
+			},
+			data: {
+				reactionTime,
+			},
+			select: {
+				roomId: true,
+			}
+		});
+
+		// Check if both players has an uploaded reactiontime using roomId
+		const getUserReactions = await prisma.user.findmany({
+			where: {
+				roomId: user.roomId,
+			},
+			select: {
+				reactiontime: true,
+				id: true
+			}
+		});
+
+		// Determine if both users has a registered reactiontime, otherwise bail
+
+		// If both players have a reaction time, determine winner
+
+		// Update score of gameroom
+
+		// emit shit to start next round?
+
+
 		const finished = false;
 		const forfeit = false;
 		const message: Messagedata = {

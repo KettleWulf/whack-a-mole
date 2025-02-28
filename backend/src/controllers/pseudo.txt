@@ -1,0 +1,62 @@
+1 Ta emot reaktionstid 
+(socket.on("clickedVirus", data: ReactionTime))
+
+1.5 Bryt ner klick-tid - delay(virus)-tid
+
+2 Beräkna vinnare
+ const determineWinner = (player1: ReactionTime, player2: ReactionTime) => {
+    if (player1.time < player2.time) return player1.playerId;
+    if (player2.time < player1.time) return player2.playerId;
+    return null; // Oavgjort
+ }
+
+3 Tilldela poäng till vinnare
+const scoreWinner = (player1: ReactionTime, player2: ReactionTime) => {
+    if (player1.time < player2.time) {
+        GameState.score[0]++
+    } else
+        GameState.score[1]++
+
+    (return null; // Oavgjort) ?? Vad händer *om* båda klickar exakt samtidigt, lolz?
+}
+
+4 Utvärdera om 10 rundor gått, om så kalla på gameOver
+const totalScore = gamestate.score[0] + gamestate.score[1];
+
+if (totalScore >= 10) { 
+  console.log("Game Over!");
+}
+
+5 Om inte 10 rundor uppdatera GameState och skicka till frontEnd?
+
+
+
+
+
+Ta emot reaktionstid - kräver indikator på vilken som tillhör vem?
+
+interface ReactionTime {
+    playerId: string,            (socketId)?
+    time: number,                   
+}
+
+interface GameState {
+    gameId: string;     (rumId?)
+    players: Player[]
+    score: [number, number] // Number[ specifikt två! ]
+}
+
+
+// Onödig om spelare 
+interface Player {
+    playerId: number (socketId)
+}
+
+
+alternativ för socket.on(clickedVirus)
+
+ta emot spelare och lyssna efter "nästa" spelare - callback??
+
+slå mot db.gameroom vid klick och kolla om en tidigare reaktionstid finns, i så fall hämta och jämför (const determineWinner)
+
+ta emot spelare - leta upp spelrum och lagra spelares reaktionstid där

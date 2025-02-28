@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
 
 /**
  * Listen on provided port, on all network interfaces.
- */
+ *
 deleterooms()
 	.then(()=> {
 	deleteUsers()
@@ -47,7 +47,7 @@ deleterooms()
 			httpServer.listen(PORT);
 	})
 })
-
+*/
 
 
 /**

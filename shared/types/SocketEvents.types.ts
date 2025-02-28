@@ -16,7 +16,7 @@ export interface ClientToServerEvents {
     // player submitted username
     cts_joinRequest: (payload: Messagedata) => void;
     cts_startRequest: (room: string, callback: (response: Startgame)=> void) => void;
-    cts_clickedVirus: (payload: Messagedata) => void;
+    cts_clickedVirus: (payload: ReactionTime) => void;
     cts_quitGame: (payload: Messagedata) => void;
     cts_getHighscores: (roomID: string, callback: (highscoreCollection: FinishedGameData[])=> void) => void;
 }
@@ -34,4 +34,9 @@ export interface Startgame {
 export interface Gamelobby {
     room: GameroomData
     users: UserData[];
+}
+
+export interface ReactionTime {
+    roundstart: number          // timestamp
+    playerclicked: number       // timestamp
 }
