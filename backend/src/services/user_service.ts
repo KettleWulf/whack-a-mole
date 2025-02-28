@@ -29,3 +29,11 @@ export const updateUserRoomId = async (id: string, roomId: string) => {
         }
     })
 }
+export const getUsersByRoomId = async (roomId: string) =>{
+    return prisma.user.findMany({
+        where: {
+            roomId
+        }
+        
+    })
+}

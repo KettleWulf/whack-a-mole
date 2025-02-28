@@ -11,7 +11,7 @@ model Gameroom {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
   title String
   users User[]
-  score Int[]  @default([0, 0])
+  score Int[]
 }
 
 model User {

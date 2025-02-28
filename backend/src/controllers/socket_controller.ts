@@ -3,11 +3,11 @@
  */
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, Messagedata, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
 import { createGameroom, findPendingGameroom } from "../services/gameroom_service";
 import { User } from "@prisma/client";
-import { createUser, findUserById, updateUserRoomId } from "../services/user_service";
+import { createUser, findUserById, getUsersByRoomId, updateUserRoomId } from "../services/user_service";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -38,6 +38,7 @@ export const handleConnection = (
 	const findfreeGameroom = gameRooms.filter((gameRoom)=> {return gameRoom.users.length < 2})
 	debug("Getting GameRooms: %O", gameRooms);
 	debug("Getting fullrooms: %O", findfreeGameroom);
+	// if no room or no room with only 1 player, create a new room
 	if (!gameRooms.length || !findfreeGameroom.length) {
 		const createRoom = await createGameroom("Gameroom");
 		const findUser = await findUserById(socket.id);
@@ -45,7 +46,8 @@ export const handleConnection = (
 			const userdata: User = {
 				id: socket.id,
 				username: payload.content,
-				roomId: createRoom.id
+				roomId: createRoom.id,
+				reactionTime: null
 			}
 			await createUser(userdata);
 		}
@@ -58,23 +60,29 @@ export const handleConnection = (
 		io.to(createRoom.id).emit("stc_Message", message);
 		return;
 	}
+		//join player 2 to room which is missing a player
 	if (findfreeGameroom) {
+		const roomId = findfreeGameroom[0].id;
 		const findUser = await findUserById(socket.id);
 		if (!findUser) {
 			const userdata: User = {
 				id: socket.id,
 				username: payload.content,
-				roomId: findfreeGameroom[0].id
+				roomId: roomId,
+				reactionTime: null
 			}
 			await createUser(userdata);
 		}
-		await updateUserRoomId(socket.id, findfreeGameroom[0].id);
-		socket.join(findfreeGameroom[0].id);
-		const message: Messagedata = {
-			content: "Joined gameroom" + findfreeGameroom[0].id,
-			timestamp: Date.now()
+		await updateUserRoomId(socket.id, roomId);
+		socket.join(roomId);
+		const getUsers = await getUsersByRoomId(roomId);
+		const message: Gamelobby = {
+			room: findfreeGameroom[0],
+			users: getUsers
 		}
-		io.to(findfreeGameroom[0].id).emit("stc_Message", message);
+
+		//room is ready for game, broadcast!
+		io.to(roomId).emit("stc_GameroomReadyMessage", message);
 		return;
 	}
 	});

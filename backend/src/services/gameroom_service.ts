@@ -1,4 +1,5 @@
 import prisma from "../prisma"
+import { Gameroom } from "../types/gameroom_type";
 
 export const deleterooms = async () => {
     return prisma.gameroom.deleteMany({});
@@ -16,7 +17,20 @@ export const findPendingGameroom = async () => {
 export const createGameroom = async (title: string) => {
     return prisma.gameroom.create({
         data: {
-            title: title
+            title: title,
+            score: [0,0]
         }
+    })
+}
+
+export const updateRoomById = async (roomId: string, data:Gameroom) => {
+    return prisma.gameroom.update({
+        where: {
+            id: roomId,
+            
+        }, data: {
+            ...data
+        }
+
     })
 }

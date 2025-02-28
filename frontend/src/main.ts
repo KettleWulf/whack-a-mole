@@ -43,6 +43,16 @@ socket.on("stc_Message", (payload)=> {
 	const time = new Date(payload.timestamp).toLocaleTimeString(); 
 	infoEl.innerHTML += `<p> <span>${time} </span> | Server Message: ${payload.content}</p>`
 });
+socket.on("stc_GameroomReadyMessage", (payload)=> {
+	const roomId = payload.room.title
+	if (roomId)
+	{
+		console.log(payload);
+		// Get the payload, generate info from user and room and then emit startrequest
+		socket.emit("cts_startRequest", roomId ,startgameCallback);
+	}
+
+})
 
 // Listen for when we're reconnected (either due to our or the servers connection)
 socket.io.on("reconnect", () => {
