@@ -5,9 +5,12 @@ import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
-import { createGameroom, findPendingGameroom } from "../services/gameroom_service";
+import { createGameroom, deleteRoomById, findPendingGameroom } from "../services/gameroom_service";
 import { User } from "@prisma/client";
 import { createUser, findUserById, getUsersByRoomId, updateUserRoomId } from "../services/user_service";
+import { FinishedGameData } from "../types/gameroom_types";
+import { addToHighscores, GetHighscores } from "../services/highscore.service";
+import { NewHighscoreRecord } from "../types/highscore.types";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -101,11 +104,20 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_clickedVirus", (payload)=> {
+		const finished = false;
+		const forfeit = false;
 		const message: Messagedata = {
 			content: payload.content + " " + Gamerooms[0].score.join(" - "),
 			timestamp: Date.now(),
 		}
 		socket.emit("stc_Message", message);
+		if (finished && !forfeit) {
+			const GameData: NewHighscoreRecord = {
+				title: "Cool title",
+				score: [7,3],
+			}
+			finishedGame("ROOMID", false, GameData)
+		}
 	});
 
 	socket.on("cts_quitGame", (payload)=> {
@@ -114,5 +126,18 @@ export const handleConnection = (
 			timestamp: payload.timestamp,
 		}
 		socket.emit("stc_Message", message);
+	});
+	
+	socket.on("cts_getHighscores", async (roomid, callback)=> {
+		const highscoreCollection = await GetHighscores();
+			callback({...highscoreCollection})
 	})
+
+}
+const finishedGame = async (roomId: string, forfeit: boolean, gameData: FinishedGameData | null)=> {
+	await deleteRoomById(roomId);
+	if (!forfeit && gameData) {
+		const addFinishedGame = await addToHighscores(gameData);
+		return addFinishedGame;
+	}
 }

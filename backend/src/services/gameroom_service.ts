@@ -34,3 +34,13 @@ export const updateRoomById = async (roomId: string, data:Gameroom) => {
 
     })
 }
+export const deleteRoomById = async(roomId: string)=> {
+    return prisma.gameroom.delete({
+        where: {
+            id: roomId
+        },
+        include: {
+            users: true
+        }
+    })
+}

@@ -1,4 +1,5 @@
 import { GameroomData } from "../../backend/src/types/gameroom_types";
+import { FinishedGameData } from "../../backend/src/types/highscore.types";
 import { UserData } from "../../backend/src/types/user_types";
 
 export {}
@@ -17,6 +18,7 @@ export interface ClientToServerEvents {
     cts_startRequest: (room: string, callback: (response: Startgame)=> void) => void;
     cts_clickedVirus: (payload: Messagedata) => void;
     cts_quitGame: (payload: Messagedata) => void;
+    cts_getHighscores: (roomID: string, callback: (highscoreCollection: FinishedGameData[])=> void) => void;
 }
 
 export interface Messagedata {
