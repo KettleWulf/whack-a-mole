@@ -11,11 +11,13 @@ model Gameroom {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
   title String
   users User[]
+  score Int[]  @default([0, 0])
 }
 
 model User {
-  id       String   @id @map("_id")
-  username String
-  roomId   String   @db.ObjectId
-  room     Gameroom @relation(fields: [roomId], references: [id])
+  id           String   @id @map("_id")
+  username     String
+  roomId       String   @db.ObjectId
+  room         Gameroom @relation(fields: [roomId], references: [id])
+  reactionTime Int?
 }

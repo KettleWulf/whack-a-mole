@@ -7,7 +7,7 @@ import { ClientToServerEvents, Messagedata, ServerToClientEvents } from "@shared
 import { Gameroom } from "../types/gameroom_type";
 import { createGameroom, findPendingGameroom } from "../services/gameroom_service";
 import { User } from "@prisma/client";
-import { createUser } from "../services/user_service";
+import { createUser, findUserById, updateUserRoomId } from "../services/user_service";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -34,35 +34,49 @@ export const handleConnection = (
 	 * if found, assign socket as playerTwo
 	 * emit event to start game
 	 */
-	const gameRoom = await findPendingGameroom();
-	if (!gameRoom) {
+	const gameRooms = await findPendingGameroom();
+	const findfreeGameroom = gameRooms.filter((gameRoom)=> {return gameRoom.users.length < 2})
+	debug("Getting GameRooms: %O", gameRooms);
+	debug("Getting fullrooms: %O", findfreeGameroom);
+	if (!gameRooms.length || !findfreeGameroom.length) {
 		const createRoom = await createGameroom("Gameroom");
-		const userdata: User = {
-			id: socket.id,
-			username: payload.content,
-			roomId: createRoom.id
+		const findUser = await findUserById(socket.id);
+		if (!findUser) {
+			const userdata: User = {
+				id: socket.id,
+				username: payload.content,
+				roomId: createRoom.id
+			}
+			await createUser(userdata);
 		}
-		await createUser(userdata);
+		await updateUserRoomId(socket.id, createRoom.id);
 		socket.join(createRoom.id);
 		const message: Messagedata = {
-			content: "Joined gameroom",
+			content: "Joined gameroom" + createRoom.id + " Gamerooms:" + gameRooms,
 			timestamp: Date.now()
 		}
 		io.to(createRoom.id).emit("stc_Message", message);
 		return;
 	}
-	const userdata: User = {
-		id: socket.id,
-		username: payload.content,
-		roomId: gameRoom.id
+	if (findfreeGameroom) {
+		const findUser = await findUserById(socket.id);
+		if (!findUser) {
+			const userdata: User = {
+				id: socket.id,
+				username: payload.content,
+				roomId: findfreeGameroom[0].id
+			}
+			await createUser(userdata);
+		}
+		await updateUserRoomId(socket.id, findfreeGameroom[0].id);
+		socket.join(findfreeGameroom[0].id);
+		const message: Messagedata = {
+			content: "Joined gameroom" + findfreeGameroom[0].id,
+			timestamp: Date.now()
+		}
+		io.to(findfreeGameroom[0].id).emit("stc_Message", message);
+		return;
 	}
-	await createUser(userdata);
-	socket.join(gameRoom.id);
-	const message: Messagedata = {
-		content: "Joined gameroom",
-		timestamp: Date.now()
-	}
-	io.to(gameRoom.id).emit("stc_Message", message);
 	});
 
 	socket.on("cts_startRequest", (roomId, callback)=> {
