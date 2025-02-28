@@ -2,6 +2,10 @@
 
 * {
     box-sizing: border-box;
+	// background-color: black;
+}
+
+body {
 	background-color: black;
 }
 
@@ -131,19 +135,23 @@ h1 {
 
 .game-board {
     display: flex;
+	flex-direction: column;
     width: 100%;
     height: 100vh;
+	padding-top: 1.2em;
+	padding-bottom: 1.2em;
     justify-content: center;
+	align-items: center;
   }
 
 .game-field {
     width: 95%;
     height: 80%;
-    background: url('../scss/Grass2.jpg') no-repeat center/cover;
+    background: url('../images/Grass2.jpg') no-repeat center/cover;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid orange;
+    border: 1px solid rgb(56, 38, 38);
 	position: relative;
 }
 
@@ -151,9 +159,8 @@ h1 {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(10, 1fr);
-    gap: 5px;
     width: 100%;
-    height: 80%;
+    height: 85%;
 	position: absolute;
     bottom: 0;
     left: 50%;
@@ -161,8 +168,6 @@ h1 {
 }
 
 .grid-field {
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid orange;
     display: flex;
     color: white;
     font-size: 12px;
@@ -170,12 +175,28 @@ h1 {
     background-size: cover;
     background-position: center;
     position: relative;
+	background-color: transparent;
+	overflow: visible;
 }
 
 .mole {
-    background-size: cover;
+	position: absolute;
+    top: -10px;
+    height: 140%;
+    width: 140%;
+    background-size: contain;
     background-position: center;
-    position: absolute;
-    width: 100%;
-    height: 100%;
+    background-repeat: no-repeat;
+}
+
+.game-info {
+	width: 95%;
+    height: 20%;
+    background: url('../images/UndergroundBackground.png') no-repeat center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgb(56, 38, 38);
+	background-size: 100% 145%;
+	background-position: center;
 }
