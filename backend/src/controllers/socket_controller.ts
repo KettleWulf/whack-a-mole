@@ -11,6 +11,7 @@ import { createUser, findUserById, getUsersByRoomId, updateUserRoomId } from "..
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { NewHighscoreRecord } from "../types/highscore.types";
+import prisma from "../prisma";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -104,8 +105,10 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_clickedVirus", async (payload)=> {
+		debug("Listening for reaction time")
 		// Calculate reactiontime
-		const reactionTime = payload.roundstart - payload.playerclicked;
+		const reactionTime = payload.playerclicked - payload.roundstart;
+		debug("Players reaction time: %s", reactionTime)
 
 		// Upload reactiontime to user and get roomId of said players room
 		const user = await prisma.user.update({
@@ -119,25 +122,44 @@ export const handleConnection = (
 				roomId: true,
 			}
 		});
+		debug("Users corresponding roomId: %s", user.roomId)
 
 		// Check if both players has an uploaded reactiontime using roomId
-		const getUserReactions = await prisma.user.findmany({
+		const getUserReactions = await prisma.user.findMany({
 			where: {
 				roomId: user.roomId,
+				reactionTime: {
+					not: null,
+				}
 			},
 			select: {
-				reactiontime: true,
-				id: true
+				id: true,
+				reactionTime: true
 			}
 		});
 
+		debug("getUserReactions length: %s", getUserReactions.length)
+
 		// Determine if both users has a registered reactiontime, otherwise bail
+		if (getUserReactions.length < 2) return;
+		
 
 		// If both players have a reaction time, determine winner
-
+		const [player1, player2] = getUserReactions as { id: string, reactionTime: number }[];
+		const winner = player1.reactionTime < player2.reactionTime
+			? player1
+			: player2
+		 
+		debug("And the winner is: %o", winner)	
+			
 		// Update score of gameroom
 
+
+
 		// emit shit to start next round?
+		
+
+
 
 
 		const finished = false;
