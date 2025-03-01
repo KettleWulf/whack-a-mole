@@ -14,11 +14,18 @@ h1 {
 	padding-top: 0.5em;
 }
 
+h5 {
+	margin-bottom: 0.8em;
+	font-style: italic;
+	padding-top: 0.8em;
+}
+
 .game-logo {
 	width: 80%;
 	height: 65%;
 	border: 4px solid orange;
 	border-radius: 50%;
+	box-shadow: 0 0 10px yellow, 0 0 20px yellow;
 	overflow: hidden;
 	display: flex;
 	justify-content: center;
@@ -32,9 +39,10 @@ h1 {
 }
 
 .player-wrapper {
-	border: 2px solid orange;
+	border: 6px double orange;
 	border-radius: 20px;
-	padding: 1em;
+	box-shadow: 0 0 7px yellow, 0 0 14px yellow;
+	padding: 2em;
 	width: 80%;
 }
 
@@ -51,7 +59,7 @@ h1 {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	gap: 0.3em;
+	gap: 1em;
 }
 
 .input-label {
@@ -60,21 +68,38 @@ h1 {
 
 .input-field {
 	color: white;
-	border: 1px solid orange;
+	border: 1px solid red;
 	border-radius: 10px;
+	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
 	text-align: center;
 	padding: 0.2em;
+	width: 230px;
+	height: 40px;
 }
 
-#connectBtn {
+.playerBtn {
 	text-align: center;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	color: white;
-	border: 2px solid orange;
-	border-radius: 10px;
-	background-color: black;
+	border: 2px solid darkred;
+	box-shadow: 0 0 10px darkred, 0 0 20px darkred;
+	background-color: red;
+	width: 90px;
+    height: 90px;
+    border-radius: 50%;
+	margin-top: 0.3em;
+}
+
+.playerBtn:hover {
+    background-color: darkred;
+    border-color: red;
+}
+
+.playerBtn:active {
+    background-color: maroon;
+    border-color: black;
 }
 
 #sektion1 {
@@ -88,12 +113,12 @@ h1 {
 
 #sektion2 {
     padding: 0.3em;
-	margin-top: 1em;
+	margin-top: 2em;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	gap: 0.5em;
+	gap: 3em;
 }
 
 .ongoing-games {
@@ -101,8 +126,9 @@ h1 {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	border: 2px solid orange;
+	border: 6px double orange;
 	border-radius: 20px;
+	box-shadow: 0 0 8px yellow, 0 0 16px yellow;
 	padding: 0.3em;
 	width: 80%;
 	color: white;
@@ -113,8 +139,9 @@ h1 {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	border: 2px solid orange;
+	border: 6px double orange;
 	border-radius: 20px;
+	box-shadow: 0 0 8px yellow, 0 0 16px yellow;
 	padding: 0.3em;
 	width: 80%;
 	color: white;
@@ -125,8 +152,9 @@ h1 {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	border: 2px solid orange;
+	border: 6px double orange;
 	border-radius: 20px;
+	box-shadow: 0 0 8px yellow, 0 0 16px yellow;
 	padding: 0.3em;
 	width: 80%;
 	color: white;
@@ -200,3 +228,36 @@ h1 {
 	background-size: 100% 145%;
 	background-position: center;
 }
+
+@media all and (min-width: 560px) {
+
+	.input-label {
+		font-size: 1.3rem;
+	}
+
+	.input-field {
+		box-shadow: 0 0 7px pink, 0 0 14px pink;
+		width: 280px;
+		height: 40px;
+	}
+
+	.ongoing-games-data {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-evenly;
+		align-items: center;
+		gap: 2em;
+	}
+
+	.games-data {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-evenly;
+		align-items: center;
+		gap: 2em;
+	}
+}
+
+@media all and (min-width: 860px) {}
+
+@media all and (min-width: 1000px) {}
