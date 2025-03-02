@@ -1,9 +1,9 @@
 import { io, Socket } from "socket.io-client";
 import {
 	ClientToServerEvents,
-	Messagedata,
+	// Messagedata,
 	ServerToClientEvents,
-	Startgame,
+	// Startgame,
 } from "@shared/types/SocketEvents.types";
 import "./assets/scss/style.scss";
 
@@ -32,4 +32,22 @@ socket.on("disconnect", () => {
 // Listen for when we're reconnected (either due to our or the servers connection)
 socket.io.on("reconnect", () => {
 	console.log("😊 Reconnected to server:", socket.io.opts.hostname + ":" + socket.io.opts.port);
+});
+
+
+const playerFormEl = document.getElementById("player-form") as HTMLFormElement;
+const playerNameEl = document.getElementById("playername") as HTMLInputElement;
+
+playerFormEl.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const playerName = playerNameEl.value.trim();
+
+    if (playerName) {
+        socket.emit("cts_joinRequest", { content: playerName });
+
+        console.log("📨 Sent join request:", { playerName, id: socket.id });
+    } else {
+        alert("Please enter a player name!");
+    }
 });
