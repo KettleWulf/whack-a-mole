@@ -10,6 +10,11 @@ import {
 	Messagedata,
 	ServerToClientEvents,
 	Startgame,
+import {
+	ClientToServerEvents,
+	// Messagedata,
+	ServerToClientEvents,
+	// Startgame,
 } from "@shared/types/SocketEvents.types";
 import "./assets/scss/style.scss";
 
@@ -19,16 +24,6 @@ console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
 
 // Connect to Socket.IO Server
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOST);
-
-/**
- * Query Selectors
- */
-
-const usernameEl = document.querySelector<HTMLButtonElement>("#userName")!;
-const startGameEl = document.querySelector<HTMLButtonElement>("#startGame")!;
-const virusEl = document.querySelector<HTMLButtonElement>("#clickedVirus")!;
-const quitGameEl = document.querySelector<HTMLButtonElement>("#quit")!;
-const infoEl = document.querySelector<HTMLDivElement>("#infoEl")!;
 
 /**
  * Socket Event Listeners
@@ -44,22 +39,6 @@ socket.on("connect", () => {
 socket.on("disconnect", () => {
 	console.log("🥺 Got disconnected from server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 });
-
-// Listen for server messages
-socket.on("stc_Message", (payload)=> {
-	const time = new Date(payload.timestamp).toLocaleTimeString(); 
-	infoEl.innerHTML += `<p> <span>${time} </span> | Server Message: ${payload.content}</p>`
-});
-socket.on("stc_GameroomReadyMessage", (payload)=> {
-	const roomId = payload.room.title
-	if (roomId)
-	{
-		console.log(payload);
-		// Get the payload, generate info from user and room and then emit startrequest
-		socket.emit("cts_startRequest", roomId ,startgameCallback);
-	}
-
-})
 
 // Listen for when we're reconnected (either due to our or the servers connection)
 socket.io.on("reconnect", () => {
@@ -113,11 +92,16 @@ const startgameCallback = (response: Startgame) => {
 	setTimeout(() => {
 		infoEl.innerHTML += `<p> Virus is on positiion ${response.position} after delay: ${response.startDelay}</p>`
 
-	}, response.startDelay);
+const playerFormEl = document.getElementById("player-form") as HTMLFormElement;
+const playerNameEl = document.getElementById("playername") as HTMLInputElement;
 
+playerFormEl.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-}
+    const playerName = playerNameEl.value.trim();
 
+    if (playerName) {
+        socket.emit("cts_joinRequest", { content: playerName });
 
 usernameEl.addEventListener("click", ()=> {
  // socket Emit userName
@@ -151,3 +135,8 @@ quitGameEl.addEventListener("click", ()=> {
 	socket.emit("cts_quitGame", payload);
 });
 
+        console.log("📨 Sent join request:", { playerName, id: socket.id });
+    } else {
+        alert("Please enter a player name!");
+    }
+});

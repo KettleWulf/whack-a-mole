@@ -18,7 +18,7 @@ const Gamerooms: Gameroom[]= [];
 // Handle a user connecting
 export const handleConnection = (
 	socket: Socket<ClientToServerEvents, ServerToClientEvents>,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
 	io: Server<ClientToServerEvents, ServerToClientEvents>
 ) => {
 	debug("🙋 A user connnected", socket.id);
@@ -30,10 +30,10 @@ export const handleConnection = (
 	socket.on("cts_joinRequest", async (payload)=> {
 	/**	Check if a lobby is missing 2nd player
 	 * if no match, create a new Gameroom and set socket as playerOne
-	 * 
+	 *
 	 *  emit a notification of joining the lobby
 	 *  return;
-	 * 
+	 *
 	 * if found, assign socket as playerTwo
 	 * emit event to start game
 	 */
@@ -127,7 +127,7 @@ export const handleConnection = (
 		}
 		socket.emit("stc_Message", message);
 	});
-	
+
 	socket.on("cts_getHighscores", async (roomid, callback)=> {
 		const highscoreCollection = await GetHighscores();
 			callback({...highscoreCollection})
