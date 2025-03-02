@@ -105,7 +105,8 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_clickedVirus", async (payload)=> {
-		debug("Listening for reaction time")
+		debug("Player %s wacked a mole!", socket.id)
+
 		// Calculate reactiontime
 		const reactionTime = payload.playerclicked - payload.roundstart;
 		debug("Players reaction time: %s", reactionTime)
@@ -122,7 +123,11 @@ export const handleConnection = (
 				roomId: true,
 			}
 		});
-		debug("Users corresponding roomId: %s", user.roomId)
+
+		if (!user) {
+			debug("Couldn't find user or corresponding gameroomID")
+		}
+		debug("User %s corresponding roomId: %s", socket.id, user.roomId)
 
 		// Check if both players has an uploaded reactiontime using roomId
 		const getUserReactions = await prisma.user.findMany({
@@ -141,7 +146,7 @@ export const handleConnection = (
 		debug("getUserReactions length: %s", getUserReactions.length)
 
 		// Determine if both users has a registered reactiontime, otherwise bail
-		if (getUserReactions.length < 2) return;
+		if (getUserReactions.length !== 2) return;
 		
 
 		// If both players have a reaction time, determine winner
@@ -151,10 +156,48 @@ export const handleConnection = (
 			: player2
 		 
 		debug("And the winner is: %o", winner)	
+
+		// Get gameroom from DB using roomId
+		const gameRoom = await prisma.gameroom.findUnique({
+			where: {
+				id: user.roomId
+			}
+		});
+
+		if(!gameRoom) {
+			debug("GameRoom not found!");
+			return;
+		}
+
+		// Create array to update and replace array in DB - (manipulating arrays in DB not possible using prisma?)
+		const updatedScore = [...gameRoom.score]
 			
-		// Update score of gameroom
+		// Update the right score
+		winner.id === player1.id
+			? updatedScore[0]++
+			: updatedScore[1]++
 
+		debug("Current score: %s", updatedScore);
 
+		// Accumulate score of players to determine current round
+		const currentRound = updatedScore.reduce((sum, score) => sum + score, 0);
+
+		debug("Current Round: %s", currentRound)
+
+		// If current round is 10, call the game!
+		if (currentRound === 10) {
+			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
+		}
+
+		// Update GameRoom in DB
+		await prisma.gameroom.update({
+			where: {
+				id: gameRoom.id,
+			},
+			data: {
+				score: updatedScore,
+			}
+		})
 
 		// emit shit to start next round?
 		
