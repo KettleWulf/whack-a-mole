@@ -39,4 +39,5 @@ export interface Gamelobby {
 export interface ReactionTime {
     roundstart: number          // timestamp
     playerclicked: number       // timestamp
+    forfeit: boolean
 }

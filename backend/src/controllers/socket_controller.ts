@@ -105,7 +105,18 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_clickedVirus", async (payload)=> {
-		debug("Player %s wacked a mole!", socket.id)
+		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
+		let finished = false;
+
+		// Did the player forfeit?
+		if (payload.forfeit === true) {
+			debug("Player %s forfeited the game")
+			// Automatically award other player one point
+
+			// Call the game
+
+			return;
+		}
 
 		// Calculate reactiontime
 		const reactionTime = payload.playerclicked - payload.roundstart;
@@ -197,9 +208,10 @@ export const handleConnection = (
 		// If current round is 10, call the game!
 		if (currentRound === 10) {
 			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
+			finished = true;
 		}
 
-		// Update GameRoom in DB with new score and "wipe" reactionTime
+		// Update GameRoom in DB with new score
 		await prisma.gameroom.update({
 			where: {
 				id: gameRoom.id,
@@ -215,7 +227,7 @@ export const handleConnection = (
 
 
 
-		const finished = false;
+		
 		const forfeit = false;
 		const message: Messagedata = {
 			content: payload.content + " " + Gamerooms[0].score.join(" - "),
