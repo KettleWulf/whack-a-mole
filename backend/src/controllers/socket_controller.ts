@@ -157,7 +157,17 @@ export const handleConnection = (
 		 
 		debug("And the winner is: %o", winner)	
 
-		// Get gameroom from DB using roomId
+		// As winner is determined, reset reactionTime on both users
+		await prisma.user.updateMany({
+			where: { 
+				roomId: user.roomId 
+			},
+			data: {
+				reactionTime: null 
+			}
+		});
+
+		// Get gameroom from DB
 		const gameRoom = await prisma.gameroom.findUnique({
 			where: {
 				id: user.roomId
@@ -189,7 +199,7 @@ export const handleConnection = (
 			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
 		}
 
-		// Update GameRoom in DB
+		// Update GameRoom in DB with new score and "wipe" reactionTime
 		await prisma.gameroom.update({
 			where: {
 				id: gameRoom.id,
