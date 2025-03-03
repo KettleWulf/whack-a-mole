@@ -1,5 +1,3 @@
-
-
 export interface Gameroom {
     roomID: string;
     playerOne: string;

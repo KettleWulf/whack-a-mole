@@ -3,7 +3,7 @@
  */
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, StartgameMessage } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
 import { createGameroom, deleteRoomById, findPendingGameroom } from "../services/gameroom_service";
 import { User } from "@prisma/client";
@@ -27,6 +27,13 @@ export const handleConnection = (
 	socket.on("disconnect", () => {
 		debug("👋 A user disconnected", socket.id);
 	});
+
+	function getRandomPosition(): string {
+		const randomX = Math.floor(Math.random() * 10) + 1;
+		const randomY = Math.floor(Math.random() * 10) + 1;
+		return `${randomX}-${randomY}`;
+	}
+
 	socket.on("cts_joinRequest", async (payload)=> {
 	/**	Check if a lobby is missing 2nd player
 	 * if no match, create a new Gameroom and set socket as playerOne
@@ -86,14 +93,43 @@ export const handleConnection = (
 
 		//room is ready for game, broadcast!
 		io.to(roomId).emit("stc_GameroomReadyMessage", message);
-		return;
-	}
-	});
+
+        if (getUsers.length === 2) {
+            console.log(`🟢 Startar spelet automatiskt i rum: ${roomId}`);
+
+            const position = getRandomPosition();
+
+            console.log(`📌 Mullvaden kommer att dyka upp på: ${position}`);
+
+            io.to(roomId).emit("stc_Message", {
+                content: "Spelet startar",
+                timestamp: Date.now()
+            });
+
+            const startgameMessage: StartgameMessage = {
+                position: position,
+                startDelay: 3500
+            };
+
+			const gameroomReadyMessage = {
+                ...message,
+                startgameMessage: startgameMessage
+            };
+
+            io.to(roomId).emit("stc_GameroomReadyMessage", gameroomReadyMessage);
+        }
+
+        return;
+    }
+});
 
 	socket.on("cts_startRequest", (roomId, callback)=> {
+		const position = getRandomPosition();
+
+		console.log(`📌 Mullvaden kommer att dyka upp på: ${position}`);
 
 		callback({
-			position: "3-6",
+			position: position,
 			startDelay: 3500
 		})
 		const payload: Messagedata = {
