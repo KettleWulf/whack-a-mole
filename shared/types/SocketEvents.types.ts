@@ -41,3 +41,4 @@ export interface ReactionTime {
     playerclicked: number       // timestamp
     forfeit: boolean
 }
+

@@ -51,7 +51,6 @@ socket.on("stc_GameroomReadyMessage", (payload)=> {
 		// Get the payload, generate info from user and room and then emit startrequest
 		socket.emit("cts_startRequest", roomId ,startgameCallback);
 	}
-
 })
 
 // Listen for when we're reconnected (either due to our or the servers connection)
@@ -91,7 +90,7 @@ usernameEl.addEventListener("click", ()=> {
 
 startGameEl.addEventListener("click", ()=> {
 	// socket emit start game
-	socket.emit("cts_startRequest", "ROOMID",startgameCallback);
+	socket.emit("cts_startRequest", "ROOMID", startgameCallback);   
 });
 
 virusEl.addEventListener("click", ()=> {
