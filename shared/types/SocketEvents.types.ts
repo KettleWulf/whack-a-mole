@@ -25,11 +25,6 @@ export interface Player {
     content: string;
 }
 
-export interface StartgameMessage {
-    position: string;
-    startDelay: number;
-}
-
 export interface Messagedata {
     content: string;
     timestamp: number;
@@ -38,15 +33,10 @@ export interface Messagedata {
 export interface Startgame {
     position: string;
     startDelay: number;
+	randomImage: number;
 }
 
 export interface Gamelobby {
     room: GameroomData
     users: UserData[];
-}
-
-export interface GameroomReadyMessage {
-    room: GameroomData;
-    users: UserData[];
-    startgameMessage: StartgameMessage;
 }

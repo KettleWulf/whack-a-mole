@@ -3,7 +3,7 @@
  */
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, StartgameMessage } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
 import { createGameroom, deleteRoomById, findPendingGameroom } from "../services/gameroom_service";
 import { User } from "@prisma/client";
@@ -92,45 +92,22 @@ export const handleConnection = (
 		}
 
 		//room is ready for game, broadcast!
-		io.to(roomId).emit("stc_GameroomReadyMessage", message);
-
-        if (getUsers.length === 2) {
-            console.log(`🟢 Startar spelet automatiskt i rum: ${roomId}`);
-
-            const position = getRandomPosition();
-
-            console.log(`📌 Mullvaden kommer att dyka upp på: ${position}`);
-
-            io.to(roomId).emit("stc_Message", {
-                content: "Spelet startar",
-                timestamp: Date.now()
-            });
-
-            const startgameMessage: StartgameMessage = {
-                position: position,
-                startDelay: 3500
-            };
-
-			const gameroomReadyMessage = {
-                ...message,
-                startgameMessage: startgameMessage
-            };
-
-            io.to(roomId).emit("stc_GameroomReadyMessage", gameroomReadyMessage);
-        }
-
+		io.to(roomId).emit("stc_GameroomReadyMessage", message)
         return;
     }
 });
 
 	socket.on("cts_startRequest", (roomId, callback)=> {
 		const position = getRandomPosition();
+		const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
+		const randomIndex = Math.floor(Math.random() * moleImages.length);
 
 		console.log(`📌 Mullvaden kommer att dyka upp på: ${position}`);
 
 		callback({
 			position: position,
-			startDelay: 3500
+			startDelay: 4000,
+			randomImage: randomIndex
 		})
 		const payload: Messagedata = {
 			content: "Game is starting",

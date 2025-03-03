@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, ServerToClientEvents, Startgame, GameroomReadyMessage } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
 import Mole3 from "./assets/images/Mole3.png";
@@ -15,8 +15,11 @@ console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOST);
 
 const gridContainer = document.querySelector(".grid-container") as HTMLDivElement;
-const playerFormEl = document.getElementById("player-form") as HTMLFormElement;
-const playerNameEl = document.getElementById("playername") as HTMLInputElement;
+const playerFormEl = document.querySelector("#player-form") as HTMLFormElement;
+const playerNameEl = document.querySelector("#playername") as HTMLInputElement;
+const lobbyEl = document.querySelector("#loby") as HTMLDivElement;
+const gameBoardEl = document.querySelector("#game-board") as HTMLDivElement;
+const countdownEl = document.querySelector("#countdown-timer") as HTMLDivElement;
 
 const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 
@@ -54,7 +57,7 @@ playerFormEl.addEventListener("submit", (event) => {
 });
 
 const startgameCallback = (response: Startgame) => {
-
+	console.log("✅ startgameCallback körs! Data från server:", response);
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
             const gridEl = document.createElement("div");
@@ -63,29 +66,61 @@ const startgameCallback = (response: Startgame) => {
         }
     }
 
-    const molePosition = response.position;
-    const moleElement = document.querySelector(`[data-coords="${molePosition}"]`);
+	lobbyEl.classList.add("hide");
+	gameBoardEl.classList.remove("hide");
 
-    if (moleElement instanceof HTMLElement) {
-        const randomMoleImage = moleImages[Math.floor(Math.random() * moleImages.length)];
-        const moleDiv = document.createElement("div");
-        moleDiv.classList.add("mole");
-        moleDiv.style.backgroundImage = `url('${randomMoleImage}')`;
-        moleElement.appendChild(moleDiv);
-    } else {
-        console.error(`Elementet med position ${molePosition} hittades inte!`);
-    }
+	if (countdownEl) {
+		countdownEl.classList.remove("hidden");
+		let timeLeft = response.startDelay / 1000;
+
+		const countdown = () => {
+			countdownEl.textContent = `${timeLeft}`;
+			timeLeft -= 1;
+
+			if (timeLeft < 0) {
+				countdownEl.classList.add("hide");
+			} else {
+				setTimeout(countdown, 1000);
+			}
+		};
+		countdown();
+	}
+
 
     setTimeout(() => {
+		countdownEl.classList.add("hide");
+		const molePosition = response.position;
+		console.log("This is molePosition", molePosition);
+		const moleElement = document.querySelector(`[data-coords="${molePosition}"]`);
+
+		if (moleElement instanceof HTMLElement) {
+			const randomMoleImage = moleImages[response.randomImage];
+			const moleDiv = document.createElement("div");
+			moleDiv.classList.add("mole");
+			moleDiv.style.backgroundImage = `url('${randomMoleImage}')`;
+			moleElement.appendChild(moleDiv);
+		} else {
+			console.error(`Elementet med position ${molePosition} hittades inte!`);
+		}
+
+		gridContainer.addEventListener("click", (e) => {
+			const target = e.target as HTMLElement;
+			const moleElement = document.querySelector(`[data-coords="${response.position}"] .mole`);
+
+			if (target === moleElement) {
+				console.log("🎯 Du klickade på mullvaden!");
+			} else {
+				console.log("❌ Miss! Klicka på mullvaden.");
+			}
+		});
     }, response.startDelay);
 };
 
 
-socket.on('stc_GameroomReadyMessage', (data) => {
-    const gameroomReadyData = data as GameroomReadyMessage;
+socket.on('stc_GameroomReadyMessage', (message) => {
+	const roomId = message.room.id;
 
-    const { position, startDelay } = gameroomReadyData.startgameMessage;
-    setTimeout(() => {
-        startgameCallback({ position, startDelay });
-    }, startDelay);
+	if(roomId) {
+		socket.emit("cts_startRequest", roomId, (startgameCallback))
+	}
 });
