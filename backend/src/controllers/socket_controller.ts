@@ -3,7 +3,7 @@
  */
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
 import { createGameroom, deleteRoomById, findPendingGameroom } from "../services/gameroom_service";
 import { User } from "@prisma/client";
@@ -274,7 +274,8 @@ export const handleConnection = (
 				score: updatedScore
 			}
 
-			finishedGame(gameRoom.id, false, gameData);			
+			finishedGame(gameRoom.id, false, gameData);
+			return;			
 		}
 
 		// Update GameRoom in DB with new score
@@ -288,11 +289,13 @@ export const handleConnection = (
 		});
 
 		// emit shit to start next round?
-		payload = {
-			
+		let RoundResultData: RoundResultData = {
+			currentRound,
+			reactionTimes: [player1.reactionTime, player2.reactionTime],
+			score: updatedScore
 		}
 		
-		
+		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
 
 	socket.on("cts_quitGame", (payload)=> {

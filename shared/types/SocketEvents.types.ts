@@ -8,7 +8,8 @@ export {}
 export interface ServerToClientEvents {
     // generic server event
     stc_Message: (payload: Messagedata) => void;
-    stc_GameroomReadyMessage: (payload: Gamelobby) => void
+    stc_GameroomReadyMessage: (payload: Gamelobby) => void;
+    stc_roundUpdate: (payload: RoundResultData) => void;
 }
 
 // Events emitted by the client to the server
@@ -42,3 +43,8 @@ export interface ReactionTime {
     forfeit: boolean
 }
 
+export interface RoundResultData {
+	currentRound: number;
+	reactionTimes: number[]; //
+    score: number[]; 
+}
