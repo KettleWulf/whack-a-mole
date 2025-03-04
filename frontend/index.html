@@ -11,9 +11,9 @@
 
 <body>
 	<main>
-        <div id="loby">
+        <div class="loby">
+			<h1>Wellcome to a FOO creation!!</h1>
             <div id="sektion1">
-				<h1>Wellcome to a FOO creation!!</h1>
                 <div class="game-logo">
 					<img src="./src/FrontImage1.jpeg" alt="Picture of a Mole" class="logo-image">
 				</div>
@@ -69,10 +69,17 @@
         </div>
 		<div id="game-board" class="game-board hide">
 			<div class="game-field">
-				<div id="countdown-timer" class="hidden">4</div>
+				<div id="countdown-timer" class="hide"></div>
 				<div class="grid-container"></div>
 			</div>
-			<div class="game-info"></div>
+			<div class="game-info">
+				<div class="round"></div>
+				<div class="player-info">
+					<div class="players-name"></div>
+					<div class="players-timer"></div>
+				</div>
+				<div class="score"></div>
+			</div>
 		</div>
     </main>
 	<script type="module" src="/src/main.ts"></script>

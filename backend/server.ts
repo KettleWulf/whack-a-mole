@@ -40,11 +40,11 @@ io.on("connection", (socket) => {
 /**
  * Listen on provided port, on all network interfaces.
  */
-deleterooms()
-	.then(()=> {
-	deleteUsers()
-	.then(()=>{
-			httpServer.listen(PORT);
+deleteUsers()
+.then(() => {
+	deleterooms()
+	.then(() => {
+		httpServer.listen(PORT);
 	})
 })
 

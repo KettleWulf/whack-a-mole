@@ -28,12 +28,6 @@ export const handleConnection = (
 		debug("👋 A user disconnected", socket.id);
 	});
 
-	function getRandomPosition(): string {
-		const randomX = Math.floor(Math.random() * 10) + 1;
-		const randomY = Math.floor(Math.random() * 10) + 1;
-		return `${randomX}-${randomY}`;
-	}
-
 	socket.on("cts_joinRequest", async (payload)=> {
 	/**	Check if a lobby is missing 2nd player
 	 * if no match, create a new Gameroom and set socket as playerOne
@@ -95,18 +89,20 @@ export const handleConnection = (
 		io.to(roomId).emit("stc_GameroomReadyMessage", message)
         return;
     }
-});
+	});
 
 	socket.on("cts_startRequest", (roomId, callback)=> {
-		const position = getRandomPosition();
+		const x = Math.floor(Math.random() * 10) + 1;
+		const y = Math.floor(Math.random() * 10) + 1;
+		const time = Math.floor(Math.random() * 10000) + 1500;
 		const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
 		const randomIndex = Math.floor(Math.random() * moleImages.length);
 
-		console.log(`📌 Mullvaden kommer att dyka upp på: ${position}`);
+		console.log(` Mullvaden kommer att dyka upp på: ${x}-${y}`);
 
 		callback({
-			position: position,
-			startDelay: 4000,
+			position: `${x}-${y}`,
+			startDelay: time,
 			randomImage: randomIndex
 		})
 		const payload: Messagedata = {
@@ -144,13 +140,14 @@ export const handleConnection = (
 	socket.on("cts_getHighscores", async (roomid, callback)=> {
 		const highscoreCollection = await GetHighscores();
 			callback({...highscoreCollection})
-	})
+	});
 
-}
+};
+
 const finishedGame = async (roomId: string, forfeit: boolean, gameData: FinishedGameData | null)=> {
 	await deleteRoomById(roomId);
 	if (!forfeit && gameData) {
 		const addFinishedGame = await addToHighscores(gameData);
 		return addFinishedGame;
 	}
-}
+};

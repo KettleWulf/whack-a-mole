@@ -8,7 +8,7 @@ export {}
 export interface ServerToClientEvents {
     // generic server event
     stc_Message: (payload: Messagedata) => void;
-    stc_GameroomReadyMessage: (payload: Gamelobby) => void
+    stc_GameroomReadyMessage: (payload: Gamelobby) => void;
 }
 
 // Events emitted by the client to the server
