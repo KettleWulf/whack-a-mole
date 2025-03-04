@@ -40,7 +40,7 @@ socket.on("disconnect", () => {
 
 // Listen for server messages
 socket.on("stc_Message", (payload)=> {
-	const time = new Date(payload.timestamp).toLocaleTimeString(); 
+	const time = new Date(payload.timestamp).toLocaleTimeString();
 	infoEl.innerHTML += `<p> <span>${time} </span> | Server Message: ${payload.content}</p>`
 });
 socket.on("stc_GameroomReadyMessage", (payload)=> {
@@ -58,6 +58,13 @@ socket.io.on("reconnect", () => {
 	console.log("😊 Reconnected to server:", socket.io.opts.hostname + ":" + socket.io.opts.port);
 });
 
+// Listen for result of last round
+socket.on("stc_roundUpdate", (payload) => {
+	const roomId = payload.roomId
+
+	socket.emit("cts_startRequest", roomId, startgameCallback);
+})
+
 const startgameCallback = (response: Startgame) => {
 	for (let i = 1; i <= 10; i++) {
 		for (let j = 1; j <= 10; j++) {
@@ -66,7 +73,7 @@ const startgameCallback = (response: Startgame) => {
 			gridEl.textContent = `X:${i}  Y:${j}`
 			infoEl.appendChild(gridEl)
 		}
-		
+
 	}
 		const virusEl = document.querySelector(`[data-coords="${response.position}"]`)!;
 		virusEl.textContent = "IM VIRUS!!"
@@ -90,7 +97,7 @@ usernameEl.addEventListener("click", ()=> {
 
 startGameEl.addEventListener("click", ()=> {
 	// socket emit start game
-	socket.emit("cts_startRequest", "ROOMID", startgameCallback);   
+	socket.emit("cts_startRequest", "ROOMID", startgameCallback);
 });
 
 virusEl.addEventListener("click", ()=> {

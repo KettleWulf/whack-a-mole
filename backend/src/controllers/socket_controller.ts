@@ -31,10 +31,10 @@ export const handleConnection = (
 	socket.on("cts_joinRequest", async (payload)=> {
 	/**	Check if a lobby is missing 2nd player
 	 * if no match, create a new Gameroom and set socket as playerOne
-	 * 
+	 *
 	 *  emit a notification of joining the lobby
 	 *  return;
-	 * 
+	 *
 	 * if found, assign socket as playerTwo
 	 * emit event to start game
 	 */
@@ -109,11 +109,11 @@ export const handleConnection = (
 
 		// Get user who clicked
 		const user = await prisma.user.findUnique({
-			where: { 
-				id: socket.id 
+			where: {
+				id: socket.id
 			},
-			select: { 
-				roomId: true 
+			select: {
+				roomId: true
 			},
 		});
 
@@ -126,11 +126,11 @@ export const handleConnection = (
 
 		// Get gameroom, including users[] from DB
 		const gameRoom = await prisma.gameroom.findUnique({
-			where: { 
-				id: user.roomId 
+			where: {
+				id: user.roomId
 			},
 			include: {
-				 users: true 
+				 users: true
 			},
 		});
 
@@ -139,7 +139,7 @@ export const handleConnection = (
 			return;
 		}
 
-		
+
 
 		// Handle player forfeiting
 		if (payload.forfeit === true) {
@@ -147,14 +147,14 @@ export const handleConnection = (
 
 			// Get opponent (winner by forfeit) from DB
 			const opponent = await prisma.user.findFirst({
-				where: { 
-					roomId: user.roomId, 
-					id: { 
-						not: socket.id 
-					} 
+				where: {
+					roomId: user.roomId,
+					id: {
+						not: socket.id
+					}
 				},
-				select: { 
-					id: true 
+				select: {
+					id: true
 				},
 			});
 
@@ -165,8 +165,8 @@ export const handleConnection = (
 
 			// Award last point to opponent/winner
 			const updatedScore = [...gameRoom.score];
-			opponent.id === gameRoom.users[0].id 
-				? updatedScore[0]++ 
+			opponent.id === gameRoom.users[0].id
+				? updatedScore[0]++
 				: updatedScore[1]++;
 
 			// Update GameRoom in DB with new score
@@ -224,7 +224,7 @@ export const handleConnection = (
 
 		// Determine if both users has a registered reactiontime, otherwise bail
 		if (getUserReactions.length !== 2) return;
-		
+
 
 		// If both players have a reaction time, determine winner
 		const [player1, player2] = getUserReactions;
@@ -237,22 +237,22 @@ export const handleConnection = (
 		const winner = player1.reactionTime < player2.reactionTime
 			? player1
 			: player2
-		 
-		debug("And the winner is: %o", winner);	
+
+		debug("And the winner is: %o", winner);
 
 		// As winner is determined, reset reactionTime on both users
 		await prisma.user.updateMany({
-			where: { 
-				roomId: user.roomId 
+			where: {
+				roomId: user.roomId
 			},
 			data: {
-				reactionTime: null 
+				reactionTime: null
 			}
 		});
 
 		// Create array to update and replace array in DB - (manipulating arrays in DB not possible using prisma?)
 		const updatedScore = [...gameRoom.score]
-			
+
 		// Update the right score
 		winner.id === player1.id
 			? updatedScore[0]++
@@ -275,7 +275,7 @@ export const handleConnection = (
 			}
 
 			finishedGame(gameRoom.id, false, gameData);
-			return;			
+			return;
 		}
 
 		// Update GameRoom in DB with new score
@@ -289,12 +289,13 @@ export const handleConnection = (
 		});
 
 		// emit shit to start next round?
-		let RoundResultData: RoundResultData = {
+		 const RoundResultData: RoundResultData = {
+			roomId: gameRoom.id,
 			currentRound,
 			reactionTimes: [player1.reactionTime, player2.reactionTime],
 			score: updatedScore
 		}
-		
+
 		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
 
@@ -305,7 +306,7 @@ export const handleConnection = (
 		}
 		socket.emit("stc_Message", message);
 	});
-	
+
 	socket.on("cts_getHighscores", async (roomid, callback)=> {
 		const highscoreCollection = await GetHighscores();
 			callback({...highscoreCollection})
