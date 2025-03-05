@@ -139,8 +139,6 @@ export const handleConnection = (
 			return;
 		}
 
-		
-
 		// Handle player forfeiting
 		if (payload.forfeit === true) {
 			debug("Player %s forfeited the game", socket.id)
