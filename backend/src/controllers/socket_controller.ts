@@ -12,7 +12,7 @@ import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { NewHighscoreRecord } from "../types/highscore.types";
 import prisma from "../prisma";
-import { createGameData } from "../services/gamedata_service";
+import { createGameData, getGameData } from "../services/gamedata_service";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -59,12 +59,13 @@ export const handleConnection = (
 
 		if (!createRoom) {
 			debug("Failed to retrieve created room from DB");
+			return;
 		}
 		
-		// kalla på funktion för delay och startposition
-		const data = generateRoundData(createRoom.id);
+		// Generate GameData
+		const data = generateGameData(createRoom.id);
 		
-		// skapa gameData
+		// Create GameData in DB
 		await createGameData(data)
 
 
@@ -104,16 +105,16 @@ export const handleConnection = (
 	}
 	});
 
-	socket.on("cts_startRequest", (roomId, callback)=> {
+	socket.on("cts_startRequest", async (roomId, callback)=> {
 
-		
-		// prismafindgameroomdata
-		// where id = gameroom.id
+		const gameData = await getGameData(roomId)
 
-		callback({
-			position: "3-6",
-			startDelay: 3500
-		})
+		if(!gameData) {
+			debug("Couldn't find GameData in relation to roomId: %s", roomId);
+			return;
+		}
+
+		callback(gameData)
 		const payload: Messagedata = {
 			content: "Game is starting",
 			timestamp: Date.now()
@@ -336,14 +337,12 @@ const finishedGame = async (roomId: string, forfeit: boolean, gameData: Finished
 	}
 }
 
-const generateRoundData = (roomId: string) => {
+const generateGameData = (roomId: string) => {
 	const x = Math.floor(Math.random() * 10) + 1;
 	const y = Math.floor(Math.random() * 10) + 1;
 	const startDelay = Math.floor(Math.random() * 10000) + 1500;
 	const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
 	const randomImage = Math.floor(Math.random() * moleImages.length);
-
-	debug("Found ya mole! x: %s, y: %s", x, y);
 
 	return {
 		id: roomId,

@@ -2,6 +2,7 @@ import { io, Socket } from "socket.io-client";
 import {
 	ClientToServerEvents,
 	Messagedata,
+	ReactionTime,
 	ServerToClientEvents,
 	Startgame,
 } from "@shared/types/SocketEvents.types";
@@ -93,6 +94,7 @@ usernameEl.addEventListener("click", ()=> {
 		timestamp: Date.now()
 	}
 	socket.emit("cts_joinRequest", payload);
+	console.log("Fredrik är en bajs", payload);
 });
 
 startGameEl.addEventListener("click", ()=> {
@@ -102,10 +104,13 @@ startGameEl.addEventListener("click", ()=> {
 
 virusEl.addEventListener("click", ()=> {
 	// socket emit clicked Virus
-	const payload: Messagedata = {
-		content: "Client clicked virus",
-		timestamp: Date.now()
+	const payload: ReactionTime = {
+		roundstart: 25378,         // timestamp
+		playerclicked: 15378,       // timestamp
+		forfeit: true,
 	}
+	console.log("Clicked Virus! Payload", payload)
+
 	socket.emit("cts_clickedVirus", payload);
 });
 
