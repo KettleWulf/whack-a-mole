@@ -44,7 +44,8 @@ export interface ReactionTime {
 }
 
 export interface RoundResultData {
+	roomId: string,
 	currentRound: number;
-	reactionTimes: number[]; //
-    score: number[]; 
+	reactionTimes: number[];
+    score: number[];
 }
