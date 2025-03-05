@@ -21,6 +21,7 @@ export const handleConnection = (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
 	io: Server<ClientToServerEvents, ServerToClientEvents>
 ) => {
+	addToHighscores({title: "Kalle vs. Hobbe", score: [3,7]});
 	debug("🙋 A user connnected", socket.id);
 
 	// Handle a user disconnecting
@@ -94,7 +95,7 @@ export const handleConnection = (
 	socket.on("cts_startRequest", (roomId, callback)=> {
 		const x = Math.floor(Math.random() * 10) + 1;
 		const y = Math.floor(Math.random() * 10) + 1;
-		const time = Math.floor(Math.random() * 10000) + 1500;
+		const time = (Math.random() * (10 - 1.5) + 1.5) * 1000;
 		const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
 		const randomIndex = Math.floor(Math.random() * moleImages.length);
 
@@ -113,13 +114,14 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_clickedVirus", (payload)=> {
+		socket.to(payload.roomId).emit("stc_sendingTime", false);
 		const finished = false;
 		const forfeit = false;
-		const message: Messagedata = {
-			content: payload.content + " " + Gamerooms[0].score.join(" - "),
-			timestamp: Date.now(),
-		}
-		socket.emit("stc_Message", message);
+		// const message: Messagedata = {
+		// 	content: payload.content + " " + Gamerooms[0].score.join(" - "),
+		// 	timestamp: Date.now(),
+		// }
+		// socket.emit("stc_Message", message);
 		if (finished && !forfeit) {
 			const GameData: NewHighscoreRecord = {
 				title: "Cool title",
@@ -137,7 +139,7 @@ export const handleConnection = (
 		socket.emit("stc_Message", message);
 	});
 
-	socket.on("cts_getHighscores", async (roomid, callback)=> {
+	socket.on("cts_getHighscores", async (roomID, callback)=> {
 		const highscoreCollection = await GetHighscores();
 			callback({...highscoreCollection})
 	});

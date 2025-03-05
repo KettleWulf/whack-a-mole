@@ -1,12 +1,12 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, GameEvolution, Gamelobby, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
+import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
 import Mole3 from "./assets/images/Mole3.png";
 import Mole4 from "./assets/images/Mole4.png";
 import Mole5 from "./assets/images/Mole5.png";
 import "./assets/scss/style.scss";
-import { UserData } from "../../backend/src/types/user_types";
 
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -22,16 +22,23 @@ const lobbyEl = document.querySelector(".loby") as HTMLDivElement;
 const gameBoardEl = document.querySelector("#game-board") as HTMLDivElement;
 const countdownEl = document.querySelector("#countdown-timer") as HTMLDivElement;
 const playersTimerEl = document.querySelector(".players-timer") as HTMLDivElement;
+const playersNamesEl = document.querySelector(".players-name") as HTMLDivElement;
+const playedGamesEl = document.querySelector(".games-data") as HTMLDivElement;
+
+const games: Gamelobby[] = [];
+const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 let playerOneTimer = false;
 let playerTwoTimer = false;
 let gameOn = false;
 let playerOneTimerSec = 0;
 let playerTwoTimerSec = 0;
-let userOne: UserData ;
+let userOne: UserData;
 let userTwo: UserData;
+let timeStamp: number;
+let clickStamp: number;
+let room: string | undefined;
 
 
-const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 
 /**
  * Socket Event Listeners
@@ -41,6 +48,7 @@ const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
+	socket.emit("cts_getHighscores",roomID ,(displayPlayedGames));
 });
 
 // Listen for when server got tired of us
@@ -70,7 +78,7 @@ const startgameCallback = (response: Startgame) => {
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
             const gridEl = document.createElement("div");
-			gridEl.classList.add("test");
+			// gridEl.classList.add("test");
             gridEl.dataset.coords = `${i}-${j}`;
             gridContainer.appendChild(gridEl);
         }
@@ -78,6 +86,12 @@ const startgameCallback = (response: Startgame) => {
 
 	lobbyEl.classList.add("hide");
 	gameBoardEl.classList.remove("hide");
+
+	playersNamesEl.innerHTML = `
+			<div>${userOne.username}</div>
+			<div>vs</div>
+			<div>${userTwo.username}</div>
+		`;
 
 	if (countdownEl) {
 		countdownEl.classList.remove("hide");
@@ -97,7 +111,13 @@ const startgameCallback = (response: Startgame) => {
 	}
 
     setTimeout(() => {
+		timeStamp = Date.now();
 		countdownEl.classList.add("hide");
+		playersNamesEl.innerHTML = `
+			<div>${userOne.username}</div>
+			<div>vs</div>
+			<div>${userTwo.username}</div>
+		`;
 		playerOneTimer = true;
 		playerTwoTimer = true;
 		gameOn = true;
@@ -121,18 +141,18 @@ const startgameCallback = (response: Startgame) => {
 			const moleElement = document.querySelector(`[data-coords="${response.position}"]`);
 
 			if (target === moleElement) {
-				if(userOne.id === socket.id) {
-					console.log("Du klickade på mullvaden!");
-					playerOneTimer = false;
-				}
-				if(userTwo.id === socket.id){
-					console.log("Du klickade på mullvaden!");
-					playerTwoTimer = false;
-				}
 
-			} else {
-				console.log("Miss! Klicka på mullvaden.");
-			}
+				clickStamp = Date.now();
+				const payload: GameEvolution = {
+					start: timeStamp,
+					cliked: clickStamp,
+					forfeit: false,
+					roomId: room || "room"
+				}
+				socket.emit("cts_clickedVirus", payload);
+				playerOneTimer = false;
+			};
+
 		});
     }, response.startDelay);
 };
@@ -142,9 +162,14 @@ socket.on('stc_GameroomReadyMessage', (message) => {
 	console.log("This is it:",message);
 	userOne = message.users[0];
 	userTwo = message.users[1];
+	games.push(message);
+	console.log("Updated games array:", games);
+
 	if(roomId) {
 		socket.emit("cts_startRequest", roomId, (startgameCallback))
+		room = message.room.id;
 	}
+
 });
 
 const gameTimer = () => {
@@ -154,15 +179,31 @@ const gameTimer = () => {
 	const timerInterval = setInterval(() => {
 		if (gameOn) {
 			if (playerOneTimer) {
-				playerOneTimerSec += 0.1;
+				playerOneTimerSec += 0.01;
 			}
 			if (playerTwoTimer) {
-				playerTwoTimerSec += 0.1;
+				playerTwoTimerSec += 0.01;
 			}
-			playersTimerEl.innerText = `Player 1: ${playerOneTimerSec.toFixed(3)} sec, Player 2: ${playerTwoTimerSec.toFixed(3)} sec`;
+			playersTimerEl.innerHTML = `
+				<span class="span">${playerOneTimerSec.toFixed(3)}</span>
+				<span class="span">${playerTwoTimerSec.toFixed(3)}</span>
+			`;
 		} else {
 			clearInterval(timerInterval);
 		}
-	}, 100);
+	}, 10);
 };
 
+socket.on("stc_sendingTime", (playerclicked) => {
+	playerTwoTimer = playerclicked;
+	console.log("Kom detta igenom", playerTwoTimer);
+});
+
+const displayPlayedGames = () => {
+	// ongoingGamesEl.innerHTML = "";
+	playedGamesEl.innerHTML = games.map(game => {
+	return `
+	<div>${game.users.map(user => user.username).join(' vs ')} ${game.room.score}</div>
+	`
+	}).join('');
+  };

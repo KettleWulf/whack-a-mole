@@ -249,9 +249,32 @@ h5 {
 	box-shadow: 0 0 40px rgb(71, 27, 27), 0 0 80px rgb(71, 27, 27);
 }
 
-.players-timer {
+.players-name {
 	font-size: 2rem;
 	color: greenyellow;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	gap: 1em;
+}
+
+.players-timer {
+	font-size: 1rem;
+	color: greenyellow;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	gap: 6em;
+	width: 560px;
+	border: 2px solid red;
+	padding: 4em;
+}
+
+.span {
+	width: 45%;
+	padding: 2em;
 }
 
 .hide {
