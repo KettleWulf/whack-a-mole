@@ -12,6 +12,7 @@ import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { NewHighscoreRecord } from "../types/highscore.types";
 import prisma from "../prisma";
+import { createGameData } from "../services/gamedata_service";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -55,6 +56,18 @@ export const handleConnection = (
 			}
 			await createUser(userdata);
 		}
+
+		if (!createRoom) {
+			debug("Failed to retrieve created room from DB");
+		}
+		
+		// kalla på funktion för delay och startposition
+		const data = generateRoundData(createRoom.id);
+		
+		// skapa gameData
+		await createGameData(data)
+
+
 		await updateUserRoomId(socket.id, createRoom.id);
 		socket.join(createRoom.id);
 		const message: Messagedata = {
@@ -92,6 +105,10 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_startRequest", (roomId, callback)=> {
+
+		
+		// prismafindgameroomdata
+		// where id = gameroom.id
 
 		callback({
 			position: "3-6",
@@ -312,9 +329,26 @@ export const handleConnection = (
 
 }
 const finishedGame = async (roomId: string, forfeit: boolean, gameData: FinishedGameData | null)=> {
-	await deleteRoomById(roomId);
+	// await deleteRoomById(roomId);
 	if (!forfeit && gameData) {
 		const addFinishedGame = await addToHighscores(gameData);
 		return addFinishedGame;
 	}
 }
+
+const generateRoundData = (roomId: string) => {
+	const x = Math.floor(Math.random() * 10) + 1;
+	const y = Math.floor(Math.random() * 10) + 1;
+	const startDelay = Math.floor(Math.random() * 10000) + 1500;
+	const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
+	const randomImage = Math.floor(Math.random() * moleImages.length);
+
+	debug("Found ya mole! x: %s, y: %s", x, y);
+
+	return {
+		id: roomId,
+		coordinates: `${x}-${y}`,
+		startDelay,
+		randomImage,
+	};
+};

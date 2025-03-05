@@ -1,11 +1,11 @@
 import prisma from "../prisma"
 import { Gameroom } from "../types/gameroom_type";
 
-/*
+
 export const deleterooms = async () => {
     return prisma.gameroom.deleteMany({});
 }
-*/
+
 
 export const findPendingGameroom = async () => {
     return prisma.gameroom.findMany({
