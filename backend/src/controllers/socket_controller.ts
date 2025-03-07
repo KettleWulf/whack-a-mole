@@ -12,7 +12,7 @@ import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { NewHighscoreRecord } from "../types/highscore.types";
 import prisma from "../prisma";
-import { createGameData, getGameData } from "../services/gamedata_service";
+import { createGameData, createOrUpdateGameData, getGameData } from "../services/gamedata_service";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -57,18 +57,6 @@ export const handleConnection = (
 			await createUser(userdata);
 		}
 
-		if (!createRoom) {
-			debug("Failed to retrieve created room from DB");
-			return;
-		}
-		
-		// Generate GameData
-		const data = generateGameData(createRoom.id);
-		
-		// Create GameData in DB
-		await createGameData(data)
-
-
 		await updateUserRoomId(socket.id, createRoom.id);
 		socket.join(createRoom.id);
 		const message: Messagedata = {
@@ -106,15 +94,27 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_startRequest", async (roomId, callback)=> {
+		// Generate new gameData
+		const data = generateGameData(roomId);
+		
+		// Deconstruct data (in case we update instead of create)
+		const { id, ...updateData } = data;
+		
+		// Update if it exists, if not create it
+		await createOrUpdateGameData(id, updateData, data);
 
+		// Get new, fresh gamedata from DB
 		const gameData = await getGameData(roomId)
 
+		// Check if we made a boo-boo
 		if(!gameData) {
 			debug("Couldn't find GameData in relation to roomId: %s", roomId);
 			return;
 		}
 
+		// Send it with the callback
 		callback(gameData)
+
 		const payload: Messagedata = {
 			content: "Game is starting",
 			timestamp: Date.now()
@@ -236,7 +236,7 @@ export const handleConnection = (
 			}
 		});
 
-		debug("getUserReactions length: %s", getUserReactions.length)
+		debug("getUserReactions length: %s", getUserReactions.length);
 
 		// Determine if both users has a registered reactiontime, otherwise bail
 		if (getUserReactions.length !== 2) return;
@@ -340,7 +340,7 @@ const finishedGame = async (roomId: string, forfeit: boolean, gameData: Finished
 const generateGameData = (roomId: string) => {
 	const x = Math.floor(Math.random() * 10) + 1;
 	const y = Math.floor(Math.random() * 10) + 1;
-	const startDelay = Math.floor(Math.random() * 10000) + 1500;
+	const startDelay = (Math.random() * (10 - 1.5) + 1.5) * 1000;
 	const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
 	const randomImage = Math.floor(Math.random() * moleImages.length);
 

@@ -1,9 +1,20 @@
 import { GameData } from "@prisma/client";
 import prisma from "../prisma";
+import { StartGameData } from "../types/gamedata_types";
 
+
+// Not needed anymore?
 export const createGameData = (data: GameData) => {
     return prisma.gameData.create({
         data, 
+    });
+}
+
+export const createOrUpdateGameData = (id: string, updateData: StartGameData, data: GameData) => {
+    return prisma.gameData.upsert({
+        where: { id },
+        update: updateData,
+        create: data,
     });
 }
 
@@ -19,3 +30,4 @@ export const getGameData = (roomId: string) => {
         }
     });
 }
+

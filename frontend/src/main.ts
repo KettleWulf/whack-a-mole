@@ -4,9 +4,9 @@ import {
 	Messagedata,
 	ReactionTime,
 	ServerToClientEvents,
-	Startgame,
 } from "@shared/types/SocketEvents.types";
 import "./assets/scss/style.scss";
+import { StartGameData } from "../../backend/src/types/gamedata_types";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -66,7 +66,7 @@ socket.on("stc_roundUpdate", (payload) => {
 	socket.emit("cts_startRequest", roomId, startgameCallback);
 })
 
-const startgameCallback = (response: Startgame) => {
+const startgameCallback = (response: StartGameData) => {
 	for (let i = 1; i <= 10; i++) {
 		for (let j = 1; j <= 10; j++) {
 			const gridEl = document.createElement("div");
@@ -76,7 +76,7 @@ const startgameCallback = (response: Startgame) => {
 		}
 
 	}
-		const virusEl = document.querySelector(`[data-coords="${response.position}"]`)!;
+		const virusEl = document.querySelector(`[data-coords="${response.position}"]`)!; c
 		virusEl.textContent = "IM VIRUS!!"
 	setTimeout(() => {
 		infoEl.innerHTML += `<p> Virus is on positiion ${response.position} after delay: ${response.startDelay}</p>`
@@ -94,7 +94,7 @@ usernameEl.addEventListener("click", ()=> {
 		timestamp: Date.now()
 	}
 	socket.emit("cts_joinRequest", payload);
-	console.log("Fredrik är en bajs", payload);
+	
 });
 
 startGameEl.addEventListener("click", ()=> {
@@ -107,7 +107,7 @@ virusEl.addEventListener("click", ()=> {
 	const payload: ReactionTime = {
 		roundstart: 25378,         // timestamp
 		playerclicked: 15378,       // timestamp
-		forfeit: true,
+		forfeit: false,
 	}
 	console.log("Clicked Virus! Payload", payload)
 
