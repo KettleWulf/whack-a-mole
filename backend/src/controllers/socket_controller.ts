@@ -141,7 +141,7 @@ export const handleConnection = (
 
 	socket.on("cts_getHighscores", async (roomID, callback)=> {
 		const highscoreCollection = await GetHighscores();
-			callback({...highscoreCollection})
+			callback(highscoreCollection);
 	});
 
 };

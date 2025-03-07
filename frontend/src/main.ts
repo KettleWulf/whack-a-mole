@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, GameEvolution, Gamelobby, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, GameEvaluation, Gamelobby, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -7,6 +7,7 @@ import Mole3 from "./assets/images/Mole3.png";
 import Mole4 from "./assets/images/Mole4.png";
 import Mole5 from "./assets/images/Mole5.png";
 import "./assets/scss/style.scss";
+import { NewHighscoreRecord } from "../../backend/src/types/highscore.types";
 
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -21,9 +22,13 @@ const playerNameEl = document.querySelector("#playername") as HTMLInputElement;
 const lobbyEl = document.querySelector(".loby") as HTMLDivElement;
 const gameBoardEl = document.querySelector("#game-board") as HTMLDivElement;
 const countdownEl = document.querySelector("#countdown-timer") as HTMLDivElement;
-const playersTimerEl = document.querySelector(".players-timer") as HTMLDivElement;
-const playersNamesEl = document.querySelector(".players-name") as HTMLDivElement;
+const playerOneTimerEl = document.querySelector("#players-timer1") as HTMLDivElement;
+const playerTwoTimerEl = document.querySelector("#players-timer2") as HTMLDivElement;
+const playersOneEl = document.querySelector("#players-name1") as HTMLDivElement;
+const playersTwoEl = document.querySelector("#players-name2") as HTMLDivElement;
 const playedGamesEl = document.querySelector(".games-data") as HTMLDivElement;
+const ongoingGamesEl = document.querySelector(".ongoing-games-data") as HTMLDivElement;
+const backtolobbyEl = document.querySelector(".backtolobby") as HTMLButtonElement;
 
 const games: Gamelobby[] = [];
 const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
@@ -48,7 +53,7 @@ let room: string | undefined;
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
-	socket.emit("cts_getHighscores",roomID ,(displayPlayedGames));
+	socket.emit("cts_getHighscores", "room" ,(displayPlayedGames));
 });
 
 // Listen for when server got tired of us
@@ -68,7 +73,7 @@ playerFormEl.addEventListener("submit", (event) => {
 
     if (playerName) {
         socket.emit("cts_joinRequest", { content: playerName });
-        console.log("📨 Sent join request:", { playerName, id: socket.id });
+        console.log("Sent join request:", { playerName, id: socket.id });
     } else {
         alert("Please enter a player name!");
     }
@@ -87,11 +92,8 @@ const startgameCallback = (response: Startgame) => {
 	lobbyEl.classList.add("hide");
 	gameBoardEl.classList.remove("hide");
 
-	playersNamesEl.innerHTML = `
-			<div>${userOne.username}</div>
-			<div>vs</div>
-			<div>${userTwo.username}</div>
-		`;
+	playersOneEl.textContent = `${userOne.username}`;
+	playersTwoEl.textContent = `${userTwo.username}`;
 
 	if (countdownEl) {
 		countdownEl.classList.remove("hide");
@@ -113,11 +115,7 @@ const startgameCallback = (response: Startgame) => {
     setTimeout(() => {
 		timeStamp = Date.now();
 		countdownEl.classList.add("hide");
-		playersNamesEl.innerHTML = `
-			<div>${userOne.username}</div>
-			<div>vs</div>
-			<div>${userTwo.username}</div>
-		`;
+
 		playerOneTimer = true;
 		playerTwoTimer = true;
 		gameOn = true;
@@ -143,7 +141,7 @@ const startgameCallback = (response: Startgame) => {
 			if (target === moleElement) {
 
 				clickStamp = Date.now();
-				const payload: GameEvolution = {
+				const payload: GameEvaluation = {
 					start: timeStamp,
 					cliked: clickStamp,
 					forfeit: false,
@@ -164,6 +162,7 @@ socket.on('stc_GameroomReadyMessage', (message) => {
 	userTwo = message.users[1];
 	games.push(message);
 	console.log("Updated games array:", games);
+	displayOngoingGames();
 
 	if(roomId) {
 		socket.emit("cts_startRequest", roomId, (startgameCallback))
@@ -184,10 +183,9 @@ const gameTimer = () => {
 			if (playerTwoTimer) {
 				playerTwoTimerSec += 0.01;
 			}
-			playersTimerEl.innerHTML = `
-				<span class="span">${playerOneTimerSec.toFixed(3)}</span>
-				<span class="span">${playerTwoTimerSec.toFixed(3)}</span>
-			`;
+			playerOneTimerEl.innerText = `${playerOneTimerSec.toFixed(2)}`;
+			playerTwoTimerEl.innerText = `${playerTwoTimerSec.toFixed(2)}`;
+
 		} else {
 			clearInterval(timerInterval);
 		}
@@ -199,11 +197,32 @@ socket.on("stc_sendingTime", (playerclicked) => {
 	console.log("Kom detta igenom", playerTwoTimer);
 });
 
-const displayPlayedGames = () => {
-	// ongoingGamesEl.innerHTML = "";
-	playedGamesEl.innerHTML = games.map(game => {
+const displayPlayedGames = (response: NewHighscoreRecord[]) => {
+	playedGamesEl.innerHTML = "";
+	console.log("Funktion startat")
+	console.log("Detta är games", response)
+	playedGamesEl.innerHTML = response.map(game => {
 	return `
-	<div>${game.users.map(user => user.username).join(' vs ')} ${game.room.score}</div>
+	<div>${game.title} ${game.score}</div>
+	`
+	}).join('');
+  };
+
+  const backToLobby = () => {
+	lobbyEl.classList.remove("hide");
+	gameBoardEl.classList.add("hide");
+  }
+
+  backtolobbyEl.addEventListener("click", () => {
+	backToLobby();
+  });
+
+  const displayOngoingGames = () => {
+	ongoingGamesEl.innerHTML = "";
+	console.log("Funktion startat")
+	ongoingGamesEl.innerHTML = games.map(game => {
+	return `
+	<div>${game.users[0]} ${game.room.score}</div>
 	`
 	}).join('');
   };

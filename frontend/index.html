@@ -15,7 +15,7 @@
 			<h1>Wellcome to a FOO creation!!</h1>
             <div id="sektion1">
                 <div class="game-logo">
-					<img src="./src/FrontImage1.jpeg" alt="Picture of a Mole" class="logo-image">
+					<img src="/Images/FrontImage1.jpeg" alt="Picture of a Mole" class="logo-image">
 				</div>
                 <div class="player-wrapper">
                     <form id="player-form">
@@ -37,48 +37,42 @@
                 </div>
                 <div class="ongoing-games">
                     <h5>Ongoing Games</h5>
-                    <div class="ongoing-games-data">
-						<p>Fredrik vs Oki 1-9</p>
-						<p>Fredrik vs Olle 2-8</p>
-						<p>Fredrik vs Oki 10-0</p>
-						<p>Fredrik vs Olle 7-3</p>
-						<p>Fredrik vs Oki 6-4</p>
-						<p>Fredrik vs Olle 5-5</p>
-						<p>Fredrik vs Oki 3-7</p>
-						<p>Fredrik vs Olle 2-8</p>
-						<p>Fredrik vs Oki 9-1</p>
-						<p>Fredrik vs Olle 8-2</p>
-					</div>
+                    <div class="ongoing-games-data"></div>
                 </div>
                 <div class="games">
                     <h5>The last 10 Games</h5>
-                    <div class="games-data">
-						<p>Fredrik vs Oki 1-9</p>
-						<p>Fredrik vs Olle 2-8</p>
-						<p>Fredrik vs Oki 10-0</p>
-						<p>Fredrik vs Olle 7-3</p>
-						<p>Fredrik vs Oki 6-4</p>
-						<p>Fredrik vs Olle 5-5</p>
-						<p>Fredrik vs Oki 3-7</p>
-						<p>Fredrik vs Olle 2-8</p>
-						<p>Fredrik vs Oki 9-1</p>
-						<p>Fredrik vs Olle 8-2</p>
-					</div>
+                    <div class="games-data"></div>
                 </div>
             </div>
         </div>
 		<div id="game-board" class="game-board hide">
 			<div class="game-field">
+				<button class="backtolobby">Loby</button>
 				<div id="countdown-timer" class="hide"></div>
 				<div class="grid-container"></div>
 			</div>
 			<div class="game-info">
-				<div class="round"></div>
-				<div class="player-info">
-					<div class="players-name"></div>
-					<div class="players-timer"></div>
+				<div class="round-wrapper">
+					<div class="round">Round</div>
+					<div class="round-data">10</div>
 				</div>
-				<div class="score"></div>
+				<div class="player-info">
+					<div class="playersInGame">
+						<div class="players-name1-wraper">
+							<div id="players-name1" class="players-names"></div>
+							<div id="players-timer1" class="players-timers"></div>
+						</div>
+						<p class="vs">vs</p>
+						<div class="players-name2-wraper">
+							<div id="players-name2" class="players-names"></div>
+							<div id="players-timer2" class="players-timers"></div>
+						</div>
+					</div>
+				</div>
+				<div class="scores-wrapper">
+					<div class="score">Score</div>
+					<div class="score-data">10-1</div>
+				</div>
 			</div>
 		</div>
     </main>

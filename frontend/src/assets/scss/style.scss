@@ -20,6 +20,8 @@ h1 {
     display: block;
     text-shadow: 0px 5px 5px rgba(0, 0, 0, 0.5);
     transform: perspective(300px) rotateX(15deg);
+	margin-top: 1em;
+	margin-bottom: 1em;
 }
 
 h5 {
@@ -56,7 +58,7 @@ h5 {
 	box-shadow: 0 0 20px greenyellow, 0 0 40px greenyellow;
 	padding: 2em;
 	width: 80%;
-	background: url('../images/Grass2.jpg') no-repeat center/cover;
+	background: url('/Images/Grass2.jpg') no-repeat center/cover;
 }
 
 #player-form {
@@ -88,9 +90,8 @@ h5 {
 	border-radius: 10px;
 	box-shadow: 0 0 15px darkgreen, 0 0 30px darkgreen;
 	text-align: center;
-	padding: 0.2em;
-	width: 230px;
-	height: 50px;
+	padding: 0.7em;
+	width: 100%;
 }
 
 .playerBtn {
@@ -119,6 +120,7 @@ h5 {
 
 #sektion2 {
     padding: 0.3em;
+	margin-top: 3em;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -180,7 +182,7 @@ h5 {
 .game-field {
     width: 95%;
     height: 80%;
-    background: url('../images/Grass2.jpg') no-repeat center/cover;
+    background: url('/Images/Grass2.jpg') no-repeat center/cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -237,7 +239,7 @@ h5 {
 .game-info {
 	width: 95%;
     height: 20%;
-    background: url('../images/UndergroundBackground.png') no-repeat center/cover;
+    background: url('/Images/UndergroundBackground.png') no-repeat center/cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -247,10 +249,38 @@ h5 {
 	border-top: none;
 	border-radius: 0px 0px 20px 20px;
 	box-shadow: 0 0 40px rgb(71, 27, 27), 0 0 80px rgb(71, 27, 27);
+	gap: 2em;
+	position: relative;
 }
 
-.players-name {
-	font-size: 2rem;
+.round-wrapper {
+	position: absolute;
+    top: 0.2em;
+    left: 0.5em;
+}
+
+.round {
+	font-size: 1rem;
+	color: greenyellow;
+}
+
+.round-data {
+	font-size: 1rem;
+	color: greenyellow;
+	text-align: center;
+	margin-top: -0.5em;
+}
+
+.playersInGame {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 2em;
+	margin-top: 2em;
+}
+
+.players-names {
+	font-size: 1.3rem;
 	color: greenyellow;
 	text-align: center;
 	display: flex;
@@ -259,22 +289,51 @@ h5 {
 	gap: 1em;
 }
 
-.players-timer {
-	font-size: 1rem;
+.vs {
+	font-size: 1.3rem;
 	color: greenyellow;
+	text-align: center;
+	margin-top: 0.9em;
+}
+
+.players-timers {
+	font-size: 1rem;
+	color: red;
 	text-align: center;
 	display: flex;
 	justify-content: center;
 	align-content: center;
-	gap: 6em;
-	width: 560px;
-	border: 2px solid red;
-	padding: 4em;
+	min-width: 80px;
 }
 
-.span {
-	width: 45%;
-	padding: 2em;
+.scores-wrapper {
+	position: absolute;
+    top: 0.2em;
+    right: 0.5em;
+}
+
+.score {
+	font-size: 1rem;
+	color: greenyellow;
+	text-align: center;
+}
+
+.score-data {
+	font-size: 1rem;
+	color: greenyellow;
+	text-align: center;
+	margin-top: -0.5em;
+}
+
+.backtolobby {
+	text-align: center;
+	color: white;
+	border: 2px solid darkgreen;
+	box-shadow: 0 0 15px darkgreen, 0 0 30px darkgreen;
+	background-color: red;
+	width: 90px;
+    height: 90px;
+    border-radius: 50%;
 }
 
 .hide {
@@ -293,13 +352,6 @@ h5 {
 
 	.input-label {
 		font-size: 1.3rem;
-	}
-
-	.input-field {
-		border: 2px solid green;
-		box-shadow: 0 0 20px greenyellow, 0 0 40px greenyellow;
-		width: 280px;
-		height: 50px;
 	}
 
 	.mole {
@@ -328,22 +380,56 @@ h5 {
 	.highscores {
 		width: 80%;
 	}
+
+	.round {
+		font-size: 1.3rem;
+	}
+
+	.round-data {
+		font-size: 1.3rem;
+	}
+
+	.playersInGame {
+		gap: 3em;
+		margin-top: 0;
+	}
+
+	.players-names {
+		font-size: 1.8rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 1.8rem;
+		margin-top: 0.6em;
+	}
+
+	.players-timers {
+		font-size: 1.1rem;
+	}
+
+	.score {
+		font-size: 1.3rem;
+	}
+
+	.score-data {
+		font-size: 1.3rem;
+	}
 }
 
 @media all and (min-width: 860px) {
 
 	.game-logo {
-		width: 70%;
+		width: 55%;
 		height: 25%;
 	}
 
 	.player-wrapper {
-		width: 30%;
+		width: 35%;
 	}
 
 	.input-field {
 		width: 100%;
-		padding: 1.5em;
 	}
 
 	.playerBtn:hover {
@@ -370,19 +456,70 @@ h5 {
 		width: 98%;
 		display: flex;
 		flex-direction: row;
-		gap: 3em;
+		gap: 0.5em;
+		padding: 1em;
 	}
 
 	.highscores {
-		width: 40%;
+		width: 100%;
+		display: flex;
+		text-align: center;
+	}
+
+	.games-scores {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.ongoing-games-data {
-		width: 40%;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		text-align: center;
 	}
 
 	.games-data {
-		width: 40%;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		text-align: center;
+	}
+
+	.round {
+		font-size: 1.5rem;
+	}
+
+	.round-data {
+		font-size: 1.5rem;
+	}
+
+	.playersInGame {
+		gap: 3.5em;
+	}
+
+	.players-names {
+		font-size: 2.4rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 2rem;
+		margin-top: 0.4em;
+	}
+
+	.players-timers {
+		font-size: 1.3rem;
+	}
+
+	.score {
+		font-size: 1.5rem;
+	}
+
+	.score-data {
+		font-size: 1.5rem;
 	}
 
 	.hide {
@@ -427,6 +564,40 @@ h5 {
 	.games-data {
 		width: 100%;
 		padding: 1em;
+	}
+
+	.round {
+		font-size: 1.7rem;
+	}
+
+	.round-data {
+		font-size: 1.7rem;
+	}
+
+	.playersInGame {
+		gap: 5.5em;
+	}
+
+	.players-names {
+		font-size: 2.6rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 2.3rem;
+		margin-top: 0.4em;
+	}
+
+	.players-timers {
+		font-size: 1.5rem;
+	}
+
+	.score {
+		font-size: 1.7rem;
+	}
+
+	.score-data {
+		font-size: 1.7rem;
 	}
 
 	.hide {
