@@ -119,40 +119,12 @@ h5 {
 }
 
 #sektion2 {
-    padding: 0.3em;
 	margin-top: 3em;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	gap: 3em;
-}
-
-.ongoing-games {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	border: 4px double red;
-	border-radius: 20px;
-	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
-	padding: 0.3em;
-	width: 80%;
-	color: white;
-}
-
-.games {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	border: 4px double red;
-	border-radius: 20px;
-	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
-	padding: 0.3em;
-	width: 80%;
-	color: white;
-	margin-bottom: 1em;
 }
 
 .highscores {
@@ -168,6 +140,38 @@ h5 {
 	color: white;
 }
 
+.games-wrapper {
+	width: 80%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 3em;
+	padding-bottom: 2em;
+}
+
+.ongoing-games, .games {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	border: 4px double red;
+	border-radius: 20px;
+	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
+	padding: 0.3em;
+	width: 100%;
+	min-height: 100%;
+	color: white;
+	padding-bottom: 1em;
+}
+
+.ongoing-games-layout {
+	display: flex;
+	justify-content: center;
+	gap: 1.3em;
+	padding: 0.5em;
+}
+
 .game-board {
     display: flex;
 	flex-direction: column;
@@ -178,6 +182,14 @@ h5 {
     justify-content: center;
 	align-items: center;
   }
+
+.ongoing-games-data {
+	width: 100%;
+}
+
+.games-data {
+	width: 100%;
+}
 
 .game-field {
     width: 95%;
@@ -359,28 +371,6 @@ h5 {
 		width: 100%;
 	}
 
-	.ongoing-games-data {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: center;
-		text-align: center;
-		width: 60%;
-	}
-
-	.games-data {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: center;
-		text-align: center;
-		width: 60%;
-	}
-
-	.highscores {
-		width: 80%;
-	}
-
 	.round {
 		font-size: 1.3rem;
 	}
@@ -452,40 +442,34 @@ h5 {
 		padding: 1.5em;
 	}
 
-	#sektion2 {
-		width: 98%;
+	.highscores {
+		width: 95%;
+	}
+
+	.games-wrapper {
+		width: 95%;
 		display: flex;
 		flex-direction: row;
-		gap: 0.5em;
-		padding: 1em;
+		gap: 3em;
+		align-items: stretch;
 	}
 
-	.highscores {
-		width: 100%;
-		display: flex;
-		text-align: center;
-	}
-
-	.games-scores {
-		width: 100%;
+	.ongoing-games,
+	.games {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		align-items: center;
+		justify-content: stretch;
 	}
 
 	.ongoing-games-data {
-		width: 100%;
+		width: 50%;
 		display: flex;
-		flex-direction: column;
-		text-align: center;
+		flex-wrap: wrap;
 	}
 
 	.games-data {
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		text-align: center;
+		width: 50%;
 	}
 
 	.round {
@@ -534,36 +518,29 @@ h5 {
 	}
 
 	#sektion1 {
-		width: 70%;
-		gap: 4em;
+		width: 100%;
+		gap: 6em;
 	}
 
 	.game-logo {
-		width: 50%;
+		width: 60%;
 		height: 25%;
 	}
 
 	.player-wrapper {
-		width: 50%;
+		width: 25%;
 	}
 
-	#sektion2 {
-		width: 95%;
-		gap: 3em;
-	}
-
-	#sektion2 {
-		padding: 0;
+	.games-wrapper {
+		justify-content: space-between;
 	}
 
 	.ongoing-games-data {
-		width: 100%;
-		padding: 1em;
+		width: 70%;
 	}
 
 	.games-data {
-		width: 100%;
-		padding: 1em;
+		width: 20%;
 	}
 
 	.round {

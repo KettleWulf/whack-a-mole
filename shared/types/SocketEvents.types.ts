@@ -1,4 +1,3 @@
-import { BlobOptions } from "node:buffer";
 import { GameroomData } from "../../backend/src/types/gameroom_types";
 import { NewHighscoreRecord } from "../../backend/src/types/highscore.types";
 import { UserData } from "../../backend/src/types/user_types";

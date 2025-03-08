@@ -26,11 +26,16 @@ const playerOneTimerEl = document.querySelector("#players-timer1") as HTMLDivEle
 const playerTwoTimerEl = document.querySelector("#players-timer2") as HTMLDivElement;
 const playersOneEl = document.querySelector("#players-name1") as HTMLDivElement;
 const playersTwoEl = document.querySelector("#players-name2") as HTMLDivElement;
+// const matchInfoEl = document.querySelector(".match-info") as HTMLDivElement;
+// const playerScoreInfoEl = document.querySelector(".player-score") as HTMLDivElement;
+// const playerTimeReactionEl = document.querySelector(".time-reaction") as HTMLDivElement;
 const playedGamesEl = document.querySelector(".games-data") as HTMLDivElement;
 const ongoingGamesEl = document.querySelector(".ongoing-games-data") as HTMLDivElement;
 const backtolobbyEl = document.querySelector(".backtolobby") as HTMLButtonElement;
 
 const games: Gamelobby[] = [];
+// const playerTime: number[] = [2.34, 4.32, 5.67, 1.23, 2.11, 3.43]
+// const playerScore: [number, number][] = [[2,8], [3,7], [8,2], [10,0], [6,4],[5,5] ];
 const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 let playerOneTimer = false;
 let playerTwoTimer = false;
@@ -42,6 +47,63 @@ let userTwo: UserData;
 let timeStamp: number;
 let clickStamp: number;
 let room: string | undefined;
+
+// const minTime = Math.min(...playerTime);
+// const maxTime = Math.max(...playerTime);
+// let sum = 0;
+// for (let i = 0; i < playerTime.length; i++) {
+//   sum += playerTime[i];
+// }
+// const averageTime = parseFloat((sum / playerTime.length).toFixed(3));
+
+// const wins = playerScore.filter(score => score[0] > score[1]).length;
+// const lost = playerScore.filter(score => score[0] < score[1]).length;
+// const gamePlayed = playerScore.length;
+
+// const findHighestScore = (): void => {
+// 	let highestScore = 0;
+// 	let highestScoreMatch: [number, number] = [0, 0];
+
+// 	for (let i = 0; i < playerScore.length; i++) {
+// 	  if (playerScore[i][0] > highestScore) {
+// 		highestScore = playerScore[i][0];
+// 		highestScoreMatch = playerScore[i];
+// 	  }
+// 	}
+
+// 	const resultDiv = document.getElementById("highestScoreResult");
+// 	if (resultDiv) {
+// 	  resultDiv.innerHTML = highestScore > 0
+// 		? `<strong>Högsta poäng:</strong> ${highestScore} <br>
+// 		   <strong>Match:</strong> Mina poäng - ${highestScoreMatch[0]}, Motståndarens poäng - ${highestScoreMatch[1]}`
+// 		: "Inga matcher spelade.";
+// 	}
+//   };
+
+
+// const findHighestLoss = (): void => {
+// 	let highestLoss = 0;
+// 	let highestLossMatch: [number, number] = [0, 0];
+
+// 	for (let i = 0; i < playerScore.length; i++) {
+// 	  if (playerScore[i][0] < playerScore[i][1]) {
+// 		const loss = playerScore[i][1] - playerScore[i][0];
+// 		if (loss > highestLoss) {
+// 		  highestLoss = loss;
+// 		  highestLossMatch = playerScore[i];
+// 		}
+// 	  }
+// 	}
+// 	const resultDiv = document.getElementById("lossResult");
+// 	if (resultDiv) {
+// 	  resultDiv.innerHTML = highestLoss > 0
+// 		? `<strong>Största förlusten:</strong> Poänggap - ${highestLoss} <br>
+// 		   <strong>Match:</strong> Mina poäng - ${highestLossMatch[0]}, Motståndarens poäng - ${highestLossMatch[1]}`
+// 		: "Inga förluster registrerade.";
+// 	}
+//   };
+
+
 
 
 
@@ -199,14 +261,23 @@ socket.on("stc_sendingTime", (playerclicked) => {
 
 const displayPlayedGames = (response: NewHighscoreRecord[]) => {
 	playedGamesEl.innerHTML = "";
-	console.log("Funktion startat")
-	console.log("Detta är games", response)
-	playedGamesEl.innerHTML = response.map(game => {
-	return `
-	<div>${game.title} ${game.score}</div>
-	`
-	}).join('');
-  };
+	console.log("Funktion startat");
+	console.log("Detta är games", response);
+
+	playedGamesEl.innerHTML = `
+		<div class="games">
+			<h5>Last 10 Games</h5>
+			${response.map(game => {
+				return `
+					<div class="ongoing-games-layout">
+						<div>${game.title}</div>
+						<div>${game.score.join(" - ")}</div>
+					</div>
+				`;
+			}).join('')}
+		</div>
+	`;
+};
 
   const backToLobby = () => {
 	lobbyEl.classList.remove("hide");
@@ -219,10 +290,66 @@ const displayPlayedGames = (response: NewHighscoreRecord[]) => {
 
   const displayOngoingGames = () => {
 	ongoingGamesEl.innerHTML = "";
-	console.log("Funktion startat")
+	console.log("Funktion startat");
+
 	ongoingGamesEl.innerHTML = games.map(game => {
-	return `
-	<div>${game.users[0]} ${game.room.score}</div>
-	`
+		const userNames = game.users.map(user => user.username).join(" vs ");
+		const score = game.room?.score || [0, 0];
+
+		return `
+		<div class="ongoing-games">
+			<h5>Ongoing Games</h5>
+			<div class="ongoing-games-layout">
+				<div>${userNames}</div>
+				<div>${score.join(" - ")}</div>
+			</div>
+		</div>
+		`;
 	}).join('');
-  };
+};
+
+//   const findHighestScore = (): void => {
+// 	let highestScore = 0;
+// 	let highestScoreMatch: [number, number] = [0, 0];
+
+// 	for (let i = 0; i < playerScore.length; i++) {
+// 	  if (playerScore[i][0] > highestScore) {
+// 		highestScore = playerScore[i][0];
+// 		highestScoreMatch = playerScore[i];
+// 	  }
+// 	}
+
+// 	const resultDiv = document.getElementById("highestScoreResult");
+// 	if (resultDiv) {
+// 	  resultDiv.innerHTML = highestScore > 0
+// 		? `<h5>Bästa resultat:</h5>
+// 		   <div>${highestScoreMatch[0]} - ${highestScoreMatch[1]}</div>`
+// 		: "";
+// 	}
+//   };
+
+//   const findHighestLoss = (): void => {
+// 	let highestLoss = 0;
+// 	let highestLossMatch: [number, number] = [0, 0];
+
+// 	for (let i = 0; i < playerScore.length; i++) {
+// 	  if (playerScore[i][0] < playerScore[i][1]) {
+// 		const loss = playerScore[i][1] - playerScore[i][0];
+// 		if (loss > highestLoss) {
+// 		  highestLoss = loss;
+// 		  highestLossMatch = playerScore[i];
+// 		}
+// 	  }
+// 	}
+
+// 	const resultDiv = document.getElementById("lossResult");
+// 	if (resultDiv) {
+// 	  resultDiv.innerHTML = highestLoss > 0
+// 		? `<h5>Sämsta resultat:</h5>
+// 	 	   <div>${highestLossMatch[0]} - ${highestLossMatch[1]}</div>`
+// 		: "";
+// 	}
+//   };
+
+
+// [object Object] 0,0
