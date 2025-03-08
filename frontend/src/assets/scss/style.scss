@@ -28,6 +28,8 @@ h5 {
 	margin-bottom: 0.8em;
 	font-style: italic;
 	padding-top: 0.8em;
+	text-decoration: underline;
+	font-size: 1.5rem;
 }
 
 .test {
@@ -128,16 +130,31 @@ h5 {
 }
 
 .highscores {
+	width: 80%;
+}
+
+.highscores-wrapper {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	border: 4px double red;
 	border-radius: 20px;
-	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
-	padding: 0.3em;
-	width: 80%;
+	box-shadow: 0 0 20px darkred, 0 0 40px darkred;
+	padding: 1em;
+	padding-bottom: 2em;
+	width: 100%;
 	color: white;
+	text-align: center;
+}
+
+.game-stats-wrapper,
+.game-stats,
+.game-stats-highscore,
+.game-stats-reactiontime {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
 }
 
 .games-wrapper {
@@ -157,7 +174,7 @@ h5 {
 	align-items: center;
 	border: 4px double red;
 	border-radius: 20px;
-	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
+	box-shadow: 0 0 20px darkred, 0 0 40px darkred;
 	padding: 0.3em;
 	width: 100%;
 	min-height: 100%;
@@ -202,7 +219,7 @@ h5 {
 	border: 0.5px solid green;
 	border-bottom: none;
 	border-radius: 20px 20px 0px 0px;
-	box-shadow: 0 0 12px greenyellow, 0 0 24px greenyellow;
+	box-shadow: 0 0 20px greenyellow, 0 0 40px greenyellow;
 }
 
 #countdown-timer {
@@ -260,7 +277,7 @@ h5 {
 	border: 0.5px solid rgb(56, 38, 38);
 	border-top: none;
 	border-radius: 0px 0px 20px 20px;
-	box-shadow: 0 0 40px rgb(71, 27, 27), 0 0 80px rgb(71, 27, 27);
+	box-shadow: 0 0 20px rgb(71, 27, 27), 0 0 40px rgb(71, 27, 27);
 	gap: 2em;
 	position: relative;
 }
@@ -343,9 +360,11 @@ h5 {
 	border: 2px solid darkgreen;
 	box-shadow: 0 0 15px darkgreen, 0 0 30px darkgreen;
 	background-color: red;
-	width: 90px;
-    height: 90px;
+	width: 60px;
+    height: 60px;
     border-radius: 50%;
+	margin-top: 2em;
+	margin-left: 1em;
 }
 
 .hide {
@@ -356,6 +375,10 @@ h5 {
 
 	h1 {
 		font-size: 3.5rem;
+	}
+
+	h5 {
+		font-size: 2rem;
 	}
 
 	.player-wrapper {
@@ -369,6 +392,16 @@ h5 {
 	.mole {
 		height: 100%;
 		width: 100%;
+	}
+
+	.game-stats,
+	.game-stats-highscore,
+	.game-stats-reactiontime {
+		font-size: 1.2rem;
+	}
+
+	.ongoing-games-layout {
+		font-size: 1.2rem;
 	}
 
 	.round {
@@ -446,6 +479,14 @@ h5 {
 		width: 95%;
 	}
 
+	.game-stats-wrapper {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		gap: 6em;
+	}
+
 	.games-wrapper {
 		width: 95%;
 		display: flex;
@@ -517,6 +558,10 @@ h5 {
 		align-items: center;
 	}
 
+	h5 {
+		font-size: 2.3rem;
+	}
+
 	#sektion1 {
 		width: 100%;
 		gap: 6em;
@@ -531,6 +576,16 @@ h5 {
 		width: 25%;
 	}
 
+	.game-stats,
+	.game-stats-highscore,
+	.game-stats-reactiontime {
+		font-size: 1.6rem;
+	}
+
+	.game-stats-wrapper {
+		gap: 5em;
+	}
+
 	.games-wrapper {
 		justify-content: space-between;
 	}
@@ -540,7 +595,11 @@ h5 {
 	}
 
 	.games-data {
-		width: 20%;
+		width: 30%;
+	}
+
+	.ongoing-games-layout {
+		font-size: 1.6rem;
 	}
 
 	.round {
