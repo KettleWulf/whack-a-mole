@@ -29,6 +29,41 @@ export const updateUserRoomId = async (id: string, roomId: string) => {
         }
     })
 }
+
+export const updateUserReactionTime = (userId: string, reactionTime: number) => {
+    return prisma.user.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            reactionTime,
+        }
+    });
+}
+
+export const getUsersReactionTimes = (roomId: string) => {
+    return prisma.user.findMany({
+        where: {
+            roomId: roomId,
+            reactionTime: {
+                not: null,
+            }
+        }
+    });
+}
+
+export const resetReactionTimes = (roomId: string) => {
+    return prisma.user.updateMany({
+        where: {
+            roomId: roomId
+        },
+        data: {
+            reactionTime: null
+        }
+    });
+
+}
+
 export const getUsersByRoomId = async (roomId: string) =>{
     return prisma.user.findMany({
         where: {

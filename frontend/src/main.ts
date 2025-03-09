@@ -105,8 +105,8 @@ startGameEl.addEventListener("click", ()=> {
 virusEl.addEventListener("click", ()=> {
 	// socket emit clicked Virus
 	const payload: ReactionTime = {
-		roundstart: 25378,         // timestamp
-		playerclicked: 15378,       // timestamp
+		roundstart: 15378,         // timestamp
+		playerclicked: 25378,       // timestamp
 		forfeit: false,
 	}
 	console.log("Clicked Virus! Payload", payload)

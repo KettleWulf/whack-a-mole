@@ -47,7 +47,7 @@ export const deleteRoomById = async(roomId: string)=> {
     })
 }
 
-export const getGameRoomByUserId = (userId: string) => {
+export const getGameRoomAndUsers = (userId: string) => {
     return prisma.gameroom.findFirst({
         where: {
             users: {
@@ -59,3 +59,14 @@ export const getGameRoomByUserId = (userId: string) => {
         }
     });
 };
+
+export const updateGameRoomScore = (roomId: string, score: number[]) => {
+    return prisma.gameroom.update({
+        where: {
+            id: roomId,
+        },
+        data: {
+            score,
+        }
+    });
+}

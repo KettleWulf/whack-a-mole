@@ -5,9 +5,9 @@ import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
-import { createGameroom, deleteRoomById, findPendingGameroom, getGameRoomByUserId } from "../services/gameroom_service";
+import { createGameroom, deleteRoomById, findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service";
 import { User } from "@prisma/client";
-import { createUser, findUserById, getOpponent, getUsersByRoomId, updateUserRoomId } from "../services/user_service";
+import { createUser, findUserById, getOpponent, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { NewHighscoreRecord } from "../types/highscore.types";
@@ -127,7 +127,7 @@ export const handleConnection = (
 
 
 		// Get gameroom, including users[] from DB
-		const gameRoom = await getGameRoomByUserId(socket.id);
+		const gameRoom = await getGameRoomAndUsers(socket.id);
 		
 		if(!gameRoom) {
 			debug("GameRoom not found!");
@@ -147,33 +147,18 @@ export const handleConnection = (
 		debug("Players reaction time: %s", reactionTime)
 
 		// Upload reactiontime to user
-		await prisma.user.update({
-			where: {
-				id: socket.id,
-			},
-			data: {
-				reactionTime,
-			}
-		});
+		await updateUserReactionTime(socket.id, reactionTime);
 
 		// Check if both players has an uploaded reactiontime using roomId
-		const getUserReactions = await prisma.user.findMany({
-			where: {
-				roomId: gameRoom.id,
-				reactionTime: {
-					not: null,
-				}
-			}
-		});
+		const userReactionTimes = await getUsersReactionTimes(gameRoom.id)
 
-		debug("getUserReactions length: %s", getUserReactions.length);
+		debug("userReactions length: %s", userReactionTimes.length);
 
 		// Determine if both users has a registered reactiontime, otherwise bail
-		if (getUserReactions.length !== 2) return;
+		if (userReactionTimes.length !== 2) return;
 
-
-		// If both players have a reaction time, determine winner
-		const [player1, player2] = getUserReactions;
+		// Deconstruct players from gameRoom (they SHOULD be in order)
+		const [player1, player2] = gameRoom.users;
 
 		if (!player1.reactionTime || !player2.reactionTime) {
 			debug("One or both reactionTimes are null. Player one: %o Player two: %o", player1, player2);
@@ -187,14 +172,8 @@ export const handleConnection = (
 		debug("And the winner is: %o", winner);
 
 		// As winner is determined, reset reactionTime on both users
-		await prisma.user.updateMany({
-			where: {
-				roomId: gameRoom.id
-			},
-			data: {
-				reactionTime: null
-			}
-		});
+		await resetReactionTimes(gameRoom.id);
+		debug("userReactions length after reset: %s", userReactionTimes.length);
 
 		// Create array to update and replace array in DB - (manipulating arrays in DB not possible using prisma?)
 		const updatedScore = [...gameRoom.score]
@@ -225,14 +204,7 @@ export const handleConnection = (
 		}
 
 		// Update GameRoom in DB with new score
-		await prisma.gameroom.update({
-			where: {
-				id: gameRoom.id,
-			},
-			data: {
-				score: updatedScore,
-			}
-		});
+		await updateGameRoomScore(gameRoom.id, updatedScore);
 
 		// emit shit to start next round?
 		 const RoundResultData: RoundResultData = {
@@ -284,10 +256,9 @@ const generateGameData = (roomId: string) => {
 
 const handlePlayerForfeit = async (userId: string) => {
 
-	// if (payload.forfeit === true) {
 		debug("Player %s forfeited the game", userId);
 
-		const gameRoom = await getGameRoomByUserId(userId);
+		const gameRoom = await getGameRoomAndUsers(userId);
 		if(!gameRoom) {
 			debug("GameRoom not found!");
 			return;
@@ -307,14 +278,7 @@ const handlePlayerForfeit = async (userId: string) => {
 			: updatedScore[1]++;
 
 		// Update GameRoom in DB with new score
-		await prisma.gameroom.update({
-			where: {
-				id: gameRoom.id,
-			},
-			data: {
-				score: updatedScore,
-			}
-		});
+		await updateGameRoomScore(gameRoom.id, updatedScore);
 
 		// Get usernames to include in title
 		const [player1, player2] = gameRoom.users;
