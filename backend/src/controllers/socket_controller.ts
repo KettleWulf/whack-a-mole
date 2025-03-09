@@ -5,7 +5,7 @@ import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
-import { createGameroom, deleteRoomById, findPendingGameroom, getGameroomsUsers } from "../services/gameroom_service";
+import { createGameroom, deleteRoomById, findPendingGameroom, getGameRoomByUserId } from "../services/gameroom_service";
 import { User } from "@prisma/client";
 import { createUser, findUserById, getOpponent, getUsersByRoomId, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
@@ -125,31 +125,15 @@ export const handleConnection = (
 	socket.on("cts_clickedVirus", async (payload)=> {
 		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
 
-		// Get user who clicked
-		const user = await prisma.user.findUnique({
-			where: {
-				id: socket.id
-			},
-			select: {
-				roomId: true
-			},
-		});
-
-
-		if (!user) {
-			debug("Couldn't find user or corresponding gameroomID");
-			return;
-		}
-
-		debug("User %s corresponding roomId: %s", socket.id, user.roomId)
 
 		// Get gameroom, including users[] from DB
-		const gameRoom = await getGameroomsUsers(socket.id);
-
+		const gameRoom = await getGameRoomByUserId(socket.id);
+		
 		if(!gameRoom) {
 			debug("GameRoom not found!");
 			return;
 		}
+		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
 
 		// Handle player forfeiting
 		if (payload.forfeit === true) {
@@ -162,23 +146,20 @@ export const handleConnection = (
 		const reactionTime = payload.playerclicked - payload.roundstart;
 		debug("Players reaction time: %s", reactionTime)
 
-		// Upload reactiontime to user and get roomId of said players room
+		// Upload reactiontime to user
 		await prisma.user.update({
 			where: {
 				id: socket.id,
 			},
 			data: {
 				reactionTime,
-			},
-			select: {
-				roomId: true,
 			}
 		});
 
 		// Check if both players has an uploaded reactiontime using roomId
 		const getUserReactions = await prisma.user.findMany({
 			where: {
-				roomId: user.roomId,
+				roomId: gameRoom.id,
 				reactionTime: {
 					not: null,
 				}
@@ -208,7 +189,7 @@ export const handleConnection = (
 		// As winner is determined, reset reactionTime on both users
 		await prisma.user.updateMany({
 			where: {
-				roomId: user.roomId
+				roomId: gameRoom.id
 			},
 			data: {
 				reactionTime: null
@@ -306,7 +287,7 @@ const handlePlayerForfeit = async (userId: string) => {
 	// if (payload.forfeit === true) {
 		debug("Player %s forfeited the game", userId);
 
-		const gameRoom = await getGameroomsUsers(userId);
+		const gameRoom = await getGameRoomByUserId(userId);
 		if(!gameRoom) {
 			debug("GameRoom not found!");
 			return;

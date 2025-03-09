@@ -47,13 +47,15 @@ export const deleteRoomById = async(roomId: string)=> {
     })
 }
 
-export const getGameroomsUsers = (userId: string) => {
-    return prisma.gameroom.findUnique({
+export const getGameRoomByUserId = (userId: string) => {
+    return prisma.gameroom.findFirst({
         where: {
-            id: userId
+            users: {
+                some: { id: userId } 
+            }
         },
         include: {
-             users: true
-        },
+            users: true 
+        }
     });
-}
+};
