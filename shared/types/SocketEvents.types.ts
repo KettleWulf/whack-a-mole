@@ -44,4 +44,5 @@ export interface RoundResultData {
 	currentRound: number;
 	reactionTimes: number[];
     score: number[];
+    draw: boolean;
 }

@@ -125,6 +125,8 @@ export const handleConnection = (
 	socket.on("cts_clickedVirus", async (payload)=> {
 		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
 
+		// Assume it's not a draw, for now
+		let draw = false;
 
 		// Get gameroom, including users[] from DB
 		const gameRoom = await getGameRoomAndUsers(socket.id);
@@ -165,24 +167,33 @@ export const handleConnection = (
 			return;
 		}
 
-		const winner = player1.reactionTime < player2.reactionTime
-			? player1
-			: player2
-
-		debug("And the winner is: %o", winner);
-
-		// As winner is determined, reset reactionTime on both users
-		await resetReactionTimes(gameRoom.id);
-		debug("userReactions length after reset: %s", userReactionTimes.length);
-
-		// Create array to update and replace array in DB - (manipulating arrays in DB not possible using prisma?)
+		// Create score array to update and replace in DB - (manipulating arrays in DB not possible using prisma?)
 		const updatedScore = [...gameRoom.score]
 
-		// Update the right score
-		winner.id === player1.id
-			? updatedScore[0]++
-			: updatedScore[1]++
+		// Determine draw or winner		
+		if (player1.reactionTime === player2.reactionTime) {
+			debug("It's a draw!")
+			updatedScore[2] = (updatedScore[2] || 0) + 1;
 
+			draw = true;
+
+		} else {
+			const winner = player1.reactionTime < player2.reactionTime
+				? player1
+				: player2
+	
+			debug("And the winner is: %o", winner);
+
+			winner.id === player1.id
+				? updatedScore[0]++
+				: updatedScore[1]++
+		}
+
+		
+		// As winner is determined, reset reactionTime on both users
+		await resetReactionTimes(gameRoom.id);
+		debug("userReactions length after reset: %s", userReactionTimes.length);		
+		
 		debug("Current score: %s", updatedScore);
 
 		// Accumulate score of players to determine current round
@@ -211,8 +222,11 @@ export const handleConnection = (
 			roomId: gameRoom.id,
 			currentRound,
 			reactionTimes: [player1.reactionTime, player2.reactionTime],
-			score: updatedScore
+			score: updatedScore,
+			draw,
 		}
+
+		debug("RoundResultData: %O", RoundResultData);
 
 		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
