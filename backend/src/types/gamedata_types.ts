@@ -1,2 +1,2 @@
 import { GameData } from "@prisma/client";
-export type StartGameData = Omit<GameData, "id">
+export type GameDataOmitID = Omit<GameData, "id">

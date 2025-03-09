@@ -6,7 +6,7 @@ import {
 	ServerToClientEvents,
 } from "@shared/types/SocketEvents.types";
 import "./assets/scss/style.scss";
-import { StartGameData } from "../../backend/src/types/gamedata_types";
+import { GameDataOmitID } from "../../backend/src/types/gamedata_types";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -66,7 +66,7 @@ socket.on("stc_roundUpdate", (payload) => {
 	socket.emit("cts_startRequest", roomId, startgameCallback);
 })
 
-const startgameCallback = (response: StartGameData) => {
+const startgameCallback = (response: GameDataOmitID) => {
 	for (let i = 1; i <= 10; i++) {
 		for (let j = 1; j <= 10; j++) {
 			const gridEl = document.createElement("div");

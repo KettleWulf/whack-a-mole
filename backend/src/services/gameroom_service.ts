@@ -46,3 +46,14 @@ export const deleteRoomById = async(roomId: string)=> {
         }
     })
 }
+
+export const getGameroomsUsers = (userId: string) => {
+    return prisma.gameroom.findUnique({
+        where: {
+            id: userId
+        },
+        include: {
+             users: true
+        },
+    });
+}

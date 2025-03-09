@@ -5,9 +5,9 @@ import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData } from "@shared/types/SocketEvents.types";
 import { Gameroom } from "../types/gameroom_type";
-import { createGameroom, deleteRoomById, findPendingGameroom } from "../services/gameroom_service";
+import { createGameroom, deleteRoomById, findPendingGameroom, getGameroomsUsers } from "../services/gameroom_service";
 import { User } from "@prisma/client";
-import { createUser, findUserById, getUsersByRoomId, updateUserRoomId } from "../services/user_service";
+import { createUser, findUserById, getOpponent, getUsersByRoomId, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { NewHighscoreRecord } from "../types/highscore.types";
@@ -135,6 +135,7 @@ export const handleConnection = (
 			},
 		});
 
+
 		if (!user) {
 			debug("Couldn't find user or corresponding gameroomID");
 			return;
@@ -143,14 +144,7 @@ export const handleConnection = (
 		debug("User %s corresponding roomId: %s", socket.id, user.roomId)
 
 		// Get gameroom, including users[] from DB
-		const gameRoom = await prisma.gameroom.findUnique({
-			where: {
-				id: user.roomId
-			},
-			include: {
-				 users: true
-			},
-		});
+		const gameRoom = await getGameroomsUsers(socket.id);
 
 		if(!gameRoom) {
 			debug("GameRoom not found!");
@@ -159,52 +153,7 @@ export const handleConnection = (
 
 		// Handle player forfeiting
 		if (payload.forfeit === true) {
-			debug("Player %s forfeited the game", socket.id)
-
-			// Get opponent (winner by forfeit) from DB
-			const opponent = await prisma.user.findFirst({
-				where: {
-					roomId: user.roomId,
-					id: {
-						not: socket.id
-					}
-				},
-				select: {
-					id: true
-				},
-			});
-
-			if (!opponent) {
-				debug("No opponent found, cannot award win.");
-				return;
-			}
-
-			// Award last point to opponent/winner
-			const updatedScore = [...gameRoom.score];
-			opponent.id === gameRoom.users[0].id
-				? updatedScore[0]++
-				: updatedScore[1]++;
-
-			// Update GameRoom in DB with new score
-			await prisma.gameroom.update({
-				where: {
-					id: gameRoom.id,
-				},
-				data: {
-					score: updatedScore,
-				}
-			});
-
-			// Get usernames to include in title
-			const [player1, player2] = gameRoom.users;
-
-			// Call the game
-			const gameData: FinishedGameData = {
-				title: `${player1.username} vs ${player2.username}`,
-				score: updatedScore
-			}
-
-			finishedGame(gameRoom.id, true, gameData);
+			handlePlayerForfeit(socket.id);
 			return;
 		}
 
@@ -351,3 +300,51 @@ const generateGameData = (roomId: string) => {
 		randomImage,
 	};
 };
+
+const handlePlayerForfeit = async (userId: string) => {
+
+	// if (payload.forfeit === true) {
+		debug("Player %s forfeited the game", userId);
+
+		const gameRoom = await getGameroomsUsers(userId);
+		if(!gameRoom) {
+			debug("GameRoom not found!");
+			return;
+		}
+
+		// Get opponent (winner by forfeit) from DB
+		const opponent = await getOpponent(gameRoom.id, userId)
+		if (!opponent) {
+			debug("No opponent found, cannot award win.");
+			return;
+		}
+
+		// Award last point to opponent/winner
+		const updatedScore = [...gameRoom.score];
+		opponent.id === gameRoom.users[0].id
+			? updatedScore[0]++
+			: updatedScore[1]++;
+
+		// Update GameRoom in DB with new score
+		await prisma.gameroom.update({
+			where: {
+				id: gameRoom.id,
+			},
+			data: {
+				score: updatedScore,
+			}
+		});
+
+		// Get usernames to include in title
+		const [player1, player2] = gameRoom.users;
+
+		// Call the game
+		const gameData: FinishedGameData = {
+			title: `${player1.username} vs ${player2.username}`,
+			score: updatedScore
+		}
+
+		finishedGame(gameRoom.id, true, gameData);
+		return;
+}
+
