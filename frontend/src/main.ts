@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, GameEvolution, Gamelobby, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, Messagedata, ReactionTime,  GameEvolution, Gamelobby, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -48,13 +48,28 @@ let room: string | undefined;
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
-	socket.emit("cts_getHighscores",roomID ,(displayPlayedGames));
+	socket.emit("cts_getHighscores",room ,(displayPlayedGames));
 });
 
 // Listen for when server got tired of us
 socket.on("disconnect", () => {
 	console.log("🥺 Got disconnected from server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 });
+
+// Listen for server messages
+socket.on("stc_Message", (payload)=> {
+	const time = new Date(payload.timestamp).toLocaleTimeString();
+	infoEl.innerHTML += `<p> <span>${time} </span> | Server Message: ${payload.content}</p>`
+});
+socket.on("stc_GameroomReadyMessage", (payload)=> {
+	const roomId = payload.room.title
+	if (roomId)
+	{
+		console.log(payload);
+		// Get the payload, generate info from user and room and then emit startrequest
+		socket.emit("cts_startRequest", roomId ,startgameCallback);
+	}
+})
 
 // Listen for when we're reconnected (either due to our or the servers connection)
 socket.io.on("reconnect", () => {
@@ -73,6 +88,12 @@ playerFormEl.addEventListener("submit", (event) => {
         alert("Please enter a player name!");
     }
 });
+// Listen for result of last round
+socket.on("stc_roundUpdate", (payload) => {
+	const roomId = payload.roomId
+
+	socket.emit("cts_startRequest", roomId, startgameCallback);
+})
 
 const startgameCallback = (response: Startgame) => {
 	for (let i = 1; i <= 10; i++) {
@@ -198,6 +219,28 @@ socket.on("stc_sendingTime", (playerclicked) => {
 	playerTwoTimer = playerclicked;
 	console.log("Kom detta igenom", playerTwoTimer);
 });
+
+
+virusEl.addEventListener("click", ()=> {
+	// socket emit clicked Virus
+	const payload: ReactionTime = {
+		roundstart: 25378,         // timestamp
+		playerclicked: 15378,       // timestamp
+		forfeit: true,
+	}
+	console.log("Clicked Virus! Payload", payload)
+
+	socket.emit("cts_clickedVirus", payload);
+});
+
+// quitGameEl.addEventListener("click", ()=> {
+// 	//socket emit quitted game
+// 	const payload: Messagedata = {
+// 		content: "Client clicked virus",
+// 		timestamp: Date.now()
+// 	}
+// 	socket.emit("cts_quitGame", payload);
+// });
 
 const displayPlayedGames = () => {
 	// ongoingGamesEl.innerHTML = "";

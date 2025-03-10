@@ -28,3 +28,10 @@ model FinishedGame {
   score Int[]
   date  DateTime @default(now())
 }
+
+model GameData {
+  id          String @id @map("_id")
+  coordinates String
+  startDelay  Int
+  randomImage Int
+}

@@ -2,6 +2,8 @@ import { BlobOptions } from "node:buffer";
 import { GameroomData } from "../../backend/src/types/gameroom_types";
 import { NewHighscoreRecord } from "../../backend/src/types/highscore.types";
 import { UserData } from "../../backend/src/types/user_types";
+import { StartGameData } from "../../backend/src/types/gamedata_types"
+
 
 export {}
 
@@ -11,6 +13,7 @@ export interface ServerToClientEvents {
     stc_Message: (payload: Messagedata) => void;
     stc_GameroomReadyMessage: (payload: Gamelobby) => void;
 	stc_sendingTime: (playerclicked: boolean) => void;
+    stc_roundUpdate: (payload: RoundResultData) => void;
 }
 
 // Events emitted by the client to the server
@@ -19,6 +22,8 @@ export interface ClientToServerEvents {
     cts_joinRequest: (payload: Player) => void;
     cts_startRequest: (room: string, callback: (response: Startgame)=> void) => void;
     cts_clickedVirus: (payload: GameEvolution) => void;
+    cts_startRequest: (room: string, callback: (response: StartGameData)=> void) => void;
+    cts_clickedVirus: (payload: ReactionTime) => void;
     cts_quitGame: (payload: Messagedata) => void;
     cts_getHighscores: (roomID: string, callback: (highscoreCollection: NewHighscoreRecord[])=> void) => void;
 }
@@ -48,4 +53,16 @@ export interface GameEvolution {
 	start: number;
 	cliked: number;
 	forfeit: boolean;
+}
+export interface ReactionTime {
+    roundstart: number          // timestamp
+    playerclicked: number       // timestamp
+    forfeit: boolean
+}
+
+export interface RoundResultData {
+	roomId: string,
+	currentRound: number;
+	reactionTimes: number[];
+    score: number[];
 }
