@@ -5,6 +5,9 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" href="https://fav.farm/😎" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Frijole&family=Henny+Penny&family=Monoton&family=Mystery+Quest&family=Rubik+Moonrocks&family=Spicy+Rice&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="/src/assets/scss/style.scss">
 	<title>FED24 API-utveckling Realtime Frontend</title>
 </head>
@@ -15,55 +18,32 @@
 			<h1>Wellcome to a FOO creation!!</h1>
             <div id="sektion1">
                 <div class="game-logo">
-					<img src="./src/FrontImage1.jpeg" alt="Picture of a Mole" class="logo-image">
+					<img src="/Images/WhackAMole.jpeg" alt="Picture of a Mole" class="logo-image">
 				</div>
                 <div class="player-wrapper">
                     <form id="player-form">
                         <div class="create-player">
-                            <label for="playername" class="input-label">Please Insert your Player Name</label>
+                            <label for="playername" class="input-label">Insert your Player Name</label>
                             <input type="text" id="playername" class="input-field" placeholder="Player Name">
                         </div>
-                        <button type="submit" id="connectBtn" class="playerBtn">Join</button>
+                        <button type="submit" id="connectBtn" class="playerBtn">Play</button>
                     </form>
+                </div>
+				<div class="player-wrapper2 hide">
+                    <form id="player-form2">
+						<h4 class="playagain">Whack Some More</h4>
+                        <button type="submit" id="connectBtn" class="playerBtn2">Play</button>
+                    </form>
+                </div>
+				<div class="player-wrapper3 hide">
+					<h4 class="waiting">Waiting for player...</h4>
                 </div>
             </div>
             <div id="sektion2">
-				<div class="highscores">
-                    <h5>Highscores</h5>
-                    <div class="highscores-data">
-						<p>Average response: 2sec</p>
-						<p>Highest Round Score: 10</p>
-					</div>
-                </div>
-                <div class="ongoing-games">
-                    <h5>Ongoing Games</h5>
-                    <div class="ongoing-games-data">
-						<p>Fredrik vs Oki 1-9</p>
-						<p>Fredrik vs Olle 2-8</p>
-						<p>Fredrik vs Oki 10-0</p>
-						<p>Fredrik vs Olle 7-3</p>
-						<p>Fredrik vs Oki 6-4</p>
-						<p>Fredrik vs Olle 5-5</p>
-						<p>Fredrik vs Oki 3-7</p>
-						<p>Fredrik vs Olle 2-8</p>
-						<p>Fredrik vs Oki 9-1</p>
-						<p>Fredrik vs Olle 8-2</p>
-					</div>
-                </div>
-                <div class="games">
-                    <h5>The last 10 Games</h5>
-                    <div class="games-data">
-						<p>Fredrik vs Oki 1-9</p>
-						<p>Fredrik vs Olle 2-8</p>
-						<p>Fredrik vs Oki 10-0</p>
-						<p>Fredrik vs Olle 7-3</p>
-						<p>Fredrik vs Oki 6-4</p>
-						<p>Fredrik vs Olle 5-5</p>
-						<p>Fredrik vs Oki 3-7</p>
-						<p>Fredrik vs Olle 2-8</p>
-						<p>Fredrik vs Oki 9-1</p>
-						<p>Fredrik vs Olle 8-2</p>
-					</div>
+				<div class="highscores"></div>
+                <div class="games-wrapper">
+                    <div class="ongoing-games-data"></div>
+					<div class="games-data"></div>
                 </div>
             </div>
         </div>
@@ -73,12 +53,28 @@
 				<div class="grid-container"></div>
 			</div>
 			<div class="game-info">
-				<div class="round"></div>
-				<div class="player-info">
-					<div class="players-name"></div>
-					<div class="players-timer"></div>
+				<div class="round-wrapper">
+					<div class="round">Round</div>
+					<div class="round-data">10</div>
 				</div>
-				<div class="score"></div>
+				<div class="player-info">
+					<div class="playersInGame">
+						<div class="players-name1-wraper">
+							<div id="players-name1" class="players-names"></div>
+							<div id="players-timer1" class="players-timers"></div>
+						</div>
+						<p class="vs">vs.</p>
+						<div class="players-name2-wraper">
+							<div id="players-name2" class="players-names"></div>
+							<div id="players-timer2" class="players-timers"></div>
+						</div>
+					</div>
+				</div>
+				<div class="scores-wrapper">
+					<div class="score">Score</div>
+					<div class="score-data">10-1</div>
+					<button class="backtolobby">Loby</button>
+				</div>
 			</div>
 		</div>
     </main>

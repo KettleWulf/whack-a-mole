@@ -8,36 +8,37 @@ body {
 	background-color: black;
 }
 
-#loby {
-	margin-top: 2em;
-	padding: 1em;
+.loby {
+	background: url('/Images/Universe2.gif') no-repeat center/cover;
 }
 
 h1 {
-	color: white;
-    font-size: 2.5rem;
+	color: rgb(235, 129, 147);
+    font-size: 2.7rem;
     text-align: center;
     display: block;
     text-shadow: 0px 5px 5px rgba(0, 0, 0, 0.5);
     transform: perspective(300px) rotateX(15deg);
+	padding: 0.7em;
+	font-family: 'Rubik Moonrocks', sans-serif;
+	word-spacing: 15px;
 }
 
 h5 {
 	margin-bottom: 0.8em;
 	font-style: italic;
 	padding-top: 0.8em;
-}
-
-.test {
-	border: 2px solid black;
+	font-size: 1.5rem;
+	font-family: 'Frijole', sans-serif;
+	text-shadow: 0 0 60px white, 0 0 120px white;
+	color: plum;
 }
 
 .game-logo {
-	width: 90%;
-	height: 100%;
-	border: 4px solid green;
+	width: 85%;
+	border: 4px solid white;
 	border-radius: 50%;
-	box-shadow: 0 0 20px greenyellow, 0 0 40px greenyellow;
+	box-shadow: 0 0 40px pink, 0 0 80px pink;
 	overflow: hidden;
 	display: flex;
 	justify-content: center;
@@ -50,21 +51,55 @@ h5 {
 	object-fit: cover;
 }
 
-.player-wrapper {
-	border: 4px solid green;
+.player-wrapper,
+.player-wrapper2 {
+	border: 4px solid black;
 	border-radius: 20px;
-	box-shadow: 0 0 20px greenyellow, 0 0 40px greenyellow;
-	padding: 2em;
-	width: 80%;
-	background: url('../images/Grass2.jpg') no-repeat center/cover;
-}
-
-#player-form {
+	box-shadow: 0 0 40px pink, 0 0 80px pink;
+	padding: 1em;
+	width: 90%;
+	min-height: 50vh;
+	background: url('/Images/Kalle och Hobbe.gif') no-repeat center/cover;
+	text-align: center;
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	justify-content: space-between;
+}
+
+.player-wrapper2 {
+	padding: 2em;
+}
+
+.player-wrapper3 {
+	border: 4px solid white;
+	border-radius: 20px;
+	box-shadow: 0 0 40px pink, 0 0 80px pink;
+	padding: 9.5em 3em 9.5em 3em;
+	width: 90%;
+	background: url('/Images/Waiting for player.gif') no-repeat;
+	background-size: cover;
+	background-position: 80% 20%;
+	min-height: 50vh;
+	color: white;
+	position: relative;
+}
+
+.waiting {
+	position: absolute;
+    top: 10%;
+    left: 7%;
+	font-family: 'Spicy Rice', sans-serif;
+	word-spacing: 7px;
+	color: whitesmoke;
+	text-shadow: 0 0 1px purple, 0 0 2px purple;
+}
+
+#player-form,
+#player-form2 {
+	display: flex;
+	flex-direction: column;
 	align-items: center;
-	gap: 1em;
+	gap: 14em;
 }
 
 .create-player {
@@ -80,32 +115,42 @@ h5 {
 	font-weight: bolder;
 	font-size: 1.3rem;
 	text-align: center;
+	font-family: 'Henny Penny', sans-serif;
+	word-spacing: 2px;
+	text-shadow: 0 0 1px plum, 0 0 2px plum;
 }
 
 .input-field {
 	color: black;
-	border: 2px solid darkgreen;
+	border: 2px solid black;
 	border-radius: 10px;
-	box-shadow: 0 0 15px darkgreen, 0 0 30px darkgreen;
+	box-shadow: 0 0 5px plum, 0 0 10px plum;
 	text-align: center;
-	padding: 0.2em;
-	width: 230px;
-	height: 50px;
+	padding: 0.5em;
+	width: 100%;
 }
 
-.playerBtn {
+.playagain {
+	font-family: 'Henny Penny', sans-serif;
+	word-spacing: 10px;
+}
+
+.playerBtn,
+.playerBtn2 {
 	text-align: center;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	color: white;
-	border: 2px solid darkgreen;
-	box-shadow: 0 0 15px darkgreen, 0 0 30px darkgreen;
-	background-color: red;
+	border: 2px solid pink;
+	box-shadow: 0 0 5px plum, 0 0 10px plum;
+	background-color: black;
 	width: 90px;
     height: 90px;
     border-radius: 50%;
-	margin-top: 0.3em;
+	margin-top: 3em;
+	font-family: 'Henny Penny', sans-serif;
+	font-size: 1.3rem;
 }
 
 #sektion1 {
@@ -118,52 +163,87 @@ h5 {
 }
 
 #sektion2 {
-    padding: 0.3em;
+	margin-top: 3em;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 5em;
+}
+
+.highscores {
+	width: 90%;
+	background-color: black;
+	border-radius: 20px;
+}
+
+.highscores-wrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	border: 4px solid white;
+	border-radius: 20px;
+	box-shadow: 0 0 60px pink, 0 0 120px pink;
+	padding: 1em;
+	padding-bottom: 2em;
+	width: 100%;
+	color: white;
+	text-align: center;
+}
+
+.game-stats-wrapper,
+.game-stats,
+.game-stats-highscore,
+.game-stats-reactiontime {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+}
+
+.games-wrapper {
+	width: 90%;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	gap: 3em;
+	padding-bottom: 2em;
+
 }
 
-.ongoing-games {
+.ongoing-games, .games {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	border: 4px double red;
+	border: 4px solid white;
 	border-radius: 20px;
-	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
+	box-shadow: 0 0 60px pink, 0 0 120px pink;
 	padding: 0.3em;
-	width: 80%;
+	width: 100%;
+	min-height: 100%;
 	color: white;
+	padding-bottom: 1em;
+	background-color: black;
 }
 
-.games {
+.ongoing-games-layout {
 	display: flex;
-	flex-direction: column;
 	justify-content: center;
-	align-items: center;
-	border: 4px double red;
-	border-radius: 20px;
-	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
-	padding: 0.3em;
-	width: 80%;
-	color: white;
-	margin-bottom: 1em;
+	gap: 1.3em;
+	padding: 0.5em;
 }
 
-.highscores {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	border: 4px double red;
-	border-radius: 20px;
-	box-shadow: 0 0 13px darkred, 0 0 26px darkred;
-	padding: 0.3em;
-	width: 80%;
-	color: white;
+.game-stats-wrapper,
+.ongoing-games-layout {
+	font-family: 'Mystery Quest', sans-serif;
+	word-spacing: 6px;
+
+}
+
+.games-info-text {
+	color: yellow;
 }
 
 .game-board {
@@ -175,12 +255,21 @@ h5 {
 	padding-bottom: 2em;
     justify-content: center;
 	align-items: center;
+	background: url('/Images/Universe2.gif') no-repeat center/cover;
   }
+
+.ongoing-games-data {
+	width: 100%;
+}
+
+.games-data {
+	width: 100%;
+}
 
 .game-field {
     width: 95%;
     height: 80%;
-    background: url('../images/Grass2.jpg') no-repeat center/cover;
+    background: url('/Images/Grass2.jpg') no-repeat center/cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -188,18 +277,19 @@ h5 {
 	border: 0.5px solid green;
 	border-bottom: none;
 	border-radius: 20px 20px 0px 0px;
-	box-shadow: 0 0 12px greenyellow, 0 0 24px greenyellow;
+	box-shadow: 0 0 20px pink, 0 0 40px pink;
 }
 
 #countdown-timer {
-	font-size: 4rem;
-	color: black;
+	font-size: 8rem;
+	color: red;
 	text-align: center;
 	position: absolute;
 	top: 10%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	padding: 20px;
+	font-family: 'Rubik Moonrocks', sans-serif;
   }
 
 .grid-container {
@@ -237,7 +327,7 @@ h5 {
 .game-info {
 	width: 95%;
     height: 20%;
-    background: url('../images/UndergroundBackground.png') no-repeat center/cover;
+    background: url('/Images/UndergroundBackground.png') no-repeat center/cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -246,12 +336,58 @@ h5 {
 	border: 0.5px solid rgb(56, 38, 38);
 	border-top: none;
 	border-radius: 0px 0px 20px 20px;
-	box-shadow: 0 0 40px rgb(71, 27, 27), 0 0 80px rgb(71, 27, 27);
+	box-shadow: 0 0 10px pink, 0 0 20px pink;
+	gap: 2em;
+	position: relative;
 }
 
-.players-name {
-	font-size: 2rem;
-	color: greenyellow;
+.round-wrapper {
+	position: absolute;
+    top: 0.5em;
+    left: 0.60em;
+}
+
+.round {
+	font-size: 1rem;
+	color: white;
+	font-family: 'Frijole', sans-serif;
+}
+
+.round-data,
+.score-data {
+	font-size: 1rem;
+	font-family: 'Frijole', sans-serif;
+	color: yellow;
+	text-align: center;
+	margin-top: -0.3em;
+}
+
+.scores-wrapper {
+	position: absolute;
+    top: 0.5em;
+    right: 0.30em;
+}
+
+.score {
+	font-size: 1rem;
+	color: white;
+	font-family: 'Frijole', sans-serif;
+	text-align: center;
+}
+
+.playersInGame {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 2em;
+	margin-top: 2em;
+}
+
+.players-names {
+	font-size: 1.3rem;
+	font-family: 'Mystery Quest', sans-serif;
+	color: yellow;
+	text-shadow: 0 0 5px pink, 0 0 10px pink;
 	text-align: center;
 	display: flex;
 	justify-content: center;
@@ -259,22 +395,36 @@ h5 {
 	gap: 1em;
 }
 
-.players-timer {
+.vs {
+	font-size: 1.3rem;
+	font-family: 'Mystery Quest', sans-serif;
+	text-shadow: 0 0 5px pink, 0 0 10px pink;
+	color: yellow;
+	text-align: center;
+	margin-top: 0.9em;
+}
+
+.players-timers {
 	font-size: 1rem;
-	color: greenyellow;
+	color: red;
 	text-align: center;
 	display: flex;
 	justify-content: center;
 	align-content: center;
-	gap: 6em;
-	width: 560px;
-	border: 2px solid red;
-	padding: 4em;
+	min-width: 80px;
 }
 
-.span {
-	width: 45%;
-	padding: 2em;
+.backtolobby {
+	text-align: center;
+	color: white;
+	border: 2px solid darkgreen;
+	box-shadow: 0 0 15px darkgreen, 0 0 30px darkgreen;
+	background-color: red;
+	width: 60px;
+    height: 60px;
+    border-radius: 50%;
+	margin-top: 2em;
+	margin-left: 1em;
 }
 
 .hide {
@@ -287,19 +437,21 @@ h5 {
 		font-size: 3.5rem;
 	}
 
-	.player-wrapper {
+	h5 {
+		font-size: 2rem;
+	}
+
+	.game-logo {
+		width: 75%;
+	}
+
+	.player-wrapper,
+	.player-wrapper2 {
 		width: 70%;
 	}
 
-	.input-label {
-		font-size: 1.3rem;
-	}
-
-	.input-field {
-		border: 2px solid green;
-		box-shadow: 0 0 20px greenyellow, 0 0 40px greenyellow;
-		width: 280px;
-		height: 50px;
+	.player-wrapper3 {
+		width: 60%;
 	}
 
 	.mole {
@@ -307,52 +459,78 @@ h5 {
 		width: 100%;
 	}
 
-	.ongoing-games-data {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: center;
-		text-align: center;
-		width: 60%;
+	.input-label,
+	.round,
+	.round-data,
+	.score,
+	.score-data {
+		font-size: 1.3rem;
 	}
 
-	.games-data {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: center;
-		text-align: center;
-		width: 60%;
+	.game-stats,
+	.game-stats-highscore,
+	.game-stats-reactiontime,
+	.ongoing-games-layout {
+		font-size: 1.2rem;
 	}
 
-	.highscores {
-		width: 80%;
+	.round-wrapper {
+		position: absolute;
+		top: 0.5em;
+		left: 1em;
 	}
+
+	.scores-wrapper {
+		position: absolute;
+		top: 0.5em;
+		right: 1em;
+	}
+
+	.playersInGame {
+		gap: 3em;
+		margin-top: 0;
+	}
+
+	.players-names {
+		font-size: 1.8rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 1.8rem;
+		margin-top: 0.6em;
+	}
+
+	.players-timers {
+		font-size: 1.1rem;
+	}
+
 }
 
 @media all and (min-width: 860px) {
 
 	.game-logo {
-		width: 70%;
-		height: 25%;
+		width: 65%;
 	}
 
-	.player-wrapper {
-		width: 30%;
+	.player-wrapper,
+	.player-wrapper2,
+	.player-wrapper3 {
+		width: 35%;
 	}
 
 	.input-field {
 		width: 100%;
-		padding: 1.5em;
 	}
 
 	.playerBtn:hover {
-		background-color: darkred;
-		border-color: red;
+		color: black;
+		background-color: pink;
+		border-color: purple;
 	}
 
 	.playerBtn:active {
-		background-color: maroon;
+		background-color: plum;
 		border-color: black;
 	}
 
@@ -360,29 +538,72 @@ h5 {
 		width: 98%;
 		display: flex;
 		flex-direction: row;
-		justify-content:center;
+		justify-content:space-evenly;
 		align-items: center;
-		gap: 4em;
 		padding: 1.5em;
 	}
 
-	#sektion2 {
-		width: 98%;
+	.highscores {
+		width: 95%;
+	}
+
+	.game-stats-wrapper {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		gap: 6em;
+	}
+
+	.games-wrapper {
+		width: 95%;
 		display: flex;
 		flex-direction: row;
 		gap: 3em;
+		align-items: stretch;
 	}
 
-	.highscores {
-		width: 40%;
+	.ongoing-games,
+	.games {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: stretch;
 	}
 
 	.ongoing-games-data {
-		width: 40%;
+		width: 50%;
+		display: flex;
+		flex-wrap: wrap;
 	}
 
 	.games-data {
-		width: 40%;
+		width: 50%;
+	}
+
+	.playersInGame {
+		gap: 3.5em;
+	}
+
+	.players-names {
+		font-size: 2.4rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 2rem;
+		margin-top: 0.4em;
+	}
+
+	.players-timers {
+		font-size: 1.3rem;
+	}
+
+	.round,
+	.round-data,
+	.score,
+	.score-data  {
+		font-size: 1.5rem;
 	}
 
 	.hide {
@@ -394,43 +615,89 @@ h5 {
 
 	.loby {
 		align-items: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	h1 {
+		font-size: 5rem;
+	}
+
+	h5 {
+		font-size: 2.3rem;
 	}
 
 	#sektion1 {
-		width: 70%;
-		gap: 4em;
+		width: 100%;
+		gap: 6em;
+	}
+
+	#sektion2 {
+		width: 90%;
+		gap: 6em;
 	}
 
 	.game-logo {
-		width: 50%;
-		height: 25%;
+		width: 45%;
 	}
 
-	.player-wrapper {
-		width: 50%;
+	.player-wrapper,
+	.player-wrapper2,
+	.player-wrapper3 {
+		width: 25%;
 	}
 
-	#sektion2 {
-		width: 95%;
-		gap: 3em;
+	.game-stats,
+	.game-stats-highscore,
+	.game-stats-reactiontime,
+	.ongoing-games-layout {
+		font-size: 1.6rem;
 	}
 
-	#sektion2 {
-		padding: 0;
+	.game-stats-wrapper {
+		gap: 5em;
+	}
+
+	.games-wrapper {
+		justify-content: space-between;
 	}
 
 	.ongoing-games-data {
-		width: 100%;
-		padding: 1em;
+		width: 50%;
 	}
 
 	.games-data {
-		width: 100%;
-		padding: 1em;
+		width: 30%;
+	}
+
+	.playersInGame {
+		gap: 5.5em;
+	}
+
+	.players-names {
+		font-size: 2.6rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 2.3rem;
+		margin-top: 0.4em;
+	}
+
+	.players-timers {
+		font-size: 1.5rem;
+	}
+
+	.round,
+	.round-data,
+	.score,
+	.score-data {
+		font-size: 1.7rem;
 	}
 
 	.hide {
 		display: none;
 	}
 }
-
