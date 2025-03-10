@@ -18,8 +18,12 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
 
 const gridContainer = document.querySelector(".grid-container") as HTMLDivElement;
 const playerFormEl = document.querySelector("#player-form") as HTMLFormElement;
+const playerFormTwoEl = document.querySelector("#player-form2") as HTMLFormElement;
 const playerNameEl = document.querySelector("#playername") as HTMLInputElement;
 const lobbyEl = document.querySelector(".loby") as HTMLDivElement;
+const playerWraperEl = document.querySelector(".player-wrapper") as HTMLDivElement;
+const playAgainEl = document.querySelector(".player-wrapper2") as HTMLDivElement;
+const waitingForPlayerEl = document.querySelector(".player-wrapper3") as HTMLDivElement;
 const gameBoardEl = document.querySelector("#game-board") as HTMLDivElement;
 const countdownEl = document.querySelector("#countdown-timer") as HTMLDivElement;
 const playerOneTimerEl = document.querySelector("#players-timer1") as HTMLDivElement;
@@ -33,7 +37,7 @@ const backtolobbyEl = document.querySelector(".backtolobby") as HTMLButtonElemen
 
 const games: Gamelobby[] = [];
 const playerTime: number[] = [2.34, 4.32, 5.67, 1.23, 2.11, 3.43]
-const playerScore: [number, number][] = [[2,8], [3,7], [8,2], [10,0], [6,4],[5,5] ];
+const playerScore: [number, number][] = [[2,8], [3,7], [8,2], [10,0], [6,4],[5,5]];
 const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 let playerOneTimer = false;
 let playerTwoTimer = false;
@@ -69,13 +73,16 @@ socket.io.on("reconnect", () => {
 	console.log("😊 Reconnected to server:", socket.io.opts.hostname + ":" + socket.io.opts.port);
 });
 
-playerFormEl.addEventListener("submit", (event) => {
-    event.preventDefault();
+playerFormEl.addEventListener("submit", (e) => {
+    e.preventDefault();
 
     const playerName = playerNameEl.value.trim();
 
     if (playerName) {
         socket.emit("cts_joinRequest", { content: playerName });
+		playerWraperEl.classList.add("hide");
+		playAgainEl.classList.add("hide");
+		waitingForPlayerEl.classList.remove("hide");
         console.log("Sent join request:", { playerName, id: socket.id });
     } else {
         alert("Please enter a player name!");
@@ -206,7 +213,7 @@ const displayPlayedGames = (response: NewHighscoreRecord[]) => {
 				return `
 					<div class="ongoing-games-layout">
 						<div>${game.title}</div>
-						<div>${game.score.join(" - ")}</div>
+						<div><span class="games-info-text">${game.score.join(" - ")}</span></div>
 					</div>
 				`;
 			}).join('')}
@@ -217,6 +224,8 @@ const displayPlayedGames = (response: NewHighscoreRecord[]) => {
 const backToLobby = () => {
 	lobbyEl.classList.remove("hide");
 	gameBoardEl.classList.add("hide");
+	waitingForPlayerEl.classList.add("hide");
+	playAgainEl.classList.remove("hide");
 };
 
 backtolobbyEl.addEventListener("click", () => {
@@ -236,7 +245,7 @@ const displayOngoingGames = () => {
 			<h5>Ongoing Games</h5>
 			<div class="ongoing-games-layout">
 				<div>${userNames}</div>
-				<div>${score.join(" - ")}</div>
+				<div><span class="games-info-text">${score.join(" - ")}</span></div>
 			</div>
 		</div>
 		`;
@@ -284,19 +293,19 @@ const gameHighscores = (playerTime: number[], playerScore: [number, number][]): 
 			<h5>Highscore</h5>
 			<div class="game-stats-wrapper">
 				<div class="game-stats">
-					<div>Total Games Played: ${gamePlayed}</div>
-					<div>Games Wins: ${wins}</div>
-					<div>Games Losses: ${lost}</div>
+					<div><span class="games-info-text">Total Games Played:</span> ${gamePlayed}</div>
+					<div><span class="games-info-text">Games Wins:</span> ${wins}</div>
+					<div><span class="games-info-text">Games Losses:</span> ${lost}</div>
 				</div>
 				<div class="game-stats-reactiontime">
-					<div>Best Reaction Time : ${maxTime} sec.</div>
-					<div>Worst Reaction Time: ${minTime} sec.</div>
-					<div>Average Reaction Time: ${averageTime} sec.</div>
+					<div><span class="games-info-text">Best Reaction Time:</span> ${maxTime} sec.</div>
+					<div><span class="games-info-text">Worst Reaction Time:</span> ${minTime} sec.</div>
+					<div><span class="games-info-text">Average Reaction Time:</span> ${averageTime} sec.</div>
 				</div>
 				<div class="game-stats-highscore">
-					<div>Best Win: ${highestScoreMatchStr}</div>
-					<div>Worst Lost: ${highestLossMatchStr}</div>
-					<div>Games Draws: ${draws > 0 ? draws : 0}</div>
+					<div><span class="games-info-text">Best Win:</span> ${highestScoreMatchStr}</div>
+					<div><span class="games-info-text">Worst Lost:</span> ${highestLossMatchStr}</div>
+					<div><span class="games-info-text">Games Draws:</span> ${draws > 0 ? draws : 0}</div>
 				</div>
 			</div>
 		</div>
@@ -305,3 +314,22 @@ const gameHighscores = (playerTime: number[], playerScore: [number, number][]): 
 };
 
 gameHighscores(playerTime, playerScore);
+
+playerFormTwoEl.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (userOne && userOne.username) {
+        socket.emit("cts_joinRequest", { content: userOne.username });
+        playAgainEl.classList.add("hide");
+        waitingForPlayerEl.classList.remove("hide");
+        gameBoardEl.classList.add("hide");
+        lobbyEl.classList.remove("hide");
+        playerOneTimer = false;
+        playerTwoTimer = false;
+        gameOn = false;
+        playerOneTimerSec = 0;
+        playerTwoTimerSec = 0;
+        gridContainer.innerHTML = "";
+        console.log("Sent join request for replay:", { playerName: userOne.username, id: socket.id });
+    }
+});

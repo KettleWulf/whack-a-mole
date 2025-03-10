@@ -5,6 +5,9 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" href="https://fav.farm/😎" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Frijole&family=Henny+Penny&family=Monoton&family=Mystery+Quest&family=Rubik+Moonrocks&family=Spicy+Rice&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="/src/assets/scss/style.scss">
 	<title>FED24 API-utveckling Realtime Frontend</title>
 </head>
@@ -15,16 +18,25 @@
 			<h1>Wellcome to a FOO creation!!</h1>
             <div id="sektion1">
                 <div class="game-logo">
-					<img src="/Images/FrontImage1.jpeg" alt="Picture of a Mole" class="logo-image">
+					<img src="/Images/WhackAMole.jpeg" alt="Picture of a Mole" class="logo-image">
 				</div>
                 <div class="player-wrapper">
                     <form id="player-form">
                         <div class="create-player">
-                            <label for="playername" class="input-label">Please Insert your Player Name</label>
+                            <label for="playername" class="input-label">Insert your Player Name</label>
                             <input type="text" id="playername" class="input-field" placeholder="Player Name">
                         </div>
-                        <button type="submit" id="connectBtn" class="playerBtn">Join</button>
+                        <button type="submit" id="connectBtn" class="playerBtn">Play</button>
                     </form>
+                </div>
+				<div class="player-wrapper2 hide">
+                    <form id="player-form2">
+						<h4 class="playagain">Whack Some More</h4>
+                        <button type="submit" id="connectBtn" class="playerBtn2">Play</button>
+                    </form>
+                </div>
+				<div class="player-wrapper3 hide">
+					<h4 class="waiting">Waiting for player...</h4>
                 </div>
             </div>
             <div id="sektion2">
@@ -51,7 +63,7 @@
 							<div id="players-name1" class="players-names"></div>
 							<div id="players-timer1" class="players-timers"></div>
 						</div>
-						<p class="vs">vs</p>
+						<p class="vs">vs.</p>
 						<div class="players-name2-wraper">
 							<div id="players-name2" class="players-names"></div>
 							<div id="players-timer2" class="players-timers"></div>
