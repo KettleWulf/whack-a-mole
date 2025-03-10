@@ -176,13 +176,13 @@ const startgameCallback = (response: GameDataOmitID) => {
 			if (target === moleElement) {
 
 				clickStamp = Date.now();
-				const payload: GameEvaluation = {
-					start: timeStamp,
-					cliked: clickStamp,
-					forfeit: false,
-					roomId: room || "room"
-				}
-				socket.emit("cts_clickedVirusFrontend", payload);
+				// const payload: GameEvaluation = {
+				// 	start: timeStamp,
+				// 	cliked: clickStamp,
+				// 	forfeit: false,
+				// 	roomId: room || "room"
+				// }
+				// socket.emit("cts_clickedVirusFrontend", payload);
 				const data: ReactionTime = {
 					roundstart: timeStamp,
 					playerclicked: clickStamp,

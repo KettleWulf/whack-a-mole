@@ -147,8 +147,12 @@ export const handleConnection = (
 		debug("Players reaction time: %s", reactionTime)
 
 		// Upload reactiontime to user
-		await updateUserReactionTime(socket.id, reactionTime);
-
+		debug("updating user reactiontime %s!: %s", reactionTime, socket.id);
+		const userupdated = await updateUserReactionTime(socket.id, reactionTime);
+		if (!userupdated) {
+			debug("userReactions wasnt updated!: %s", userupdated);
+			return
+		}
 		// Check if both players has an uploaded reactiontime using roomId
 		const userReactionTimes = await getUsersReactionTimes(gameRoom.id)
 
@@ -156,9 +160,12 @@ export const handleConnection = (
 
 		// Determine if both users has a registered reactiontime, otherwise bail
 		if (userReactionTimes.length !== 2) return;
-
+		const gameRoomWhenBothPlayershasClicked = await getGameRoomAndUsers(socket.id);
+		if (!gameRoomWhenBothPlayershasClicked) {
+			return;
+		}
 		// Deconstruct players from gameRoom (they SHOULD be in order)
-		const [player1, player2] = gameRoom.users;
+		const [player1, player2] = gameRoomWhenBothPlayershasClicked.users;
 
 		if (!player1.reactionTime || !player2.reactionTime) {
 			debug("One or both reactionTimes are null. Player one: %o Player two: %o", player1, player2);
