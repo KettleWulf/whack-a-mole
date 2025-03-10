@@ -1,4 +1,3 @@
-import { BlobOptions } from "node:buffer";
 import { GameroomData } from "../../backend/src/types/gameroom_types";
 import { NewHighscoreRecord } from "../../backend/src/types/highscore.types";
 import { UserData } from "../../backend/src/types/user_types";
@@ -20,7 +19,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
     // player submitted username
     cts_joinRequest: (payload: Player) => void;
-    cts_clickedVirusFrontend: (payload: GameEvolution) => void;
+    cts_clickedVirusFrontend: (payload: GameEvaluation) => void;
     cts_startRequest: (room: string, callback: (response: GameDataOmitID)=> void) => void;
     cts_clickedVirus: (payload: ReactionTime) => void;
     cts_quitGame: (payload: Messagedata) => void;
@@ -47,7 +46,7 @@ export interface Gamelobby {
     users: UserData[];
 }
 
-export interface GameEvolution {
+export interface GameEvaluation {
 	roomId: string;
 	start: number;
 	cliked: number;

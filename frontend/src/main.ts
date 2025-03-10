@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, ReactionTime,  GameEvolution, Gamelobby, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, ReactionTime,  GameEvolution, Gamelobby, ServerToClientEvents, GameEvaluation } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -8,6 +8,7 @@ import Mole4 from "./assets/images/Mole4.png";
 import Mole5 from "./assets/images/Mole5.png";
 import "./assets/scss/style.scss";
 import { GameDataOmitID } from "../../backend/src/types/gamedata_types";
+import { NewHighscoreRecord } from "../../backend/src/types/highscore.types";
 
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -68,7 +69,8 @@ const displayPlayedGames = () => {
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
-	socket.emit("cts_getHighscores","room" ,(displayPlayedGames));
+	socket.emit("cts_getHighscores", "room" ,(displayPlayedGames));
+	gameHighscores(playerTime, playerScore);
 });
 
 // Listen for when server got tired of us
@@ -174,7 +176,7 @@ const startgameCallback = (response: GameDataOmitID) => {
 			if (target === moleElement) {
 
 				clickStamp = Date.now();
-				const payload: GameEvolution = {
+				const payload: GameEvaluation = {
 					start: timeStamp,
 					cliked: clickStamp,
 					forfeit: false,
