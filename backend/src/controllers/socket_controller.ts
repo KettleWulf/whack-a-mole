@@ -120,6 +120,7 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_clickedVirus", async (payload)=> {
+		
 		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
 
 		// Assume it's not a draw, for now
@@ -133,7 +134,7 @@ export const handleConnection = (
 			return;
 		}
 		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
-
+		socket.to(gameRoom.id).emit("stc_sendingTime", false);
 		// Handle player forfeiting
 		if (payload.forfeit === true) {
 			handlePlayerForfeit(socket.id);

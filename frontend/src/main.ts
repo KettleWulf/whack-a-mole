@@ -183,6 +183,12 @@ const startgameCallback = (response: GameDataOmitID) => {
 					roomId: room || "room"
 				}
 				socket.emit("cts_clickedVirusFrontend", payload);
+				const data: ReactionTime = {
+					roundstart: timeStamp,
+					playerclicked: clickStamp,
+					forfeit: false
+				}
+				socket.emit("cts_clickedVirus", data);
 				playerOneTimer = false;
 			};
 
@@ -322,7 +328,7 @@ const gameHighscores = (playerTime: number[], playerScore: [number, number][]): 
 
 };
 
-gameHighscores(playerTime, playerScore);
+// gameHighscores(playerTime, playerScore);
 
 playerFormTwoEl.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -370,5 +376,5 @@ virusEl.addEventListener("click", ()=> {
 console.log("Clicked Virus! Payload", payload)
 
 socket.emit("cts_clickedVirus", data);
-playerOneTimer = false;
+
  */
