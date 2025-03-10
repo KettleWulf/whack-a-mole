@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, Messagedata, ReactionTime,  GameEvolution, Gamelobby, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, ReactionTime,  GameEvolution, Gamelobby, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -7,6 +7,7 @@ import Mole3 from "./assets/images/Mole3.png";
 import Mole4 from "./assets/images/Mole4.png";
 import Mole5 from "./assets/images/Mole5.png";
 import "./assets/scss/style.scss";
+import { GameDataOmitID } from "../../backend/src/types/gamedata_types";
 
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -48,7 +49,7 @@ let room: string | undefined;
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
-	socket.emit("cts_getHighscores",room ,(displayPlayedGames));
+	socket.emit("cts_getHighscores","room" ,(displayPlayedGames));
 });
 
 // Listen for when server got tired of us
@@ -59,7 +60,7 @@ socket.on("disconnect", () => {
 // Listen for server messages
 socket.on("stc_Message", (payload)=> {
 	const time = new Date(payload.timestamp).toLocaleTimeString();
-	infoEl.innerHTML += `<p> <span>${time} </span> | Server Message: ${payload.content}</p>`
+	console.log(time + ": getting this from stc_message", payload.content);
 });
 socket.on("stc_GameroomReadyMessage", (payload)=> {
 	const roomId = payload.room.title
@@ -95,7 +96,7 @@ socket.on("stc_roundUpdate", (payload) => {
 	socket.emit("cts_startRequest", roomId, startgameCallback);
 })
 
-const startgameCallback = (response: Startgame) => {
+const startgameCallback = (response: GameDataOmitID) => {
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
             const gridEl = document.createElement("div");
@@ -144,7 +145,7 @@ const startgameCallback = (response: Startgame) => {
 		gameOn = true;
 		gameTimer ();
 
-		const molePosition = response.position;
+		const molePosition = response.coordinates;
 		console.log("The mole position is: ", molePosition);
 		const moleElement = document.querySelector(`[data-coords="${molePosition}"]`) as HTMLDivElement;
 
@@ -159,7 +160,7 @@ const startgameCallback = (response: Startgame) => {
 
 		gridContainer.addEventListener("click", (e) => {
 			const target = e.target as HTMLElement;
-			const moleElement = document.querySelector(`[data-coords="${response.position}"]`);
+			const moleElement = document.querySelector(`[data-coords="${response.coordinates}"]`);
 
 			if (target === moleElement) {
 
@@ -170,7 +171,15 @@ const startgameCallback = (response: Startgame) => {
 					forfeit: false,
 					roomId: room || "room"
 				}
-				socket.emit("cts_clickedVirus", payload);
+				socket.emit("cts_clickedVirusFrontend", payload);
+				const data: ReactionTime = {
+					roundstart: 25378,         // timestamp
+					playerclicked: 15378,       // timestamp
+					forfeit: true,
+				}
+				console.log("Clicked Virus! Payload", payload)
+			
+				socket.emit("cts_clickedVirus", data);
 				playerOneTimer = false;
 			};
 
@@ -220,19 +229,13 @@ socket.on("stc_sendingTime", (playerclicked) => {
 	console.log("Kom detta igenom", playerTwoTimer);
 });
 
+/*
 
 virusEl.addEventListener("click", ()=> {
 	// socket emit clicked Virus
-	const payload: ReactionTime = {
-		roundstart: 25378,         // timestamp
-		playerclicked: 15378,       // timestamp
-		forfeit: true,
-	}
-	console.log("Clicked Virus! Payload", payload)
 
-	socket.emit("cts_clickedVirus", payload);
 });
-
+ */
 // quitGameEl.addEventListener("click", ()=> {
 // 	//socket emit quitted game
 // 	const payload: Messagedata = {
