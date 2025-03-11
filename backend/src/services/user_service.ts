@@ -61,7 +61,6 @@ export const resetReactionTimes = (roomId: string) => {
             reactionTime: null
         }
     });
-
 }
 
 export const getUsersByRoomId = async (roomId: string) =>{

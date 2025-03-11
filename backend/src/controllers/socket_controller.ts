@@ -176,7 +176,6 @@ export const handleConnection = (
 			updatedScore[2] = (updatedScore[2] || 0) + 1;
 
 			draw = true;
-
 		} else {
 			const winner = player1.reactionTime < player2.reactionTime
 				? player1
@@ -189,12 +188,12 @@ export const handleConnection = (
 				: updatedScore[1]++
 		}
 
-		
+		debug("Current score: %s", updatedScore);
+
 		// As winner is determined, reset reactionTime on both users
 		await resetReactionTimes(gameRoom.id);
-		debug("userReactions length after reset: %s", userReactionTimes.length);		
+		// debug("userReactions length after reset: %s", resetReactions.length);		
 		
-		debug("Current score: %s", updatedScore);
 
 		// Accumulate score of players to determine current round
 		const currentRound = updatedScore.reduce((sum, score) => sum + score, 0);
@@ -225,7 +224,6 @@ export const handleConnection = (
 			score: updatedScore,
 			draw,
 		}
-
 		debug("RoundResultData: %O", RoundResultData);
 
 		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
@@ -294,7 +292,7 @@ const handlePlayerForfeit = async (userId: string) => {
 		// Update GameRoom in DB with new score
 		await updateGameRoomScore(gameRoom.id, updatedScore);
 
-		// Get usernames to include in title
+		// Get usernames to include gameData
 		const [player1, player2] = gameRoom.users;
 
 		// Call the game
