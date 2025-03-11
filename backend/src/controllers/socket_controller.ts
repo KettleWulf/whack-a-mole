@@ -6,7 +6,7 @@ import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData, ActiveRooms } from "@shared/types/SocketEvents.types";
 import { createGameroom, findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service";
 import { User } from "@prisma/client";
-import { createUser, findUserById, getOpponent, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
+import { createUser, findUserById, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import {  createOrUpdateGameData, getGameData,  } from "../services/gamedata_service";
@@ -190,17 +190,13 @@ export const handleConnection = (
 
 			draw = true;
 
+		} else if (player1.reactionTime < player2.reactionTime) {
+			updatedScore[0]++
 		} else {
-			const winner = player1.reactionTime < player2.reactionTime
-				? player1
-				: player2
-	
-			debug("And the winner is: %o", winner);
-
-			winner.id === player1.id
-				? updatedScore[0]++
-				: updatedScore[1]++
+			updatedScore[1]++
 		}
+
+		debug("And the winner is: %o", player1.reactionTime < player2.reactionTime ? player1 : player2);
 
 		
 		// As winner is determined, reset reactionTime on both users
@@ -325,29 +321,31 @@ const handlePlayerForfeit = async (userId: string) => {
 			return;
 		}
 
-		// Get opponent (winner by forfeit) from DB
-		const opponent = await getOpponent(gameRoom.id, userId)
+		// Get opponent (winner by forfeit)
+		const opponent = gameRoom.users.find(user => user.id !== userId);
 		if (!opponent) {
-			debug("No opponent found, cannot award win.");
+			debug("Could not verify opponent: %o", opponent)
 			return;
 		}
 
-		// Award last point to opponent/winner
-		// const updatedScore = [...gameRoom.score];
-		const userstuff = opponent.id === gameRoom.users[0].id
-			? [10,0]
-			: [0,10];
-
-		// Update GameRoom in DB with new score
-		await updateGameRoomScore(gameRoom.id, userstuff);
-
 		// Get usernames to include in title
 		const [player1, player2] = gameRoom.users;
+		const updatedScore = [...gameRoom.score]
+
+		if (opponent.id === player1.id) {
+			updatedScore[0]++;
+		} else {
+			updatedScore[1]++;
+		}
+
+		// Update GameRoom in DB with new score
+		await updateGameRoomScore(gameRoom.id, updatedScore);
+
 		// UserWhoStayed vs UserWholeft 10-0
 		// Call the game
 		const gameData: FinishedGameData = {
 			title: `${player1.username} vs ${player2.username}`,
-			score: userstuff
+			score: updatedScore
 		}
 
 		finishedGame(gameRoom.id, true, gameData);
