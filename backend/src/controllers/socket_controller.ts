@@ -97,7 +97,7 @@ export const handleConnection = (
 		}
 
 		//room is ready for game, broadcast!
-		io.to(roomId).emit("stc_GameroomReadyMessage", message)
+		io.to(roomId).emit("stc_GameroomReadyMessage", message);
         return;
     }
 	});

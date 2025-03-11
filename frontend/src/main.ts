@@ -96,6 +96,10 @@ socket.on("stc_Message", (payload)=> {
 // Listen for when we're reconnected (either due to our or the servers connection)
 socket.io.on("reconnect", () => {
 	console.log("😊 Reconnected to server:", socket.io.opts.hostname + ":" + socket.io.opts.port);
+	const username = playerNameEl.value.trim();
+	if (username) {
+		socket.emit("cts_joinRequest", { content: username });
+	}
 });
 
 playerFormEl.addEventListener("submit", (e) => {
