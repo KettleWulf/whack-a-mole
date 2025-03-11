@@ -116,7 +116,8 @@ export const handleConnection = (
 			timestamp: Date.now()
 		}
 		io.to(roomId).emit("stc_Message", payload);
-		io.timeout(15000).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
+		const forfeitTimer = gameData.startDelay + 30000
+		io.timeout(forfeitTimer).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
 			if (err) {
 				debug("we didnt get response!!", callbacks);
 				// debug("we didnt get response!!", err, callbacks);
