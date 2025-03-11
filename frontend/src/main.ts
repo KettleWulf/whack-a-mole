@@ -176,7 +176,10 @@ const startgameCallback = (response: GameDataOmitID) => {
 
 			if (target === moleElement) {
 				socket.on("stc_requestclickorforfeit",(callback)=> {
-					callback(true);
+					if (socket.id) {
+						callback(socket.id);
+					}
+					
 				})
 				clickStamp = Date.now();
 				// const payload: GameEvaluation = {

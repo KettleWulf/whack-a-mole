@@ -116,12 +116,13 @@ export const handleConnection = (
 			timestamp: Date.now()
 		}
 		io.to(roomId).emit("stc_Message", payload);
-		io.timeout(30000).to(socket.id).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
-			if (err || callbacks.length !== 2) {
-				debug("we didnt get response!!", err);
+		io.timeout(15000).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
+			if (err) {
+				debug("we didnt get response!!", callbacks);
+				// debug("we didnt get response!!", err, callbacks);
 				socket.to(roomId).emit("stc_finishedgame");
+				return;
 			}
-			debug("Callbacks:", callback)
 		})
 	});
 
