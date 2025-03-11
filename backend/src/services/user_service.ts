@@ -72,17 +72,3 @@ export const getUsersByRoomId = async (roomId: string) =>{
         
     })
 }
-
-export const getOpponent = (roomId: string, userId: string) => {
-    return prisma.user.findFirst({
-        where: {
-            roomId: roomId,
-            id: {
-                not: userId
-            }
-        },
-        select: {
-            id: true
-        },
-    });
-}

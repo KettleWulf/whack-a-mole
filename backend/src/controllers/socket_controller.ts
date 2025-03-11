@@ -6,7 +6,7 @@ import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData } from "@shared/types/SocketEvents.types";
 import { createGameroom, findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service";
 import { User } from "@prisma/client";
-import { createUser, findUserById, getOpponent, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
+import { createUser, findUserById, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import {  createOrUpdateGameData, getGameData,  } from "../services/gamedata_service";
@@ -312,13 +312,13 @@ const handlePlayerForfeit = async (userId: string) => {
 			return;
 		}
 
-		// Get opponent (winner by forfeit) from DB
-		const opponent = await getOpponent(gameRoom.id, userId)
+		// Get opponent (winner by forfeit)
+		const opponent = gameRoom.users.find(user => user.id !== userId);
 		if (!opponent) {
-			debug("No opponent found, cannot award win.");
+			debug("Could not verify opponent: %o", opponent)
 			return;
 		}
-		
+
 		// Get usernames to include in title
 		const [player1, player2] = gameRoom.users;
 		const updatedScore = [...gameRoom.score]
