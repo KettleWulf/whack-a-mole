@@ -175,7 +175,9 @@ const startgameCallback = (response: GameDataOmitID) => {
 			const moleElement = document.querySelector(`[data-coords="${response.coordinates}"]`);
 
 			if (target === moleElement) {
-
+				socket.on("stc_requestclickorforfeit",(callback)=> {
+					callback(true);
+				})
 				clickStamp = Date.now();
 				// const payload: GameEvaluation = {
 				// 	start: timeStamp,

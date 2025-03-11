@@ -15,6 +15,7 @@ export interface ServerToClientEvents {
     stc_roundUpdate: (payload: RoundResultData) => void;
     stc_opponentleft: ()=> void;
     stc_finishedgame: ()=>void;
+    stc_requestclickorforfeit: (callback: (clicked: boolean)=> void)=>void;
 }
 
 // Events emitted by the client to the server

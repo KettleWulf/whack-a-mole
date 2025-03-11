@@ -9,7 +9,7 @@ import { User } from "@prisma/client";
 import { createUser, findUserById, getOpponent, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
-import { createGameData, getGameData, updateGameData } from "../services/gamedata_service";
+import { createGameData, createOrUpdateGameData, getGameData, updateGameData } from "../services/gamedata_service";
 import prisma from "../prisma";
 
 // Create a new debug instance
@@ -60,12 +60,10 @@ export const handleConnection = (
 			debug("Failed to retrieve created room from DB");
 			return;
 		}
-		
-		// Generate GameData
 		const data = generateGameData(createRoom.id);
-		
+		const { id, ...updateData } = data;
 		// Create GameData in DB
-		await createGameData(data)
+		await createOrUpdateGameData(id, updateData, data);
 
 
 		await updateUserRoomId(socket.id, createRoom.id);
@@ -105,8 +103,8 @@ export const handleConnection = (
 	});
 	socket.on("cts_startRequest", async (roomId, callback)=> {
 
-		const gameData = await getGameData(roomId)
-
+		// Generate GameData
+		const gameData = await getGameData(roomId);
 		if(!gameData) {
 			debug("Couldn't find GameData in relation to roomId: %s", roomId);
 			return;
@@ -117,7 +115,17 @@ export const handleConnection = (
 			content: "Game is starting",
 			timestamp: Date.now()
 		}
-		io.to(roomId).emit("stc_Message", payload)
+		io.to(roomId).emit("stc_Message", payload);
+		socket.timeout(15000).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
+			if (err) {
+				debug("we didnt get response!!", err);
+				socket.to(roomId).emit("stc_finishedgame");
+			}
+			if (callbacks.length == 2) {
+				debug("2 ack", callbacks);
+			}
+			debug("Callbacks:", callback)
+		})
 	});
 
 	socket.on("cts_clickedVirus", async (payload)=> {
@@ -235,8 +243,10 @@ export const handleConnection = (
 		}
 
 		debug("RoundResultData: %O", RoundResultData);
-		const gameData = generateGameData(gameRoom.id)
-		await updateGameData(gameData);
+		const data = generateGameData(gameRoom.id);
+		const { id, ...updateData } = data;
+		// Create GameData in DB
+		await createOrUpdateGameData(id, updateData, data);
 		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
 
