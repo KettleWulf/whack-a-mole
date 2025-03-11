@@ -401,12 +401,15 @@ socket.on("stc_roundUpdate", (payload) => {
 })
 
 socket.on("stc_finishedgame", ()=> {
-	if (room){
-		socket.emit("cts_quitGame", room, (response)=> {
-			//await server to handle quitgame 
-			if (response) {
-				backToLobby();
-			}
-		})
-	}
-})
+	const timeout = (Math.random() * (10 - 1.5) + 1.5) * 1000;
+	setTimeout(() => {
+		if (room){
+			socket.emit("cts_quitGame", room, (response)=> {
+				//await server to handle quitgame 
+				if (response) {
+					backToLobby();
+				}
+			})
+		}
+	}, timeout);
+});

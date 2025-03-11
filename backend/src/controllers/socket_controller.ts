@@ -116,13 +116,10 @@ export const handleConnection = (
 			timestamp: Date.now()
 		}
 		io.to(roomId).emit("stc_Message", payload);
-		socket.timeout(15000).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
-			if (err) {
+		io.timeout(30000).to(socket.id).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
+			if (err || callbacks.length !== 2) {
 				debug("we didnt get response!!", err);
 				socket.to(roomId).emit("stc_finishedgame");
-			}
-			if (callbacks.length == 2) {
-				debug("2 ack", callbacks);
 			}
 			debug("Callbacks:", callback)
 		})
@@ -251,6 +248,12 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_quitGame", async (roomId, callback)=> {
+		const gameroom = await prisma.gameroom.findUnique({where: {
+			id: roomId
+		}})
+		if (!gameroom) {
+			return;
+		}
 		// TODO, move this to services
 
 		/**
