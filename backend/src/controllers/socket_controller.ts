@@ -22,9 +22,6 @@ export const handleConnection = (
 ) => {
 	addToHighscores({title: "Kalle vs. Hobbe", score: [3,7]});
 	debug("🙋 A user connnected", socket.id);
-	socket.emit("stc_sendActiveRooms", ()=> {
-
-	} )
 
 	// Handle a user disconnecting
 	socket.on("disconnect", () => {
