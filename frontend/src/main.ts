@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, ReactionTime,  GameEvolution, Gamelobby, ServerToClientEvents, GameEvaluation } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, ReactionTime,   Gamelobby, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -8,7 +8,7 @@ import Mole4 from "./assets/images/Mole4.png";
 import Mole5 from "./assets/images/Mole5.png";
 import "./assets/scss/style.scss";
 import { GameDataOmitID } from "../../backend/src/types/gamedata_types";
-import { NewHighscoreRecord } from "../../backend/src/types/highscore.types";
+
 
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;

@@ -9,7 +9,7 @@ import { User } from "@prisma/client";
 import { createUser, findUserById, getOpponent, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
-import { createGameData, createOrUpdateGameData, getGameData, updateGameData } from "../services/gamedata_service";
+import {  createOrUpdateGameData, getGameData,  } from "../services/gamedata_service";
 import prisma from "../prisma";
 
 // Create a new debug instance
