@@ -217,6 +217,7 @@ export const handleConnection = (
 			}
 
 			finishedGame(gameRoom.id, false, gameData);
+			// last socket to click emits the finished game event
 			socket.to(gameRoom.id).emit("stc_finishedgame");
 			return;
 		}
@@ -240,7 +241,15 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_quitGame", async (roomId, callback)=> {
-		
+		// TODO, move this to services
+
+		/**
+		 * Get users with roomID, delete them all!
+		 * Then, delete Gameroom
+		 * let the Opponent know that player left
+		 * disconnect sockets from roomId,
+		 * if everything is successful, acknowledge callback
+		 */
 		await prisma.user.deleteMany({where: {
 			roomId
 		}}).then(async()=> {

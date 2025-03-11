@@ -340,6 +340,7 @@ const gameHighscores = (playerTime: number[], playerScore: [number, number][]): 
 
 playerFormTwoEl.addEventListener("submit", (e) => {
     e.preventDefault();
+	// The first form is hidden and the value should still be there
 	const username = playerNameEl.value.trim();
 	if (username) {
 		socket.emit("cts_joinRequest", { content: username });
@@ -390,6 +391,7 @@ socket.emit("cts_clickedVirus", data);
 
  */
 socket.on("stc_opponentleft", ()=> {
+	
 	backToLobby();
 });
 socket.on("stc_roundUpdate", (payload) => {
@@ -399,6 +401,7 @@ socket.on("stc_roundUpdate", (payload) => {
 socket.on("stc_finishedgame", ()=> {
 	if (room){
 		socket.emit("cts_quitGame", room, (response)=> {
+			//await server to handle quitgame 
 			if (response) {
 				backToLobby();
 			}
