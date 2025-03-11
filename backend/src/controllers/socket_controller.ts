@@ -121,6 +121,7 @@ export const handleConnection = (
 				debug("we didnt get response!!", err);
 				socket.to(roomId).emit("stc_finishedgame");
 			}
+			
 			debug("Callbacks:", callback)
 		})
 	});
@@ -141,6 +142,7 @@ export const handleConnection = (
 		}
 		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
 		socket.to(gameRoom.id).emit("stc_sendingTime", false);
+
 		// Handle player forfeiting
 		if (payload.forfeit === true) {
 			handlePlayerForfeit(socket.id);
