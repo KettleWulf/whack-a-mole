@@ -10,6 +10,7 @@ import { createUser, findUserById, getOpponent, getUsersByRoomId, getUsersReacti
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { createGameData, getGameData } from "../services/gamedata_service";
+import prisma from "../prisma";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -236,12 +237,20 @@ export const handleConnection = (
 		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
 
-	socket.on("cts_quitGame", (payload)=> {
-		const message: Messagedata = {
-			content: "User disconnected",
-			timestamp: payload.timestamp,
-		}
-		socket.emit("stc_Message", message);
+	socket.on("cts_quitGame", async (roomId, callback)=> {
+		
+		await prisma.user.deleteMany({where: {
+			roomId
+		}}).then(async()=> {
+			await prisma.gameroom.delete({
+				where: {id: roomId
+				}
+			})
+		});
+		socket.to(roomId).emit("stc_opponentleft");
+		io.socketsLeave(roomId);
+		callback(true)
+		debug("Socket left gameroom", roomId)
 	});
 
 	socket.on("cts_getHighscores", async (roomid, callback)=> {

@@ -244,7 +244,14 @@ const backToLobby = () => {
 };
 
 backtolobbyEl.addEventListener("click", () => {
-	backToLobby();
+	
+	if (room){
+		socket.emit("cts_quitGame", room, (response)=> {
+			if (response) {
+				backToLobby();
+			}
+		})
+	}
 });
 
 const displayOngoingGames = () => {
@@ -378,3 +385,6 @@ console.log("Clicked Virus! Payload", payload)
 socket.emit("cts_clickedVirus", data);
 
  */
+socket.on("stc_opponentleft", ()=> {
+	backToLobby();
+})

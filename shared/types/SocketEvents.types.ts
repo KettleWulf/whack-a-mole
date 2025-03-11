@@ -13,6 +13,7 @@ export interface ServerToClientEvents {
     stc_GameroomReadyMessage: (payload: Gamelobby) => void;
 	stc_sendingTime: (playerclicked: boolean) => void;
     stc_roundUpdate: (payload: RoundResultData) => void;
+    stc_opponentleft: ()=> void;
 }
 
 // Events emitted by the client to the server
@@ -22,7 +23,7 @@ export interface ClientToServerEvents {
     cts_clickedVirusFrontend: (payload: GameEvaluation) => void;
     cts_startRequest: (room: string, callback: (response: GameDataOmitID)=> void) => void;
     cts_clickedVirus: (payload: ReactionTime) => void;
-    cts_quitGame: (payload: Messagedata) => void;
+    cts_quitGame: (roomId: string, callback:(response: boolean)=> void) => void;
     cts_getHighscores: (roomID: string, callback: (highscoreCollection: NewHighscoreRecord[])=> void) => void;
 }
 
@@ -65,3 +66,4 @@ export interface RoundResultData {
     score: number[];
     draw: boolean;
 }
+
