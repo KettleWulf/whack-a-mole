@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, ReactionTime,   Gamelobby, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, ReactionTime,   Gamelobby, ServerToClientEvents, ActiveRooms } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -70,6 +70,7 @@ socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
 	socket.emit("cts_getHighscores", "room" ,(displayPlayedGames));
+	socket.emit("stc_getActiveRooms", (displayOngoingGames));
 	gameHighscores(playerTime, playerScore);
 });
 
@@ -211,7 +212,7 @@ socket.on('stc_GameroomReadyMessage', (message) => {
 	userOne = message.users[0];
 	userTwo = message.users[1];
 	games.push(message);
-	displayOngoingGames();
+	// displayOngoingGames();
 
 	if(roomId) {
 		socket.emit("cts_startRequest", roomId, (startgameCallback))
@@ -247,6 +248,7 @@ socket.on("stc_sendingTime", (playerclicked) => {
 
 
 const backToLobby = () => {
+	socket.emit("stc_getActiveRooms", (displayOngoingGames))
 	lobbyEl.classList.remove("hide");
 	gameBoardEl.classList.add("hide");
 	waitingForPlayerEl.classList.add("hide");
@@ -264,7 +266,8 @@ backtolobbyEl.addEventListener("click", () => {
 	}
 });
 
-const displayOngoingGames = () => {
+const displayOngoingGames = (payload: ActiveRooms[]) => {
+	console.log(payload);
 	ongoingGamesEl.innerHTML = "";
 	console.log("Funktion startat");
 

@@ -3,7 +3,7 @@
  */
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData, ActiveRooms } from "@shared/types/SocketEvents.types";
 import { createGameroom, findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service";
 import { User } from "@prisma/client";
 import { createUser, findUserById, getOpponent, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
@@ -22,6 +22,9 @@ export const handleConnection = (
 ) => {
 	addToHighscores({title: "Kalle vs. Hobbe", score: [3,7]});
 	debug("🙋 A user connnected", socket.id);
+	socket.emit("stc_sendActiveRooms", ()=> {
+
+	} )
 
 	// Handle a user disconnecting
 	socket.on("disconnect", () => {
@@ -282,6 +285,13 @@ export const handleConnection = (
 	socket.on("cts_getHighscores", async (roomid, callback)=> {
 		const highscoreCollection = await GetHighscores();
 			callback({...highscoreCollection})
+	});
+	socket.on("stc_getActiveRooms", async (callback)=> {
+		const roomcollection: ActiveRooms[] = await GetActiveRooms();
+		if (roomcollection) {
+			callback({...roomcollection})
+		}
+		
 	})
 
 }
@@ -345,4 +355,13 @@ const handlePlayerForfeit = async (userId: string) => {
 
 		finishedGame(gameRoom.id, true, gameData);
 		return;
+}
+
+const GetActiveRooms = async() => {
+	return prisma.gameroom.findMany({
+		include: {
+			users: true
+		}
+	})
+
 }
