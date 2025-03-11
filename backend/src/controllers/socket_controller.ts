@@ -9,7 +9,7 @@ import { User } from "@prisma/client";
 import { createUser, findUserById, getOpponent, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
-import { createGameData, getGameData } from "../services/gamedata_service";
+import { createGameData, getGameData, updateGameData } from "../services/gamedata_service";
 import prisma from "../prisma";
 
 // Create a new debug instance
@@ -208,7 +208,7 @@ export const handleConnection = (
 		debug("Current Round: %s", currentRound)
 
 		// If current round is 10, call the game!
-		if (currentRound === 10) {
+		if (currentRound === 2) {
 			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
 
 			const gameData: FinishedGameData = {
@@ -217,6 +217,7 @@ export const handleConnection = (
 			}
 
 			finishedGame(gameRoom.id, false, gameData);
+			socket.to(gameRoom.id).emit("stc_finishedgame");
 			return;
 		}
 
@@ -233,7 +234,8 @@ export const handleConnection = (
 		}
 
 		debug("RoundResultData: %O", RoundResultData);
-
+		const gameData = generateGameData(gameRoom.id)
+		await updateGameData(gameData);
 		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
 

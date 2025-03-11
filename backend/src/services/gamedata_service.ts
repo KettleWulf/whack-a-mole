@@ -17,6 +17,18 @@ export const createOrUpdateGameData = (id: string, updateData: GameDataOmitID, d
         create: data,
     });
 }
+export const updateGameData = (roomdata: GameData) => {
+    return prisma.gameData.update({
+        where: {
+            id : roomdata.id
+        }, data: {
+            coordinates: roomdata.coordinates,
+            randomImage: roomdata.randomImage,
+            startDelay: roomdata.startDelay
+
+        }
+    })
+}
 
 export const getGameData = (roomId: string) => {
     return prisma.gameData.findUnique({

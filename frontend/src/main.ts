@@ -115,6 +115,7 @@ playerFormEl.addEventListener("submit", (e) => {
 });
 
 const startgameCallback = (response: GameDataOmitID) => {
+	gridContainer.innerHTML = "";
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
             const gridEl = document.createElement("div");
@@ -339,9 +340,12 @@ const gameHighscores = (playerTime: number[], playerScore: [number, number][]): 
 
 playerFormTwoEl.addEventListener("submit", (e) => {
     e.preventDefault();
-
+	const username = playerNameEl.value.trim();
+	if (username) {
+		socket.emit("cts_joinRequest", { content: username });
+	}
     if (userOne && userOne.username) {
-        socket.emit("cts_joinRequest", { content: userOne.username });
+        
         playAgainEl.classList.add("hide");
         waitingForPlayerEl.classList.remove("hide");
         gameBoardEl.classList.add("hide");
@@ -387,4 +391,17 @@ socket.emit("cts_clickedVirus", data);
  */
 socket.on("stc_opponentleft", ()=> {
 	backToLobby();
+});
+socket.on("stc_roundUpdate", (payload) => {
+	socket.emit("cts_startRequest", payload.roomId, (startgameCallback))
+})
+
+socket.on("stc_finishedgame", ()=> {
+	if (room){
+		socket.emit("cts_quitGame", room, (response)=> {
+			if (response) {
+				backToLobby();
+			}
+		})
+	}
 })
