@@ -188,17 +188,13 @@ export const handleConnection = (
 
 			draw = true;
 
+		} else if (player1.reactionTime < player2.reactionTime) {
+			updatedScore[0]++
 		} else {
-			const winner = player1.reactionTime < player2.reactionTime
-				? player1
-				: player2
-	
-			debug("And the winner is: %o", winner);
-
-			winner.id === player1.id
-				? updatedScore[0]++
-				: updatedScore[1]++
+			updatedScore[1]++
 		}
+
+		debug("And the winner is: %o", player1.reactionTime < player2.reactionTime ? player1 : player2);
 
 		
 		// As winner is determined, reset reactionTime on both users
@@ -322,23 +318,25 @@ const handlePlayerForfeit = async (userId: string) => {
 			debug("No opponent found, cannot award win.");
 			return;
 		}
-
-		// Award last point to opponent/winner
-		// const updatedScore = [...gameRoom.score];
-		const userstuff = opponent.id === gameRoom.users[0].id
-			? [10,0]
-			: [0,10];
-
-		// Update GameRoom in DB with new score
-		await updateGameRoomScore(gameRoom.id, userstuff);
-
+		
 		// Get usernames to include in title
 		const [player1, player2] = gameRoom.users;
+		const updatedScore = [...gameRoom.score]
+
+		if (opponent.id === player1.id) {
+			updatedScore[0]++;
+		} else {
+			updatedScore[1]++;
+		}
+
+		// Update GameRoom in DB with new score
+		await updateGameRoomScore(gameRoom.id, updatedScore);
+
 		// UserWhoStayed vs UserWholeft 10-0
 		// Call the game
 		const gameData: FinishedGameData = {
 			title: `${player1.username} vs ${player2.username}`,
-			score: userstuff
+			score: updatedScore
 		}
 
 		finishedGame(gameRoom.id, true, gameData);
