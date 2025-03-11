@@ -21,9 +21,9 @@ const playerFormEl = document.querySelector("#player-form") as HTMLFormElement;
 const playerFormTwoEl = document.querySelector("#player-form2") as HTMLFormElement;
 const playerNameEl = document.querySelector("#playername") as HTMLInputElement;
 const lobbyEl = document.querySelector(".loby") as HTMLDivElement;
-const playerWraperEl = document.querySelector(".player-wrapper") as HTMLDivElement;
-const playAgainEl = document.querySelector(".player-wrapper2") as HTMLDivElement;
-const waitingForPlayerEl = document.querySelector(".player-wrapper3") as HTMLDivElement;
+const playerWraperEl = document.querySelector(".sektion1-wrapper") as HTMLDivElement;
+const playAgainEl = document.querySelector(".sektion2-wrapper") as HTMLDivElement;
+const waitingForPlayerEl = document.querySelector(".sektion3-wrapper") as HTMLDivElement;
 const gameBoardEl = document.querySelector("#game-board") as HTMLDivElement;
 const countdownEl = document.querySelector("#countdown-timer") as HTMLDivElement;
 const playerOneTimerEl = document.querySelector("#players-timer1") as HTMLDivElement;
@@ -34,6 +34,11 @@ const playedGamesEl = document.querySelector(".games-data") as HTMLDivElement;
 const ongoingGamesEl = document.querySelector(".ongoing-games-data") as HTMLDivElement;
 const highscoresEl = document.querySelector(".highscores") as HTMLDivElement;
 const backtolobbyEl = document.querySelector(".backtolobby") as HTMLButtonElement;
+const statsBtnOneEl = document.querySelector(".highscoreBtn") as HTMLDivElement;
+const statsBtnTwoEl = document.querySelector(".highscoreBtn2") as HTMLDivElement;
+const sectionOneEl = document.querySelector(".sektion1") as HTMLDivElement;
+const sectionTwoEl = document.querySelector(".sektion2") as HTMLDivElement;
+const statsLobyBtnEl = document.querySelector(".lobyBtn") as HTMLDivElement;
 
 const games: Gamelobby[] = [];
 const playerTime: number[] = [2.34, 4.32, 5.67, 1.23, 2.11, 3.43]
@@ -93,7 +98,6 @@ const startgameCallback = (response: Startgame) => {
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
             const gridEl = document.createElement("div");
-			// gridEl.classList.add("test");
             gridEl.dataset.coords = `${i}-${j}`;
             gridContainer.appendChild(gridEl);
         }
@@ -213,7 +217,7 @@ const displayPlayedGames = (response: NewHighscoreRecord[]) => {
 				return `
 					<div class="ongoing-games-layout">
 						<div>${game.title}</div>
-						<div><span class="games-info-text">${game.score.join(" - ")}</span></div>
+						<div><span class="games-info-text2">${game.score.join(" - ")}</span></div>
 					</div>
 				`;
 			}).join('')}
@@ -245,7 +249,7 @@ const displayOngoingGames = () => {
 			<h5>Ongoing Games</h5>
 			<div class="ongoing-games-layout">
 				<div>${userNames}</div>
-				<div><span class="games-info-text">${score.join(" - ")}</span></div>
+				<div><span class="games-info-text2">${score.join(" - ")}</span></div>
 			</div>
 		</div>
 		`;
@@ -298,8 +302,8 @@ const gameHighscores = (playerTime: number[], playerScore: [number, number][]): 
 					<div><span class="games-info-text">Games Losses:</span> ${lost}</div>
 				</div>
 				<div class="game-stats-reactiontime">
-					<div><span class="games-info-text">Best Reaction Time:</span> ${maxTime} sec.</div>
-					<div><span class="games-info-text">Worst Reaction Time:</span> ${minTime} sec.</div>
+					<div><span class="games-info-text">Best Reaction Time:</span> ${minTime} sec.</div>
+					<div><span class="games-info-text">Worst Reaction Time:</span> ${maxTime} sec.</div>
 					<div><span class="games-info-text">Average Reaction Time:</span> ${averageTime} sec.</div>
 				</div>
 				<div class="game-stats-highscore">
@@ -332,4 +336,19 @@ playerFormTwoEl.addEventListener("submit", (e) => {
         gridContainer.innerHTML = "";
         console.log("Sent join request for replay:", { playerName: userOne.username, id: socket.id });
     }
+});
+
+statsBtnOneEl.addEventListener("click", () => {
+	sectionOneEl.classList.add("hide");
+	sectionTwoEl.classList.remove("hide");
+});
+
+statsBtnTwoEl.addEventListener("click", () => {
+	sectionOneEl.classList.add("hide");
+	sectionTwoEl.classList.remove("hide");
+});
+
+statsLobyBtnEl.addEventListener("click", () => {
+	sectionOneEl.classList.remove("hide");
+	sectionTwoEl.classList.add("hide");
 });
