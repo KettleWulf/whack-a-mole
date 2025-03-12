@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, GameEvaluation, Gamelobby, ServerToClientEvents, Startgame } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, ReactionTime,   Gamelobby, ServerToClientEvents, ActiveRooms } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -7,7 +7,9 @@ import Mole3 from "./assets/images/Mole3.png";
 import Mole4 from "./assets/images/Mole4.png";
 import Mole5 from "./assets/images/Mole5.png";
 import "./assets/scss/style.scss";
+import { GameDataOmitID } from "../../backend/src/types/gamedata_types";
 import { NewHighscoreRecord } from "../../backend/src/types/highscore.types";
+
 
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -74,6 +76,7 @@ socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
 	socket.emit("cts_getHighscores", "room" ,(displayPlayedGames));
+	socket.emit("stc_getActiveRooms", (displayOngoingGames));
 	gameHighscores(playerTime, playerScore);
 });
 
@@ -82,9 +85,28 @@ socket.on("disconnect", () => {
 	console.log("🥺 Got disconnected from server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 });
 
+// Listen for server messages
+socket.on("stc_Message", (payload)=> {
+	const time = new Date(payload.timestamp).toLocaleTimeString();
+	console.log(time + ": getting this from stc_message", payload.content);
+});
+// socket.on("stc_GameroomReadyMessage", (payload)=> {
+// 	const roomId = payload.room.title
+// 	if (roomId)
+// 	{
+// 		console.log(payload);
+// 		// Get the payload, generate info from user and room and then emit startrequest
+// 		socket.emit("cts_startRequest", roomId ,startgameCallback);
+// 	}
+// })
+
 // Listen for when we're reconnected (either due to our or the servers connection)
 socket.io.on("reconnect", () => {
 	console.log("😊 Reconnected to server:", socket.io.opts.hostname + ":" + socket.io.opts.port);
+	const username = playerNameEl.value.trim();
+	if (username) {
+		socket.emit("cts_joinRequest", { content: username });
+	}
 });
 
 playerFormEl.addEventListener("submit", (e) => {
@@ -103,8 +125,10 @@ playerFormEl.addEventListener("submit", (e) => {
     }
 });
 
-const startgameCallback = (response: Startgame) => {
+
 	statsBtnOneEl.disabled = false;
+const startgameCallback = (response: GameDataOmitID) => {
+	gridContainer.innerHTML = "";
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
             const gridEl = document.createElement("div");
@@ -145,7 +169,7 @@ const startgameCallback = (response: Startgame) => {
 		gameOn = true;
 		gameTimer ();
 
-		const molePosition = response.position;
+		const molePosition = response.coordinates;
 		console.log("The mole position is: ", molePosition);
 		const moleElement = document.querySelector(`[data-coords="${molePosition}"]`) as HTMLDivElement;
 
@@ -160,18 +184,29 @@ const startgameCallback = (response: Startgame) => {
 
 		gridContainer.addEventListener("click", (e) => {
 			const target = e.target as HTMLElement;
-			const moleElement = document.querySelector(`[data-coords="${response.position}"]`);
+			const moleElement = document.querySelector(`[data-coords="${response.coordinates}"]`);
 
 			if (target === moleElement) {
+				socket.on("stc_requestclickorforfeit",(callback)=> {
+					if (socket.id) {
+						callback(socket.id);
+					}
 
+				})
 				clickStamp = Date.now();
-				const payload: GameEvaluation = {
-					start: timeStamp,
-					cliked: clickStamp,
-					forfeit: false,
-					roomId: room || "room"
+				// const payload: GameEvaluation = {
+				// 	start: timeStamp,
+				// 	cliked: clickStamp,
+				// 	forfeit: false,
+				// 	roomId: room || "room"
+				// }
+				// socket.emit("cts_clickedVirusFrontend", payload);
+				const data: ReactionTime = {
+					roundstart: timeStamp,
+					playerclicked: clickStamp,
+					forfeit: false
 				}
-				socket.emit("cts_clickedVirus", payload);
+				socket.emit("cts_clickedVirus", data);
 				playerOneTimer = false;
 			};
 
@@ -184,7 +219,7 @@ socket.on('stc_GameroomReadyMessage', (message) => {
 	userOne = message.users[0];
 	userTwo = message.users[1];
 	games.push(message);
-	displayOngoingGames();
+	// displayOngoingGames();
 
 	if(roomId) {
 		socket.emit("cts_startRequest", roomId, (startgameCallback))
@@ -236,6 +271,7 @@ const displayPlayedGames = (response: NewHighscoreRecord[]) => {
 };
 
 const backToLobby = () => {
+	socket.emit("stc_getActiveRooms", (displayOngoingGames))
 	lobbyEl.classList.remove("hide");
 	gameBoardEl.classList.add("hide");
 	waitingForPlayerEl.classList.add("hide");
@@ -243,10 +279,18 @@ const backToLobby = () => {
 };
 
 backtolobbyEl.addEventListener("click", () => {
-	backToLobby();
+
+	if (room){
+		socket.emit("cts_quitGame", room, (response)=> {
+			if (response) {
+				backToLobby();
+			}
+		})
+	}
 });
 
-const displayOngoingGames = () => {
+const displayOngoingGames = (payload: ActiveRooms[]) => {
+	console.log(payload);
 	ongoingGamesEl.innerHTML = "";
 	console.log("Funktion startat");
 
@@ -331,13 +375,17 @@ const gameHighscores = (playerTime: number[], playerScore: [number, number][]) =
 
 };
 
-gameHighscores(playerTime, playerScore);
+// gameHighscores(playerTime, playerScore);
 
 playerFormTwoEl.addEventListener("submit", (e) => {
     e.preventDefault();
-
+	// The first form is hidden and the value should still be there
+	const username = playerNameEl.value.trim();
+	if (username) {
+		socket.emit("cts_joinRequest", { content: username });
+	}
     if (userOne && userOne.username) {
-        socket.emit("cts_joinRequest", { content: userOne.username });
+
         playAgainEl.classList.add("hide");
         waitingForPlayerEl.classList.remove("hide");
         gameBoardEl.classList.add("hide");
@@ -365,4 +413,55 @@ statsBtnTwoEl.addEventListener("click", () => {
 statsLobyBtnEl.addEventListener("click", () => {
 	sectionOneEl.classList.remove("hide");
 	sectionTwoEl.classList.add("hide");
+});
+/*
+
+virusEl.addEventListener("click", ()=> {
+	// socket emit clicked Virus
+
+});
+ */
+// quitGameEl.addEventListener("click", ()=> {
+// 	//socket emit quitted game
+// 	const payload: Messagedata = {
+// 		content: "Client clicked virus",
+// 		timestamp: Date.now()
+// 	}
+// 	socket.emit("cts_quitGame", payload);
+// });
+
+
+
+
+/*
+  const data: ReactionTime = {
+	roundstart: 25378,         // timestamp
+	playerclicked: 15378,       // timestamp
+	forfeit: false,
+}
+console.log("Clicked Virus! Payload", payload)
+
+socket.emit("cts_clickedVirus", data);
+
+ */
+socket.on("stc_opponentleft", ()=> {
+
+	backToLobby();
+});
+socket.on("stc_roundUpdate", (payload) => {
+	socket.emit("cts_startRequest", payload.roomId, (startgameCallback))
+})
+
+socket.on("stc_finishedgame", ()=> {
+	const timeout = (Math.random() * (10 - 1.5) + 1.5) * 1000;
+	setTimeout(() => {
+		if (room){
+			socket.emit("cts_quitGame", room, (response)=> {
+				//await server to handle quitgame
+				if (response) {
+					backToLobby();
+				}
+			})
+		}
+	}, timeout);
 });

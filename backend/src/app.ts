@@ -10,8 +10,8 @@ console.log("🌱 Environment:", NODE_ENV);
 
 // Path to frontend build
 const frontendDistPath = path.join(__dirname, NODE_ENV === "production"
-	? "../../../frontend/dist"
-	: "../../frontend/dist"
+    ? "../../../../frontend/dist"
+    : "../../frontend/dist"
 );
 
 // Fire up a new express application

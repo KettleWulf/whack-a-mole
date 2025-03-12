@@ -3,18 +3,17 @@
  */
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents } from "@shared/types/SocketEvents.types";
-import { Gameroom } from "../types/gameroom_type";
-import { createGameroom, deleteRoomById, findPendingGameroom } from "../services/gameroom_service";
+import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData, ActiveRooms } from "@shared/types/SocketEvents.types";
+import { createGameroom, findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service";
 import { User } from "@prisma/client";
-import { createUser, findUserById, getUsersByRoomId, updateUserRoomId } from "../services/user_service";
+import { createUser, findUserById, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
-import { NewHighscoreRecord } from "../types/highscore.types";
+import {  createOrUpdateGameData, getGameData,  } from "../services/gamedata_service";
+import prisma from "../prisma";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
-const Gamerooms: Gameroom[]= [];
 // Handle a user connecting
 export const handleConnection = (
 	socket: Socket<ClientToServerEvents, ServerToClientEvents>,
@@ -56,6 +55,17 @@ export const handleConnection = (
 			}
 			await createUser(userdata);
 		}
+
+		if (!createRoom) {
+			debug("Failed to retrieve created room from DB");
+			return;
+		}
+		const data = generateGameData(createRoom.id);
+		const { id, ...updateData } = data;
+		// Create GameData in DB
+		await createOrUpdateGameData(id, updateData, data);
+
+
 		await updateUserRoomId(socket.id, createRoom.id);
 		socket.join(createRoom.id);
 		const message: Messagedata = {
@@ -87,69 +97,266 @@ export const handleConnection = (
 		}
 
 		//room is ready for game, broadcast!
-		io.to(roomId).emit("stc_GameroomReadyMessage", message)
+		io.to(roomId).emit("stc_GameroomReadyMessage", message);
         return;
     }
 	});
+	socket.on("cts_startRequest", async (roomId, callback)=> {
 
-	socket.on("cts_startRequest", (roomId, callback)=> {
-		const x = Math.floor(Math.random() * 10) + 1;
-		const y = Math.floor(Math.random() * 10) + 1;
-		const time = (Math.random() * (10 - 1.5) + 1.5) * 1000;
-		const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
-		const randomIndex = Math.floor(Math.random() * moleImages.length);
+		// Generate GameData
+		const gameData = await getGameData(roomId);
+		if(!gameData) {
+			debug("Couldn't find GameData in relation to roomId: %s", roomId);
+			return;
+		}
 
-		console.log(` Mullvaden kommer att dyka upp på: ${x}-${y}`);
-
-		callback({
-			position: `${x}-${y}`,
-			startDelay: time,
-			randomImage: randomIndex
-		})
+		callback(gameData)
 		const payload: Messagedata = {
 			content: "Game is starting",
 			timestamp: Date.now()
 		}
-		io.to(roomId).emit("stc_Message", payload)
-	});
-
-	socket.on("cts_clickedVirus", (payload)=> {
-		socket.to(payload.roomId).emit("stc_sendingTime", false);
-		const finished = false;
-		const forfeit = false;
-		// const message: Messagedata = {
-		// 	content: payload.content + " " + Gamerooms[0].score.join(" - "),
-		// 	timestamp: Date.now(),
-		// }
-		// socket.emit("stc_Message", message);
-		if (finished && !forfeit) {
-			const GameData: NewHighscoreRecord = {
-				title: "Cool title",
-				score: [7,3],
+		io.to(roomId).emit("stc_Message", payload);
+		const forfeitTimer = gameData.startDelay + 30000
+		io.timeout(forfeitTimer).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
+			if (err) {
+				debug("we didnt get response!!", callbacks);
+				// debug("we didnt get response!!", err, callbacks);
+				socket.to(roomId).emit("stc_finishedgame");
+				return;
 			}
-			finishedGame("ROOMID", false, GameData)
-		}
+		})
 	});
 
-	socket.on("cts_quitGame", (payload)=> {
-		const message: Messagedata = {
-			content: "User disconnected",
-			timestamp: payload.timestamp,
+	socket.on("cts_clickedVirus", async (payload)=> {
+		
+		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
+
+		// Assume it's not a draw, for now
+		let draw = false;
+
+		// Get gameroom, including users[] from DB
+		const gameRoom = await getGameRoomAndUsers(socket.id);
+		
+		if(!gameRoom) {
+			debug("GameRoom not found!");
+			return;
 		}
-		socket.emit("stc_Message", message);
+		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
+		socket.to(gameRoom.id).emit("stc_sendingTime", false);
+		// Handle player forfeiting
+		if (payload.forfeit === true) {
+			handlePlayerForfeit(socket.id);
+			return;
+		}
+
+
+		// Calculate reactiontime
+		const reactionTime = payload.playerclicked - payload.roundstart;
+		debug("Players reaction time: %s", reactionTime)
+
+		// Upload reactiontime to user
+		debug("updating user reactiontime %s!: %s", reactionTime, socket.id);
+		const userupdated = await updateUserReactionTime(socket.id, reactionTime);
+		if (!userupdated) {
+			debug("userReactions wasnt updated!: %s", userupdated);
+			return
+		}
+		// Check if both players has an uploaded reactiontime using roomId
+		const userReactionTimes = await getUsersReactionTimes(gameRoom.id)
+
+		debug("userReactions length: %s", userReactionTimes.length);
+
+		// Determine if both users has a registered reactiontime, otherwise bail
+		if (userReactionTimes.length !== 2) return;
+		const gameRoomWhenBothPlayershasClicked = await getGameRoomAndUsers(socket.id);
+		if (!gameRoomWhenBothPlayershasClicked) {
+			return;
+		}
+		// Deconstruct players from gameRoom (they SHOULD be in order)
+		const [player1, player2] = gameRoomWhenBothPlayershasClicked.users;
+
+		if (!player1.reactionTime || !player2.reactionTime) {
+			debug("One or both reactionTimes are null. Player one: %o Player two: %o", player1, player2);
+			return;
+		}
+
+		// Create score array to update and replace in DB - (manipulating arrays in DB not possible using prisma?)
+		const updatedScore = [...gameRoom.score]
+
+		// Determine draw or winner		
+		if (player1.reactionTime === player2.reactionTime) {
+			debug("It's a draw!")
+			updatedScore[2] = (updatedScore[2] || 0) + 1;
+
+			draw = true;
+
+		} else if (player1.reactionTime < player2.reactionTime) {
+			updatedScore[0]++
+		} else {
+			updatedScore[1]++
+		}
+
+		debug("And the winner is: %o", player1.reactionTime < player2.reactionTime ? player1 : player2);
+
+		
+		// As winner is determined, reset reactionTime on both users
+		await resetReactionTimes(gameRoom.id);
+		debug("userReactions length after reset: %s", userReactionTimes.length);		
+		
+		debug("Current score: %s", updatedScore);
+
+		// Accumulate score of players to determine current round
+		const currentRound = updatedScore.reduce((sum, score) => sum + score, 0);
+
+		debug("Current Round: %s", currentRound)
+
+		// If current round is 10, call the game!
+		if (currentRound === 2) {
+			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
+
+			const gameData: FinishedGameData = {
+				title: `${player1.username} vs ${player2.username}`,
+				score: updatedScore
+			}
+
+			finishedGame(gameRoom.id, false, gameData);
+			// last socket to click emits the finished game event
+			socket.to(gameRoom.id).emit("stc_finishedgame");
+			return;
+		}
+
+		// Update GameRoom in DB with new score
+		await updateGameRoomScore(gameRoom.id, updatedScore);
+
+		// emit shit to start next round?
+		 const RoundResultData: RoundResultData = {
+			roomId: gameRoom.id,
+			currentRound,
+			reactionTimes: [player1.reactionTime, player2.reactionTime],
+			score: updatedScore,
+			draw,
+		}
+
+		debug("RoundResultData: %O", RoundResultData);
+		const data = generateGameData(gameRoom.id);
+		const { id, ...updateData } = data;
+		// Create GameData in DB
+		await createOrUpdateGameData(id, updateData, data);
+		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
 
-	socket.on("cts_getHighscores", async (roomID, callback)=> {
+	socket.on("cts_quitGame", async (roomId, callback)=> {
+		const gameroom = await prisma.gameroom.findUnique({where: {
+			id: roomId
+		}})
+		if (!gameroom) {
+			return;
+		}
+		// TODO, move this to services
+
+		/**
+		 * Get users with roomID, delete them all!
+		 * Then, delete Gameroom
+		 * let the Opponent know that player left
+		 * disconnect sockets from roomId,
+		 * if everything is successful, acknowledge callback
+		 */
+		await prisma.user.deleteMany({where: {
+			roomId
+		}}).then(async()=> {
+			await prisma.gameroom.delete({
+				where: {id: roomId
+				}
+			})
+		});
+		socket.to(roomId).emit("stc_opponentleft");
+		io.socketsLeave(roomId);
+		callback(true)
+		debug("Socket left gameroom", roomId)
+	});
+
+	socket.on("cts_getHighscores", async (roomid, callback)=> {
 		const highscoreCollection = await GetHighscores();
-			callback(highscoreCollection);
+			callback({...highscoreCollection})
 	});
+	socket.on("stc_getActiveRooms", async (callback)=> {
+		const roomcollection: ActiveRooms[] = await GetActiveRooms();
+		if (roomcollection) {
+			callback({...roomcollection})
+		}
+		
+	})
 
-};
-
+}
 const finishedGame = async (roomId: string, forfeit: boolean, gameData: FinishedGameData | null)=> {
-	await deleteRoomById(roomId);
+	// await deleteRoomById(roomId);
 	if (!forfeit && gameData) {
 		const addFinishedGame = await addToHighscores(gameData);
 		return addFinishedGame;
 	}
+}
+
+const generateGameData = (roomId: string) => {
+	const x = Math.floor(Math.random() * 10) + 1;
+	const y = Math.floor(Math.random() * 10) + 1;
+	const startDelay = (Math.random() * (10 - 1.5) + 1.5) * 1000;
+	const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
+	const randomImage = Math.floor(Math.random() * moleImages.length);
+
+	return {
+		id: roomId,
+		coordinates: `${x}-${y}`,
+		startDelay,
+		randomImage,
+	};
 };
+
+const handlePlayerForfeit = async (userId: string) => {
+
+		debug("Player %s forfeited the game", userId);
+
+		const gameRoom = await getGameRoomAndUsers(userId);
+		if(!gameRoom) {
+			debug("GameRoom not found!");
+			return;
+		}
+
+		// Get opponent (winner by forfeit)
+		const opponent = gameRoom.users.find(user => user.id !== userId);
+		if (!opponent) {
+			debug("Could not verify opponent: %o", opponent)
+			return;
+		}
+
+		// Get usernames to include in title
+		const [player1, player2] = gameRoom.users;
+		const updatedScore = [...gameRoom.score]
+
+		if (opponent.id === player1.id) {
+			updatedScore[0]++;
+		} else {
+			updatedScore[1]++;
+		}
+
+		// Update GameRoom in DB with new score
+		await updateGameRoomScore(gameRoom.id, updatedScore);
+
+		// UserWhoStayed vs UserWholeft 10-0
+		// Call the game
+		const gameData: FinishedGameData = {
+			title: `${player1.username} vs ${player2.username}`,
+			score: updatedScore
+		}
+
+		finishedGame(gameRoom.id, true, gameData);
+		return;
+}
+
+const GetActiveRooms = async() => {
+	return prisma.gameroom.findMany({
+		include: {
+			users: true
+		}
+	})
+
+}
