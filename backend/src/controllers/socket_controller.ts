@@ -3,7 +3,7 @@
  */
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData, ActiveRooms } from "@shared/types/SocketEvents.types";
 import { createGameroom, findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service";
 import { User } from "@prisma/client";
 import { createUser, findUserById, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
@@ -97,7 +97,7 @@ export const handleConnection = (
 		}
 
 		//room is ready for game, broadcast!
-		io.to(roomId).emit("stc_GameroomReadyMessage", message)
+		io.to(roomId).emit("stc_GameroomReadyMessage", message);
         return;
     }
 	});
@@ -116,13 +116,14 @@ export const handleConnection = (
 			timestamp: Date.now()
 		}
 		io.to(roomId).emit("stc_Message", payload);
-		io.timeout(30000).to(socket.id).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
-			if (err || callbacks.length !== 2) {
-				debug("we didnt get response!!", err);
+		const forfeitTimer = gameData.startDelay + 30000
+		io.timeout(forfeitTimer).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
+			if (err) {
+				debug("we didnt get response!!", callbacks);
+				// debug("we didnt get response!!", err, callbacks);
 				socket.to(roomId).emit("stc_finishedgame");
+				return;
 			}
-			
-			debug("Callbacks:", callback)
 		})
 	});
 
@@ -278,6 +279,13 @@ export const handleConnection = (
 	socket.on("cts_getHighscores", async (roomid, callback)=> {
 		const highscoreCollection = await GetHighscores();
 			callback({...highscoreCollection})
+	});
+	socket.on("stc_getActiveRooms", async (callback)=> {
+		const roomcollection: ActiveRooms[] = await GetActiveRooms();
+		if (roomcollection) {
+			callback({...roomcollection})
+		}
+		
 	})
 
 }
@@ -343,4 +351,13 @@ const handlePlayerForfeit = async (userId: string) => {
 
 		finishedGame(gameRoom.id, true, gameData);
 		return;
+}
+
+const GetActiveRooms = async() => {
+	return prisma.gameroom.findMany({
+		include: {
+			users: true
+		}
+	})
+
 }

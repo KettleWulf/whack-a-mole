@@ -15,7 +15,7 @@ export interface ServerToClientEvents {
     stc_roundUpdate: (payload: RoundResultData) => void;
     stc_opponentleft: ()=> void;
     stc_finishedgame: ()=>void;
-    stc_requestclickorforfeit: (callback: (clicked: boolean)=> void)=>void;
+    stc_requestclickorforfeit: (callback: (clicked: string)=> void)=>void;
 }
 
 // Events emitted by the client to the server
@@ -27,6 +27,7 @@ export interface ClientToServerEvents {
     cts_clickedVirus: (payload: ReactionTime) => void;
     cts_quitGame: (roomId: string, callback:(response: boolean)=> void) => void;
     cts_getHighscores: (roomID: string, callback: (highscoreCollection: NewHighscoreRecord[])=> void) => void;
+    stc_getActiveRooms: (callback: (payload: ActiveRooms[]) =>void) =>void;
 }
 
 export interface Player {
@@ -56,16 +57,22 @@ export interface GameEvaluation {
 	forfeit: boolean;
 }
 export interface ReactionTime {
-    roundstart: number          // timestamp
-    playerclicked: number       // timestamp
-    forfeit: boolean
+    roundstart: number;          // timestamp
+    playerclicked: number;       // timestamp
+    forfeit: boolean;
 }
 
 export interface RoundResultData {
-	roomId: string,
+	roomId: string;
 	currentRound: number;
 	reactionTimes: number[];
     score: number[];
     draw: boolean;
 }
 
+export interface ActiveRooms {
+    id: string;
+    title: string;
+    score: number[];
+    users: UserData[];
+}
