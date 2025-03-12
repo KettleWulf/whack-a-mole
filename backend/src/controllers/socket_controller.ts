@@ -128,7 +128,7 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_clickedVirus", async (payload)=> {
-		
+
 		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
 
 		// Assume it's not a draw, for now
@@ -136,7 +136,7 @@ export const handleConnection = (
 
 		// Get gameroom, including users[] from DB
 		const gameRoom = await getGameRoomAndUsers(socket.id);
-		
+
 		if(!gameRoom) {
 			debug("GameRoom not found!");
 			return;
@@ -183,7 +183,7 @@ export const handleConnection = (
 		// Create score array to update and replace in DB - (manipulating arrays in DB not possible using prisma?)
 		const updatedScore = [...gameRoom.score]
 
-		// Determine draw or winner		
+		// Determine draw or winner
 		if (player1.reactionTime === player2.reactionTime) {
 			debug("It's a draw!")
 			updatedScore[2] = (updatedScore[2] || 0) + 1;
@@ -198,11 +198,11 @@ export const handleConnection = (
 
 		debug("And the winner is: %o", player1.reactionTime < player2.reactionTime ? player1 : player2);
 
-		
+
 		// As winner is determined, reset reactionTime on both users
 		await resetReactionTimes(gameRoom.id);
-		debug("userReactions length after reset: %s", userReactionTimes.length);		
-		
+		debug("userReactions length after reset: %s", userReactionTimes.length);
+
 		debug("Current score: %s", updatedScore);
 
 		// Accumulate score of players to determine current round
@@ -277,14 +277,14 @@ export const handleConnection = (
 
 	socket.on("cts_getHighscores", async (roomid, callback)=> {
 		const highscoreCollection = await GetHighscores();
-			callback({...highscoreCollection})
+			callback(highscoreCollection)
 	});
 	socket.on("stc_getActiveRooms", async (callback)=> {
 		const roomcollection: ActiveRooms[] = await GetActiveRooms();
 		if (roomcollection) {
-			callback({...roomcollection})
+			callback(roomcollection)
 		}
-		
+
 	})
 
 }

@@ -50,16 +50,23 @@ const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 let playerOneTimer = false;
 let playerTwoTimer = false;
 let gameOn = false;
-let playerOneTimerSec = 0;
-let playerTwoTimerSec = 0;
+// let playerOneTimerSec = 0;
+// let playerTwoTimerSec = 0;
 let userOne: UserData;
 let userTwo: UserData;
 let timeStamp: number;
 let clickStamp: number;
 let room: string | undefined;
+let playerOnestartTime = 0;
+let playerTwostartTime = 0;
+let playerOneelapsedTime = 0;
+let playerTwoelapsedTime = 0;
+let timerInterval:number;
+
+
+
 
 playBtnEl.disabled = true;
-statsBtnOneEl.disabled = true;
 
 
 playerNameEl.addEventListener("input", () => {
@@ -126,7 +133,6 @@ playerFormEl.addEventListener("submit", (e) => {
 });
 
 
-	statsBtnOneEl.disabled = false;
 const startgameCallback = (response: GameDataOmitID) => {
 	gridContainer.innerHTML = "";
 	for (let i = 1; i <= 10; i++) {
@@ -187,6 +193,15 @@ const startgameCallback = (response: GameDataOmitID) => {
 			const moleElement = document.querySelector(`[data-coords="${response.coordinates}"]`);
 
 			if (target === moleElement) {
+				if(userOne.id === socket.id) {
+                    console.log("Du klickade på mullvaden!");
+                    playerOneTimer = false;
+                }
+                if(userTwo.id === socket.id){
+                    console.log("Du klickade på mullvaden!");
+                    playerTwoTimer = false;
+				}
+
 				socket.on("stc_requestclickorforfeit",(callback)=> {
 					if (socket.id) {
 						callback(socket.id);
@@ -216,6 +231,7 @@ const startgameCallback = (response: GameDataOmitID) => {
 
 socket.on('stc_GameroomReadyMessage', (message) => {
 	const roomId = message.room.id;
+
 	userOne = message.users[0];
 	userTwo = message.users[1];
 	games.push(message);
@@ -229,19 +245,22 @@ socket.on('stc_GameroomReadyMessage', (message) => {
 });
 
 const gameTimer = () => {
-
+	playerOnestartTime = Date.now() - playerOneelapsedTime;
+	playerTwostartTime = Date.now() - playerTwoelapsedTime;
 	if (!gameOn) return;
 
-	const timerInterval = setInterval(() => {
+	timerInterval = setInterval(() => {
 		if (gameOn) {
 			if (playerOneTimer) {
-				playerOneTimerSec += 0.01;
+				playerOneelapsedTime = Date.now() - playerOnestartTime
+
 			}
 			if (playerTwoTimer) {
-				playerTwoTimerSec += 0.01;
+				playerTwoelapsedTime = Date.now() - playerTwostartTime
+
 			}
-			playerOneTimerEl.innerText = `${playerOneTimerSec.toFixed(2)}`;
-			playerTwoTimerEl.innerText = `${playerTwoTimerSec.toFixed(2)}`;
+			playerOneTimerEl.innerText = formatTimer(playerOneelapsedTime);
+			playerTwoTimerEl.innerText = formatTimer(playerTwoelapsedTime);
 
 		} else {
 			clearInterval(timerInterval);
@@ -250,17 +269,19 @@ const gameTimer = () => {
 };
 
 socket.on("stc_sendingTime", (playerclicked) => {
-	playerTwoTimer = playerclicked;
+	if(userOne.id !== socket.id) {
+		playerOneTimer = playerclicked
+	} else {
+		playerTwoTimer = playerclicked
+	}
 });
 
 const displayPlayedGames = (response: NewHighscoreRecord[]) => {
-	console.log("Played games payload:",response);
-	const newArray = [...response];
 	playedGamesEl.innerHTML = "";
 	playedGamesEl.innerHTML = `
 		<div class="games">
 			<h5>Last 10 Games</h5>
-			${newArray.map(game => {
+			${response.map(game => {
 				return `
 					<div class="ongoing-games-layout2">
 						<div>${game.title}</div>
@@ -293,14 +314,13 @@ backtolobbyEl.addEventListener("click", () => {
 
 const displayOngoingGames = (payload: ActiveRooms[]) => {
 	console.log("Ongoing games payload:", payload);
-	const newArray = [...payload];
 	ongoingGamesEl.innerHTML = "";
 
 	ongoingGamesEl.innerHTML = `
 		<div class="ongoing-games">
 			<h5>Ongoing Games</h5>
 			<div class="ongoing-games-display-wrapper">
-			${newArray.map(game => {
+			${payload.map(game => {
 				const userNames = game.users.map(user => user.username).join(" vs ");
 				const score = game.score || [0, 0];
 
@@ -395,8 +415,8 @@ playerFormTwoEl.addEventListener("submit", (e) => {
         playerOneTimer = false;
         playerTwoTimer = false;
         gameOn = false;
-        playerOneTimerSec = 0;
-        playerTwoTimerSec = 0;
+        // playerOneTimerSec = 0;
+        // playerTwoTimerSec = 0;
         gridContainer.innerHTML = "";
         console.log("Sent join request for replay:", { playerName: userOne.username, id: socket.id });
     }
@@ -451,6 +471,10 @@ socket.on("stc_opponentleft", ()=> {
 	backToLobby();
 });
 socket.on("stc_roundUpdate", (payload) => {
+	playerOnestartTime = 0;
+	playerTwostartTime = 0;
+	playerOneelapsedTime = 0;
+	playerTwoelapsedTime = 0;
 	socket.emit("cts_startRequest", payload.roomId, (startgameCallback))
 })
 
@@ -467,3 +491,12 @@ socket.on("stc_finishedgame", ()=> {
 		}
 	}, timeout);
 });
+
+function formatTimer(elapsedTime:number){
+    const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+    const mseconds = Math.floor((elapsedTime % 1000) / 10);
+    return (
+        (seconds ? (seconds > 9 ? seconds : "0" + seconds) : "00")
+        + "." +
+        (mseconds > 9 ? mseconds : "0" + mseconds));
+}
