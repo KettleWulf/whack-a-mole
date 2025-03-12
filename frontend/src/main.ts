@@ -254,11 +254,13 @@ socket.on("stc_sendingTime", (playerclicked) => {
 });
 
 const displayPlayedGames = (response: NewHighscoreRecord[]) => {
+	console.log("Played games payload:",response);
+	const newArray = [...response];
 	playedGamesEl.innerHTML = "";
 	playedGamesEl.innerHTML = `
 		<div class="games">
 			<h5>Last 10 Games</h5>
-			${response.map(game => {
+			${newArray.map(game => {
 				return `
 					<div class="ongoing-games-layout2">
 						<div>${game.title}</div>
@@ -290,17 +292,17 @@ backtolobbyEl.addEventListener("click", () => {
 });
 
 const displayOngoingGames = (payload: ActiveRooms[]) => {
-	console.log(payload);
+	console.log("Ongoing games payload:", payload);
+	const newArray = [...payload];
 	ongoingGamesEl.innerHTML = "";
-	console.log("Funktion startat");
 
 	ongoingGamesEl.innerHTML = `
 		<div class="ongoing-games">
 			<h5>Ongoing Games</h5>
 			<div class="ongoing-games-display-wrapper">
-			${games.map(game => {
+			${newArray.map(game => {
 				const userNames = game.users.map(user => user.username).join(" vs ");
-				const score = game.room?.score || [0, 0];
+				const score = game.score || [0, 0];
 
 				return `
 					<div class="ongoing-games-layout">

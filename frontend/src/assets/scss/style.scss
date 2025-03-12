@@ -298,6 +298,7 @@ input:focus {
 	justify-content: center;
 	align-items: center;
 	width: 95%;
+	height: 100vh;
 }
 
 .highscoresdiv {
@@ -384,7 +385,8 @@ input:focus {
 	color: greenyellow;
 }
 
-.ongoing-games-layout, .ongoing-games-layout2 {
+.ongoing-games-layout,
+.ongoing-games-layout2 {
 	display: flex;
 	justify-content: center;
 	gap: 1.3em;
