@@ -25,7 +25,7 @@
 						<form id="player-form">
 							<div class="create-player">
 								<label for="playername" class="input-label">Insert your Player Name</label>
-								<input type="text" id="playername" class="input-field" placeholder="Player Name">
+								<input type="text" id="playername" class="input-field" placeholder="Player Name" required>
 							</div>
 							<div>
 								<button type="submit" id="connectBtn" class="playerBtn">Play</button>
@@ -41,7 +41,7 @@
 					<div class="player-wrapper2">
 						<form id="player-form2">
 							<h4 class="playagain">Whack Some More</h4>
-							<button type="submit" id="connectBtn" class="playerBtn2">Play</button>
+							<button type="submit" class="playerBtn2">Play</button>
 						</form>
 						<button class="highscoreBtn2">Stats</button>
 					</div>
@@ -68,7 +68,9 @@
         </div>
 		<div id="game-board" class="game-board hide">
 			<div class="game-field">
-				<div id="countdown-timer" class="hide"></div>
+				<div id="countdown-timer" class="hide">
+					<div class="round-info"></div>
+				</div>
 				<div class="grid-container"></div>
 			</div>
 			<div class="game-info">

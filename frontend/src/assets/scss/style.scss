@@ -18,12 +18,9 @@ body {
 }
 
 h1 {
-	color: rgb(235, 129, 147);
+	color: white;
     font-size: 3.2rem;
     text-align: center;
-    display: block;
-    text-shadow: 0px 5px 5px rgba(0, 0, 0, 0.5);
-    transform: perspective(300px) rotateX(15deg);
 	padding: 0.7em 0.7em 0 0.7em;
 	font-family: 'Rubik Moonrocks', sans-serif;
 	word-spacing: 15px;
@@ -40,15 +37,95 @@ h5 {
 	color: plum;
 }
 
+button:disabled {
+    background-color: gray;
+    color: black;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+button:disabled:hover {
+    background-color: gray;
+	border: gray;
+    cursor: not-allowed;
+}
+
+h1 {
+    animation: slideInAndBounce 2.4s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+}
+
+@keyframes slideInAndBounce {
+    0% {
+        transform: translateX(-100vw);
+    }
+    52% {
+        transform: translateX(8.5vw);
+    }
+    70% {
+        transform: translateX(-6vw);
+    }
+    85% {
+        transform: translateX(3.5vw);
+    }
+    100% {
+        transform: translateX(0);
+		display: block;
+    	text-shadow: 0px 5px 5px rgba(0, 0, 0, 0.5);
+   		transform: perspective(300px) rotateX(15deg);
+		color: rgb(235, 129, 147);
+    }
+}
+
+.player-wrapper {
+    animation: fadeInLogoAndForm 4.8s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+}
+
+@keyframes fadeInLogoAndForm {
+    0% {
+        opacity: 0;
+    }
+	15% {
+        opacity: 0.01;
+    }
+	30% {
+        opacity: 0.01;
+    }
+	45% {
+        opacity: 0.02;
+    }
+	60% {
+        opacity: 0.06;
+    }
+	75% {
+        opacity: 0.2;
+    }
+	90% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 .FOO {
 	color: white;
 }
 
 .game-logo,
-.game-logo2,
 .game-logo3 {
 	width: 92%;
-	border: 4px solid white;
+	border: 5px solid white;
+	border-radius: 50%;
+	box-shadow: 0 0 70px pink, 0 0 140px pink;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.game-logo2 {
+	width: 91.408%;
+	border: 5px solid white;
 	border-radius: 50%;
 	box-shadow: 0 0 70px pink, 0 0 140px pink;
 	overflow: hidden;
@@ -65,7 +142,7 @@ h5 {
 
 .player-wrapper,
 .player-wrapper2 {
-	border: 4px solid black;
+	border: 6px outset black;
 	border-radius: 20px;
 	box-shadow: 0 0 70px pink, 0 0 140px pink;
 	padding: 1em;
@@ -80,7 +157,7 @@ h5 {
 }
 
 .player-wrapper3 {
-	border: 4px solid white;
+	border: 4px double white;
 	border-radius: 20px;
 	box-shadow: 0 0 70px pink, 0 0 140px pink;
 	padding: 1em;
@@ -95,8 +172,8 @@ h5 {
 
 .waiting {
 	position: absolute;
-    top: 10%;
-    left: 7%;
+    top: 30px;
+    left: 30px;
 	font-family: 'Spicy Rice', sans-serif;
 	word-spacing: 7px;
 	color: whitesmoke;
@@ -130,18 +207,26 @@ h5 {
 	text-align: center;
 	font-family: 'Henny Penny', sans-serif;
 	word-spacing: 2px;
-	text-shadow: 0 0 1px plum, 0 0 2px plum;
 }
 
 .input-field {
 	color: black;
 	border: 2px solid black;
 	border-radius: 10px;
-	box-shadow: 0 0 5px plum, 0 0 10px plum;
+	box-shadow: 0 0 4px plum, 0 0 8px plum;
 	text-align: center;
 	padding: 0.5em;
 	width: 100%;
+	font-family: 'Henny Penny', sans-serif;
+	word-spacing: 12px;
+	opacity: 0.9;
 }
+
+input:focus {
+	border: 2px solid black;
+	box-shadow: 0 0 12px plum, 0 0 24px plum;
+	outline: none;
+  }
 
 .playagain {
 	font-size: 1.6rem;
@@ -176,6 +261,7 @@ h5 {
     left: 7%;
     top: 74%;
     transform: translateY(-50%);
+	opacity: 0.85;
 }
 
 .highscoreBtn,
@@ -184,6 +270,7 @@ h5 {
     right: 7%;
     top: 74%;
     transform: translateY(-50%);
+	opacity: 0.85;
 }
 
 .sektion1 {
@@ -210,7 +297,7 @@ h5 {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	width: 95;
+	width: 95%;
 }
 
 .highscoresdiv {
@@ -274,7 +361,6 @@ h5 {
 	align-items: center;
 	gap: 3em;
 	padding-bottom: 2em;
-	margin-top: 3em;
 
 }
 
@@ -289,12 +375,16 @@ h5 {
 	padding: 0.3em;
 	width: 100%;
 	min-height: 100%;
-	color: yellow;
+	color: rgb(255, 43, 43);
 	padding-bottom: 1em;
 	background-color: black;
 }
 
-.ongoing-games-layout {
+.ongoing-games {
+	color: greenyellow;
+}
+
+.ongoing-games-layout, .ongoing-games-layout2 {
 	display: flex;
 	justify-content: center;
 	gap: 1.3em;
@@ -302,16 +392,18 @@ h5 {
 }
 
 .game-stats-wrapper,
-.ongoing-games-layout {
+.ongoing-games-layout,
+.ongoing-games-layout2 {
 	font-family: 'Mystery Quest', sans-serif;
 	word-spacing: 6px;
 
 }
 
 .game-stats,
-	.game-stats-highscore,
-	.game-stats-reactiontime,
-	.ongoing-games-layout {
+.game-stats-highscore,
+.game-stats-reactiontime,
+.ongoing-games-layout,
+.ongoing-games-layout2 {
 		font-size: 1.3rem;
 	}
 
@@ -497,7 +589,7 @@ h5 {
     height: 30px;
     border-radius: 50%;
 	margin-top: 3em;
-	margin-left: 3em;
+	margin-left: 1em;
 	font-family: 'Mystery Quest', sans-serif;
 	font-size: 1.1rem;
 }
@@ -547,7 +639,8 @@ h5 {
 	.game-stats,
 	.game-stats-highscore,
 	.game-stats-reactiontime,
-	.ongoing-games-layout {
+	.ongoing-games-layout,
+	.ongoing-games-layout2 {
 		font-size: 1.6rem;
 	}
 
@@ -586,7 +679,7 @@ h5 {
 		width: 40px;
 		height: 40px;
 		margin-top: 2em;
-		margin-left: 3em;
+		margin-left: 1.5em;
 	}
 
 }
@@ -595,7 +688,7 @@ h5 {
 
 	h1 {
 		padding: 0.4em 0.4em 0 0.4em;
-		margin-top: -2.5em;
+		margin-top: -2.1em;
 	}
 
 	h5 {
@@ -615,7 +708,7 @@ h5 {
 	.player-wrapper,
 	.player-wrapper2,
 	.player-wrapper3 {
-		width: 30%;
+		width: 22%;
 	}
 
 	.input-field {
@@ -623,6 +716,7 @@ h5 {
 	}
 
 	.playerBtn:hover,
+	.playerBtn2:hover,
 	.highscoreBtn:hover,
 	.highscoreBtn2:hover  {
 		color: black;
@@ -630,11 +724,24 @@ h5 {
 		border-color: purple;
 	}
 
-	.playerBtn:active
+	.playerBtn:active,
+	.playerBtn2:active,
 	.highscoreBtn:active,
 	.highscoreBtn2:active  {
 		background-color: plum;
 		border-color: black;
+	}
+
+	.lobyBtn:hover {
+		color: black;
+		background-color: magenta;
+		border-color: white;
+	}
+
+	.lobyBtn:active  {
+		background-color: rgb(97, 68, 105);
+		border-color: white;
+		color: white;
 	}
 
 	.sektion1-wrapper,
@@ -660,6 +767,7 @@ h5 {
 		display: flex;
 		flex-direction: row;
 		align-items: stretch;
+		margin-top: 3em;
 	}
 
 	.ongoing-games,
@@ -686,7 +794,8 @@ h5 {
 		font-size: 1.2rem;
 	}
 
-	.ongoing-games-layout {
+	.ongoing-games-layout,
+	.ongoing-games-layout2 {
 		font-size: 1.5rem;
 	}
 
@@ -718,8 +827,8 @@ h5 {
 	.backtolobby {
 		width: 45px;
 		height: 45px;
-		margin-top: 1.65em;
-		margin-left: 3em;
+		margin-top: 1.2em;
+		margin-left: 1.8em;
 	}
 
 	.hide {
@@ -747,28 +856,29 @@ h5 {
 		font-size: 2.1rem;
 	}
 
-	.game-logo,
-	.game-logo2,
+	.game-logo {
+		width: 48.3%;
+	}
+
+	.game-logo2 {
+		width: 48.6%;
+	}
+
 	.game-logo3 {
 		width: 48%;
 	}
 
-	.game-logo3 {
-		width: 47.53%;
+	.player-wrapper2 {
+		width: 22.5%;
 	}
 
-	.player-wrapper,
-	.player-wrapper2,
-	.player-wrapper3 {
-		width: 23%;
-	}
 
 	.player-wrapper3 {
 		padding: 14em 9em 14em 9em;
 	}
 
 	.sektion1-wrapper {
-		padding: 4.5em 0 3em 0;
+		padding: 3em 0 3em 0;
 		gap: 10em;
 		justify-content: space-evenly;
 	}
@@ -798,24 +908,47 @@ h5 {
 	}
 
 	.lobyBtn {
-		width: 20%;
+		width: 15%;
 		height: 280px;
 		margin-top: 2em;
 	}
 
 	.highscores {
-		width: 70%;
+		width: 82%;
 	}
 
 	.game-stats,
 	.game-stats-highscore,
 	.game-stats-reactiontime,
-	.ongoing-games-layout {
+	.ongoing-games-layout2 {
 		font-size: 1.6rem;
+	}
+
+	.ongoing-games-layout {
+		font-size: 1.5rem;
+		word-spacing: 4px;
+	}
+
+	.ongoing-games-layout2 {
+		font-size: 1.6rem;
+		word-spacing: 4px;
 	}
 
 	.game-stats-wrapper {
 		gap: 5em;
+	}
+
+    .ongoing-games {
+        justify-content: start;
+        align-items: center;
+		padding-left: 1.5em;
+    }
+
+	.ongoing-games-display-wrapper {
+		display: flex;
+		flex-wrap: wrap;
+		column-gap: 3.7em;
+
 	}
 
 	.games-wrapper {

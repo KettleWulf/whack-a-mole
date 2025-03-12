@@ -34,11 +34,12 @@ const playedGamesEl = document.querySelector(".games-data") as HTMLDivElement;
 const ongoingGamesEl = document.querySelector(".ongoing-games-data") as HTMLDivElement;
 const highscoresEl = document.querySelector(".highscores") as HTMLDivElement;
 const backtolobbyEl = document.querySelector(".backtolobby") as HTMLButtonElement;
-const statsBtnOneEl = document.querySelector(".highscoreBtn") as HTMLDivElement;
-const statsBtnTwoEl = document.querySelector(".highscoreBtn2") as HTMLDivElement;
+const statsBtnOneEl = document.querySelector(".highscoreBtn") as HTMLButtonElement;
+const statsBtnTwoEl = document.querySelector(".highscoreBtn2") as HTMLButtonElement;
 const sectionOneEl = document.querySelector(".sektion1") as HTMLDivElement;
 const sectionTwoEl = document.querySelector(".sektion2") as HTMLDivElement;
 const statsLobyBtnEl = document.querySelector(".lobyBtn") as HTMLDivElement;
+const playBtnEl = document.querySelector("#connectBtn") as HTMLButtonElement;
 
 const games: Gamelobby[] = [];
 const playerTime: number[] = [2.34, 4.32, 5.67, 1.23, 2.11, 3.43]
@@ -54,6 +55,14 @@ let userTwo: UserData;
 let timeStamp: number;
 let clickStamp: number;
 let room: string | undefined;
+
+playBtnEl.disabled = true;
+statsBtnOneEl.disabled = true;
+
+
+playerNameEl.addEventListener("input", () => {
+    playBtnEl.disabled = playerNameEl.value.trim() === "";
+});
 
 
 /**
@@ -95,6 +104,7 @@ playerFormEl.addEventListener("submit", (e) => {
 });
 
 const startgameCallback = (response: Startgame) => {
+	statsBtnOneEl.disabled = false;
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
             const gridEl = document.createElement("div");
@@ -215,7 +225,7 @@ const displayPlayedGames = (response: NewHighscoreRecord[]) => {
 			<h5>Last 10 Games</h5>
 			${response.map(game => {
 				return `
-					<div class="ongoing-games-layout">
+					<div class="ongoing-games-layout2">
 						<div>${game.title}</div>
 						<div><span class="games-info-text2">${game.score.join(" - ")}</span></div>
 					</div>
@@ -240,23 +250,27 @@ const displayOngoingGames = () => {
 	ongoingGamesEl.innerHTML = "";
 	console.log("Funktion startat");
 
-	ongoingGamesEl.innerHTML = games.map(game => {
-		const userNames = game.users.map(user => user.username).join(" vs ");
-		const score = game.room?.score || [0, 0];
-
-		return `
+	ongoingGamesEl.innerHTML = `
 		<div class="ongoing-games">
 			<h5>Ongoing Games</h5>
-			<div class="ongoing-games-layout">
-				<div>${userNames}</div>
-				<div><span class="games-info-text2">${score.join(" - ")}</span></div>
-			</div>
+			<div class="ongoing-games-display-wrapper">
+			${games.map(game => {
+				const userNames = game.users.map(user => user.username).join(" vs ");
+				const score = game.room?.score || [0, 0];
+
+				return `
+					<div class="ongoing-games-layout">
+						<div>${userNames}</div>
+						<div><span class="games-info-text2">${score.join(" - ")}</span></div>
+					</div>
+				`;
+			}).join('')}
+			<div>
 		</div>
-		`;
-	}).join('');
+	`;
 };
 
-const gameHighscores = (playerTime: number[], playerScore: [number, number][]): void => {
+const gameHighscores = (playerTime: number[], playerScore: [number, number][]) => {
     if (playerTime.length === 0 || playerScore.length === 0) return;
 	console.log("Körs detta funktion som jag har skapat");
 
