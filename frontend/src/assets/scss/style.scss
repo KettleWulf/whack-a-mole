@@ -37,19 +37,6 @@ h5 {
 	color: plum;
 }
 
-button:disabled {
-    background-color: gray;
-    color: black;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-button:disabled:hover {
-    background-color: gray;
-	border: gray;
-    cursor: not-allowed;
-}
-
 h1 {
     animation: slideInAndBounce 2.4s cubic-bezier(0.42, 0, 0.58, 1) forwards;
 }
@@ -105,6 +92,19 @@ h1 {
     100% {
         opacity: 1;
     }
+}
+
+button:disabled {
+    background-color: gray;
+    color: black;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+button:disabled:hover {
+    background-color: gray;
+	border: gray;
+    cursor: not-allowed;
 }
 
 .FOO {
@@ -489,6 +489,14 @@ input:focus {
 	height: 105%;
 	width: 105%;
 }
+
+.mole:hover {
+	cursor: url('/Images/Hammer.png'), auto;
+}
+
+.mole:active {
+	cursor: url('/Images/HammerDown.png'), auto;
+  }
 
 .game-info {
 	width: 100%;
@@ -946,6 +954,7 @@ input:focus {
 
 	.ongoing-games-display-wrapper {
 		display: flex;
+		// justify-content: center;
 		flex-wrap: wrap;
 		column-gap: 3.7em;
 
