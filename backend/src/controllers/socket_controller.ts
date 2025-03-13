@@ -115,7 +115,7 @@ export const handleConnection = (
 				if (callbacks[0]) {
 					handlePlayerForfeit(callbacks[0])
 					const gameInfoMessage = `
-						<div class="playerwon">Opponent disconnected...</div>
+						<div><span class="playerwonspan">Opponent disconnected...</span></div>
 						<div class="reactiontime-wrapper">
 							<div class="reactiontime1">
 								You won by forfeit, yay!
@@ -226,7 +226,7 @@ export const handleConnection = (
 			if (updatedScore[0] === updatedScore[1]) {
 
 				gameInfoMessage = `
-					<div class="playerwon">It's a draw! You both loose :D</div>
+					<div><span class="playerwonspan">It's a draw! You both loose :D</span></div>
 					<div class="reactiontime-wrapper">
 						<div class="reactiontime1">
 							<div class="playerNameWon1">${player1.username}</div>
@@ -245,7 +245,7 @@ export const handleConnection = (
 					: player2.username
 
 				gameInfoMessage = `
-					<div class="playerwon"><span class="playerwonspan">Game Over! Winner:</span> ${matchWinner}</div>
+					<div><span class="playerwonspan">Game Over! Winner:</span> ${matchWinner}</div>
 					<div class="reactiontime-wrapper">
 						<div class="reactiontime1">
 							<div class="playerNameWon1">${player1.username}</div>
@@ -365,6 +365,7 @@ export const handleConnection = (
 	})
 
 }
+
 const finishedGame = async (roomId: string, forfeit: boolean, gameData: FinishedGameData | null)=> {
 	// await deleteRoomById(roomId);
 	if (!forfeit && gameData) {

@@ -631,9 +631,19 @@ input:focus {
 	font-family: 'Mystery Quest', sans-serif;
 }
 
+.playerNameWon1{
+	font-family: 'Mystery Quest', sans-serif;
+}
+
+// .playerwon {
+// 	color: red;
+// 	font-family: 'Mystery Quest', sans-serif;
+// 	font-size: 1.4rem;
+// }
+
 .playerwonspan {
 	font-family: 'Mystery Quest', sans-serif;
-	color: red;
+	color: yellow;
 }
 
 .hide {
@@ -778,6 +788,10 @@ input:focus {
 		border-color: black;
 	}
 
+	.lobyBtn{
+		width:40%;
+	}
+
 	.lobyBtn:hover {
 		color: black;
 		background-color: magenta;
@@ -807,6 +821,17 @@ input:focus {
 		justify-content: center;
 		align-items: center;
 		gap: 3em;
+	}
+
+	.highscoresdiv {
+		margin-top: 3em;
+		width: 90%;
+		display: flex;
+		gap: 3em;
+	}
+
+ 	.highscore-wrapper{
+		width: 30%;
 	}
 
 	.games-wrapper {
@@ -966,7 +991,7 @@ input:focus {
 	}
 
 	.highscores {
-		width: 82%;
+		width: 50%;
 	}
 
 	.game-stats,
