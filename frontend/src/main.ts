@@ -496,6 +496,8 @@ socket.on("stc_finishedGameScore", (payload)=> {
 })
 
 socket.on("stc_roundUpdate", (payload) => {
+	canClickvirus = true
+
 	const mydata = payload.reactionTimes[myIndex];
 	playerTime.push(mydata);
 	playerOnestartTime = 0;
@@ -509,8 +511,9 @@ socket.on("stc_roundUpdate", (payload) => {
 	console.log("This is an array of gamescoores:", playerScore);
 	gameHighscores();
 
-	socket.emit("cts_startRequest", payload.roomId, (startgameCallback));
-	canClickvirus = true
+	setTimeout(() => {
+		socket.emit("cts_startRequest", payload.roomId, (startgameCallback));
+	}, 5000)
 })
 
 socket.on("stc_finishedgame", () => {
