@@ -141,9 +141,12 @@ export const handleConnection = (
 		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
 
 		if (payload.forfeit) {
-			io.to(gameRoom.id).emit("stc_gameInfo", "FORFEEEEITEEEEEEEED");
-			io.to(gameRoom.id).emit("stc_finishedgame");
-			return;
+			const isforfeited = await handlePlayerForfeit(socket.id);
+			if (isforfeited) {
+				io.to(gameRoom.id).emit("stc_gameInfo", "FORFEEEEITEEEEEEEED");
+				io.to(gameRoom.id).emit("stc_finishedgame");
+				return;
+			}
 		}
 
 		// Calculate reactiontime
@@ -420,7 +423,7 @@ const handlePlayerForfeit = async (userId: string) => {
 		}
 
 		finishedGame(gameRoom.id, true, gameData);
-		return;
+		return true;
 }
 
 const GetActiveRooms = async() => {
