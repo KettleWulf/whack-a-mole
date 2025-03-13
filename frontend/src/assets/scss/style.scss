@@ -298,7 +298,6 @@ input:focus {
 	justify-content: center;
 	align-items: center;
 	width: 95%;
-	height: 100vh;
 }
 
 .highscoresdiv {
@@ -430,6 +429,7 @@ input:focus {
 
 .ongoing-games-data {
 	width: 100%;
+	margin-top: 3em;
 }
 
 .games-data {
@@ -602,6 +602,12 @@ input:focus {
 	margin-left: 1em;
 	font-family: 'Mystery Quest', sans-serif;
 	font-size: 1.1rem;
+}
+
+.round-info {
+	width: 50%;
+	height: 50%;
+	border: 2px solid red;
 }
 
 .hide {
@@ -792,6 +798,7 @@ input:focus {
 		width: 50%;
 		display: flex;
 		flex-wrap: wrap;
+		margin-top: 0em;
 	}
 
 	.games-data {

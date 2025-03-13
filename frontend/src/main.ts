@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, ReactionTime,   Gamelobby, ServerToClientEvents, ActiveRooms } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, ReactionTime,   Gamelobby, ServerToClientEvents, ActiveRooms, HighscoresData } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -42,16 +42,23 @@ const sectionOneEl = document.querySelector(".sektion1") as HTMLDivElement;
 const sectionTwoEl = document.querySelector(".sektion2") as HTMLDivElement;
 const statsLobyBtnEl = document.querySelector(".lobyBtn") as HTMLDivElement;
 const playBtnEl = document.querySelector("#connectBtn") as HTMLButtonElement;
+const roundDataEl = document.querySelector(".round-data") as HTMLDivElement;
+const scoreDataEl = document.querySelector(".score-data") as HTMLDivElement;
+// const roundInfoEl = document.querySelector(".round-info") as HTMLDivElement;
+// const playerWon = document.querySelector(".playerwon") as HTMLDivElement;
+// const reactionTime = document.querySelector(".reactiontime") as HTMLDivElement;
+
 
 const games: Gamelobby[] = [];
-const playerTime: number[] = [2.34, 4.32, 5.67, 1.23, 2.11, 3.43]
-const playerScore: [number, number][] = [[2,8], [3,7], [8,2], [10,0], [6,4],[5,5]];
+const playerTime: [number,number][] = [];
+const NewArray: HighscoresData = [{PlayerOne:2,PlayerTwo.3}, ];
+console.log("Array of reaction times",playerTime);
+const playerScore: [number,number][] = [];
+console.log("Array of games",playerScore);
 const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 let playerOneTimer = false;
 let playerTwoTimer = false;
 let gameOn = false;
-// let playerOneTimerSec = 0;
-// let playerTwoTimerSec = 0;
 let userOne: UserData;
 let userTwo: UserData;
 let timeStamp: number;
@@ -62,7 +69,6 @@ let playerTwostartTime = 0;
 let playerOneelapsedTime = 0;
 let playerTwoelapsedTime = 0;
 let timerInterval:number;
-
 
 
 
@@ -127,8 +133,6 @@ playerFormEl.addEventListener("submit", (e) => {
 		playAgainEl.classList.add("hide");
 		waitingForPlayerEl.classList.remove("hide");
         console.log("Sent join request:", { playerName, id: socket.id });
-    } else {
-        alert("Please enter a player name!");
     }
 });
 
@@ -176,16 +180,12 @@ const startgameCallback = (response: GameDataOmitID) => {
 		gameTimer ();
 
 		const molePosition = response.coordinates;
-		console.log("The mole position is: ", molePosition);
 		const moleElement = document.querySelector(`[data-coords="${molePosition}"]`) as HTMLDivElement;
 
 		if (moleElement) {
 			const randomMoleImage = moleImages[response.randomImage];
 			moleElement.classList.add("mole");
 			moleElement.style.backgroundImage = `url('${randomMoleImage}')`;
-
-		} else {
-			console.error(`Elementet med position ${molePosition} hittades inte!`);
 		}
 
 		gridContainer.addEventListener("click", (e) => {
@@ -193,11 +193,13 @@ const startgameCallback = (response: GameDataOmitID) => {
 			const moleElement = document.querySelector(`[data-coords="${response.coordinates}"]`);
 
 			if (target === moleElement) {
+
 				if(userOne.id === socket.id) {
                     console.log("Du klickade på mullvaden!");
                     playerOneTimer = false;
                 }
-                if(userTwo.id === socket.id){
+
+				if(userTwo.id === socket.id){
                     console.log("Du klickade på mullvaden!");
                     playerTwoTimer = false;
 				}
@@ -221,10 +223,9 @@ const startgameCallback = (response: GameDataOmitID) => {
 					playerclicked: clickStamp,
 					forfeit: false
 				}
+				console.log("Här är time data", data);
 				socket.emit("cts_clickedVirus", data);
-				playerOneTimer = false;
 			};
-
 		});
     }, response.startDelay);
 };
@@ -233,9 +234,10 @@ socket.on('stc_GameroomReadyMessage', (message) => {
 	const roomId = message.room.id;
 
 	userOne = message.users[0];
+	console.log("Player1:",userOne);
 	userTwo = message.users[1];
+	console.log("Player2:",userTwo);
 	games.push(message);
-	// displayOngoingGames();
 
 	if(roomId) {
 		socket.emit("cts_startRequest", roomId, (startgameCallback))
@@ -245,18 +247,19 @@ socket.on('stc_GameroomReadyMessage', (message) => {
 });
 
 const gameTimer = () => {
+	if (!gameOn) return;
+
 	playerOnestartTime = Date.now() - playerOneelapsedTime;
 	playerTwostartTime = Date.now() - playerTwoelapsedTime;
-	if (!gameOn) return;
 
 	timerInterval = setInterval(() => {
 		if (gameOn) {
 			if (playerOneTimer) {
-				playerOneelapsedTime = Date.now() - playerOnestartTime
+				playerOneelapsedTime = Date.now() - playerOnestartTime;
 
 			}
 			if (playerTwoTimer) {
-				playerTwoelapsedTime = Date.now() - playerTwostartTime
+				playerTwoelapsedTime = Date.now() - playerTwostartTime;
 
 			}
 			playerOneTimerEl.innerText = formatTimer(playerOneelapsedTime);
@@ -270,9 +273,9 @@ const gameTimer = () => {
 
 socket.on("stc_sendingTime", (playerclicked) => {
 	if(userOne.id !== socket.id) {
-		playerOneTimer = playerclicked
+		playerOneTimer = playerclicked;
 	} else {
-		playerTwoTimer = playerclicked
+		playerTwoTimer = playerclicked;
 	}
 });
 
@@ -313,9 +316,7 @@ backtolobbyEl.addEventListener("click", () => {
 });
 
 const displayOngoingGames = (payload: ActiveRooms[]) => {
-	console.log("Ongoing games payload:", payload);
 	ongoingGamesEl.innerHTML = "";
-
 	ongoingGamesEl.innerHTML = `
 		<div class="ongoing-games">
 			<h5>Ongoing Games</h5>
@@ -336,41 +337,59 @@ const displayOngoingGames = (payload: ActiveRooms[]) => {
 	`;
 };
 
-const gameHighscores = (playerTime: number[], playerScore: [number, number][]) => {
+const gameHighscores = (NewArray: HighscoresData, playerScore: []) => {
     if (playerTime.length === 0 || playerScore.length === 0) return;
-	console.log("Körs detta funktion som jag har skapat");
 
-    const minTime = Math.min(...playerTime);
-    const maxTime = Math.max(...playerTime);
-    const averageTime = parseFloat((playerTime.reduce((sum, time) => sum + time, 0) / playerTime.length).toFixed(3));
 
-    const wins = playerScore.filter(score => score[0] > score[1]).length;
-    const lost = playerScore.filter(score => score[0] < score[1]).length;
-	const draws = playerScore.filter(score => score[0] === score[1]).length;
+NewArray.PlayerOne
+
+
+	let userIndex: number;
+    let opponentIndex: number;
+
+    if (userOne.id === socket.id) {
+        userIndex = 0;
+        opponentIndex = 1;
+
+	} else {
+        userIndex = 1;
+        opponentIndex = 0;
+    }
+
+	const clientReactionTimes = playerTime.map(reaction => reaction[userIndex]);
+
+    const minTime = Math.min(...clientReactionTimes) / 1000;
+    const maxTime = Math.max(...clientReactionTimes) / 1000;
+    const averageTime = parseFloat(((clientReactionTimes.reduce((sum, time) => sum + time, 0) / clientReactionTimes.length) / 1000).toFixed(3));
+
+    const wins = playerScore.filter(score => score[userIndex] > score[opponentIndex]).length;
+    const lost = playerScore.filter(score => score[userIndex] < score[opponentIndex]).length;
+	const draws = playerScore.filter(score => score[userIndex] === score[opponentIndex]).length;
     const gamePlayed = playerScore.length;
 
     let highestScore = 0;
-    let highestScoreMatch: [number, number] = [0, 0];
-    for (const score of playerScore) {
-        if (score[0] > highestScore) {
-            highestScore = score[0];
-            highestScoreMatch = score;
-        }
-    }
-	const highestScoreMatchStr = highestScoreMatch.join(" - ");
+	let highestScoreMatch: [number, number] = [0, 0];
+	let lowestLoss = 0;
+	let lowestLossMatch: [number, number] = [0, 0];
 
-    let highestLoss = 0;
-    let highestLossMatch: [number, number] = [0, 0];
-    for (const score of playerScore) {
-        if (score[0] < score[1]) {
-            const loss = score[1] - score[0];
-            if (loss > highestLoss) {
-                highestLoss = loss;
-                highestLossMatch = score;
-            }
-        }
-    }
-	const highestLossMatchStr = highestLossMatch.join(" - ");
+	for (const score of playerScore) {
+		if (score[userIndex] > highestScore) {
+			highestScore = score[userIndex];
+			highestScoreMatch = score;
+		}
+		if (score[opponentIndex] > lowestLoss) {
+			lowestLoss = score[opponentIndex];
+			lowestLossMatch = score;
+		}
+	}
+
+	const HighestScoreMatch = userIndex === 0
+		? `${highestScoreMatch[0]} - ${highestScoreMatch[1]}`
+		: `${highestScoreMatch[1]} - ${highestScoreMatch[0]}`;
+
+	const LowestLossMatch = userIndex === 0
+		? `${lowestLossMatch[0]} - ${lowestLossMatch[1]}`
+		: `${lowestLossMatch[1]} - ${lowestLossMatch[0]}`;
 
 	highscoresEl.innerHTML = `
 		<div class="highscores-wrapper">
@@ -387,21 +406,17 @@ const gameHighscores = (playerTime: number[], playerScore: [number, number][]) =
 					<div><span class="games-info-text">Average Reaction Time:</span> ${averageTime} sec.</div>
 				</div>
 				<div class="game-stats-highscore">
-					<div><span class="games-info-text">Best Win:</span> ${highestScoreMatchStr}</div>
-					<div><span class="games-info-text">Worst Lost:</span> ${highestLossMatchStr}</div>
+					<div><span class="games-info-text">Best Win:</span> ${HighestScoreMatch}</div>
+					<div><span class="games-info-text">Worst Lost:</span> ${LowestLossMatch}</div>
 					<div><span class="games-info-text">Games Draws:</span> ${draws > 0 ? draws : 0}</div>
 				</div>
 			</div>
 		</div>
 	`;
-
 };
-
-// gameHighscores(playerTime, playerScore);
 
 playerFormTwoEl.addEventListener("submit", (e) => {
     e.preventDefault();
-	// The first form is hidden and the value should still be there
 	const username = playerNameEl.value.trim();
 	if (username) {
 		socket.emit("cts_joinRequest", { content: username });
@@ -415,10 +430,12 @@ playerFormTwoEl.addEventListener("submit", (e) => {
         playerOneTimer = false;
         playerTwoTimer = false;
         gameOn = false;
-        // playerOneTimerSec = 0;
-        // playerTwoTimerSec = 0;
+		gameHighscores(playerTime,playerScore);
+		console.log("Array of reaction times",playerTime);
+		console.log("Array of games",playerScore);
         gridContainer.innerHTML = "";
         console.log("Sent join request for replay:", { playerName: userOne.username, id: socket.id });
+		console.log("Sent join request for replay:", { playerName: userTwo.username, id: socket.id });
     }
 });
 
@@ -475,6 +492,16 @@ socket.on("stc_roundUpdate", (payload) => {
 	playerTwostartTime = 0;
 	playerOneelapsedTime = 0;
 	playerTwoelapsedTime = 0;
+	roundDataEl.innerText = String(payload.currentRound + 1);
+	scoreDataEl.innerText = String(payload.score.join(" - "));
+	const newObject = {
+		playerOne:payload.reactionTimes[0],
+		playerTwo: payload.reactionTimes[1]
+		}
+	NewArray.push(newObject);
+	console.log("This is newarray", NewArray);
+	gameHighscores(playerTime,playerScore);
+
 	socket.emit("cts_startRequest", payload.roomId, (startgameCallback))
 })
 
@@ -485,6 +512,7 @@ socket.on("stc_finishedgame", ()=> {
 			socket.emit("cts_quitGame", room, (response)=> {
 				//await server to handle quitgame
 				if (response) {
+					gameHighscores(playerTime,playerScore);
 					backToLobby();
 				}
 			})

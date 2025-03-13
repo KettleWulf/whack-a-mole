@@ -76,3 +76,8 @@ export interface ActiveRooms {
     score: number[];
     users: UserData[];
 }
+
+export interface HighscoresData {
+    PlayerOne: number;
+	PlayerTwo: number;
+}

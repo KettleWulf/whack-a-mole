@@ -211,7 +211,7 @@ export const handleConnection = (
 		debug("Current Round: %s", currentRound)
 
 		// If current round is 10, call the game!
-		if (currentRound === 2) {
+		if (currentRound === 10) {
 			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
 
 			const gameData: FinishedGameData = {
