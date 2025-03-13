@@ -135,6 +135,7 @@ export const handleConnection = (
 
 		if (payload.forfeit) {
 			io.to(gameRoom.id).emit("stc_finishedgame");
+			return;
 		}
 
 		// Calculate reactiontime

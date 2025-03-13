@@ -176,7 +176,7 @@ const startgameCallback = (response: GameDataOmitID) => {
 				forfeit: true,
 			}
 			socket.emit("cts_clickedVirus", payload)
-		}, 300000)
+		}, 30000);
 		roundInfoEl.classList.add("hide");
 		countdownEl.classList.add("hide");
 
