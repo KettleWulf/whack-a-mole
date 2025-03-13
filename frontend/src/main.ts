@@ -64,7 +64,7 @@ let playerTwostartTime = 0;
 let playerOneelapsedTime = 0;
 let playerTwoelapsedTime = 0;
 let timerInterval:number;
-
+let canClickvirus = true
 
 
 playBtnEl.disabled = true;
@@ -196,9 +196,11 @@ const startgameCallback = (response: GameDataOmitID) => {
 		gridContainer.addEventListener("click", (e) => {
 			const target = e.target as HTMLElement;
 			const moleElement = document.querySelector(`[data-coords="${response.coordinates}"]`);
-
+			if (!canClickvirus) {
+				return;
+			}
 			if (target === moleElement) {
-
+				canClickvirus = false
 				if(userOne.id === socket.id) {
                     playerOneTimer = false;
                 }
