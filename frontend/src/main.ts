@@ -386,28 +386,26 @@ playerScore.map((game: number[])=>{
 	}
 })
 
+highscoresEl.innerHTML = `
+	<div class="highscores-wrapper">
+		<h5>Highscore</h5>
+		<div class="game-stats-wrapper">
+			<div class="game-stats">
+				<div><span class="games-info-text">Total Games Played:</span> ${gamePlayed}</div>
+				<div><span class="games-info-text">Games Wins:</span> ${matchresults.wins}</div>
+				<div><span class="games-info-text">Games Losses:</span> ${matchresults.losses}</div>
+				<div><span class="games-info-text">Games Draws:</span> ${matchresults.draws}</div>
+			</div>
+			<div class="game-stats-reactiontime">
+				<div><span class="games-info-text">Best Reaction Time:</span> ${minTime} sec.</div>
+				<div><span class="games-info-text">Worst Reaction Time:</span> ${maxTime} sec.</div>
+				<div><span class="games-info-text">Average Reaction Time:</span> ${averageTime} sec.</div>
+			</div>
+			<div class="game-stats-highscore">
 
-	highscoresEl.innerHTML = `
-		<div class="highscores-wrapper">
-			<h5>Highscore</h5>
-			<div class="game-stats-wrapper">
-				<div class="game-stats">
-					<div><span class="games-info-text">Total Games Played:</span> ${gamePlayed}</div>
-					<div><span class="games-info-text">Games Wins:</span> ${matchresults.wins}</div>
-					<div><span class="games-info-text">Games Losses:</span> ${matchresults.losses}</div>
-					<div><span class="games-info-text">Games Draws:</span> ${matchresults.draws}</div>
-				</div>
-				<div class="game-stats-reactiontime">
-					<div><span class="games-info-text">Best Reaction Time:</span> ${minTime} sec.</div>
-					<div><span class="games-info-text">Worst Reaction Time:</span> ${maxTime} sec.</div>
-					<div><span class="games-info-text">Average Reaction Time:</span> ${averageTime} sec.</div>
-				</div>
-				<div class="game-stats-highscore">
-
-				</div>
 			</div>
 		</div>
-	`;
+	</div>`;
 };
 
 playerFormTwoEl.addEventListener("submit", (e) => {
