@@ -112,218 +112,197 @@ export const handleConnection = (
 			return;
 		}
 
-		callback(gameData)
-		const forfeitTimer = gameData.startDelay + 30000
-		io.timeout(forfeitTimer).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
-			if (err) {
-				if (callbacks[0]) {
-					handlePlayerForfeit(callbacks[0])
-					const gameInfoMessage = `
-						<div class="playerwon">Opponent disconnected...</div>
-						<div class="reactiontime-wrapper">
-							<div class="reactiontime1">
-								You won by forfeit, yay!
-							</div>
+		callback(gameData);
+
+	});
+	socket.on("cts_clickedVirus", async (payload)=> {
+
+
+		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
+
+		// Assume it's not a draw, for now
+		let draw = false;
+		let gameInfoMessage: string;
+
+		// Get gameroom, including users[] from DB
+		const gameRoom = await getGameRoomAndUsers(socket.id);
+
+		if(!gameRoom) {
+			debug("GameRoom not found!");
+			return;
+		}
+		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
+
+		if (payload.forfeit) {
+			io.to(gameRoom.id).emit("stc_finishedgame");
+		}
+
+		// Calculate reactiontime
+		const reactionTime = payload.playerclicked - payload.roundstart;
+		socket.to(gameRoom.id).emit("stc_sendingTime", reactionTime);
+		debug("Players reaction time: %s", reactionTime)
+
+		// Upload reactiontime to user
+		debug("updating user reactiontime %s!: %s", reactionTime, socket.id);
+		const userupdated = await updateUserReactionTime(socket.id, reactionTime);
+		if (!userupdated) {
+			debug("userReactions wasnt updated!: %s", userupdated);
+			return
+		}
+		// Check if both players has an uploaded reactiontime using roomId
+		const userReactionTimes = await getUsersReactionTimes(gameRoom.id)
+
+		debug("userReactions length: %s", userReactionTimes.length);
+
+		// Determine if both users has a registered reactiontime, otherwise bail
+		if (userReactionTimes.length !== 2) return;
+		const gameRoomWhenBothPlayershasClicked = await getGameRoomAndUsers(socket.id);
+		if (!gameRoomWhenBothPlayershasClicked) {
+			return;
+		}
+		// Deconstruct players from gameRoom (they SHOULD be in order)
+		const [player1, player2] = gameRoomWhenBothPlayershasClicked.users;
+
+		if (!player1.reactionTime || !player2.reactionTime) {
+			debug("One or both reactionTimes are null. Player one: %o Player two: %o", player1, player2);
+			return;
+		}
+
+		// Create score array to update and replace in DB - (manipulating arrays in DB not possible using prisma?)
+		const updatedScore = [...gameRoom.score]
+
+		// Determine draw or winner
+		if (player1.reactionTime === player2.reactionTime) {
+			debug("It's a draw!")
+			updatedScore[2] = (updatedScore[2] || 0) + 1;
+
+			draw = true;
+
+		} else if (player1.reactionTime < player2.reactionTime) {
+			updatedScore[0]++
+
+		} else {
+			updatedScore[1]++
+		}
+
+		const winner = player1.reactionTime < player2.reactionTime
+				? player1
+				: player2;
+
+
+		// As winner is determined, reset reactionTime on both users
+		await resetReactionTimes(gameRoom.id);
+		debug("userReactions length after reset: %s", userReactionTimes.length);
+
+		debug("Current score: %s", updatedScore);
+
+		// Accumulate score of players to determine current round
+		const currentRound = updatedScore.reduce((sum, score) => sum + score, 0);
+
+		debug("Current Round: %s", currentRound)
+
+		// If current round is 10, call the game!
+		if (currentRound === 10) {
+			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
+			let matchWinner: string;
+
+			if (updatedScore[0] === updatedScore[1]) {
+
+				gameInfoMessage = `
+					<div class="playerwon">It's a draw! You both loose :D</div>
+					<div class="reactiontime-wrapper">
+						<div class="reactiontime1">
+							<div class="playerNameWon1">${player1.username}</div>
+							<div class="playerNameReaction1">Score: ${updatedScore[0]}</div>
 						</div>
-						`
-					socket.to(callbacks[0]).emit("stc_gameInfo", gameInfoMessage);
-					return;
-				}
-				debug("we didnt get response!!", callbacks);
-				const gameInfoMessage = `
-						<div class="playerwon">Why no one wants to play? :(</div>
-						`
-				// debug("we didnt get response!!", err, callbacks);
-				io.to(roomId).emit("stc_gameInfo", gameInfoMessage);
-				socket.to(roomId).emit("stc_finishedgame");
+						<div class="reactiontime2">
+							<div class="playerNameWon2">${player2.username}</div>
+							<div class="playerNameReaction2">Score: ${updatedScore[1]}</div>
+						</div>
+					</div>
+					`
+
 			} else {
-				socket.on("cts_clickedVirus", async (payload)=> {
+				matchWinner = updatedScore[0] > updatedScore[1]
+					? player1.username
+					: player2.username
 
-					debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
-
-					// Assume it's not a draw, for now
-					let draw = false;
-					let gameInfoMessage: string;
-
-					// Get gameroom, including users[] from DB
-					const gameRoom = await getGameRoomAndUsers(socket.id);
-
-					if(!gameRoom) {
-						debug("GameRoom not found!");
-						return;
-					}
-					debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
-
-
-					// Calculate reactiontime
-					const reactionTime = payload.playerclicked - payload.roundstart;
-					socket.to(gameRoom.id).emit("stc_sendingTime", reactionTime);
-					debug("Players reaction time: %s", reactionTime)
-
-					// Upload reactiontime to user
-					debug("updating user reactiontime %s!: %s", reactionTime, socket.id);
-					const userupdated = await updateUserReactionTime(socket.id, reactionTime);
-					if (!userupdated) {
-						debug("userReactions wasnt updated!: %s", userupdated);
-						return
-					}
-					// Check if both players has an uploaded reactiontime using roomId
-					const userReactionTimes = await getUsersReactionTimes(gameRoom.id)
-
-					debug("userReactions length: %s", userReactionTimes.length);
-
-					// Determine if both users has a registered reactiontime, otherwise bail
-					if (userReactionTimes.length !== 2) return;
-					const gameRoomWhenBothPlayershasClicked = await getGameRoomAndUsers(socket.id);
-					if (!gameRoomWhenBothPlayershasClicked) {
-						return;
-					}
-					// Deconstruct players from gameRoom (they SHOULD be in order)
-					const [player1, player2] = gameRoomWhenBothPlayershasClicked.users;
-
-					if (!player1.reactionTime || !player2.reactionTime) {
-						debug("One or both reactionTimes are null. Player one: %o Player two: %o", player1, player2);
-						return;
-					}
-
-					// Create score array to update and replace in DB - (manipulating arrays in DB not possible using prisma?)
-					const updatedScore = [...gameRoom.score]
-
-					// Determine draw or winner
-					if (player1.reactionTime === player2.reactionTime) {
-						debug("It's a draw!")
-						updatedScore[2] = (updatedScore[2] || 0) + 1;
-
-						draw = true;
-
-					} else if (player1.reactionTime < player2.reactionTime) {
-						updatedScore[0]++
-
-					} else {
-						updatedScore[1]++
-					}
-
-					const winner = player1.reactionTime < player2.reactionTime
-							? player1
-							: player2;
-
-
-					// As winner is determined, reset reactionTime on both users
-					await resetReactionTimes(gameRoom.id);
-					debug("userReactions length after reset: %s", userReactionTimes.length);
-
-					debug("Current score: %s", updatedScore);
-
-					// Accumulate score of players to determine current round
-					const currentRound = updatedScore.reduce((sum, score) => sum + score, 0);
-
-					debug("Current Round: %s", currentRound)
-
-					// If current round is 10, call the game!
-					if (currentRound === 10) {
-						debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
-						let matchWinner: string;
-
-						if (updatedScore[0] === updatedScore[1]) {
-
-							gameInfoMessage = `
-								<div class="playerwon">It's a draw! You both loose :D</div>
-								<div class="reactiontime-wrapper">
-									<div class="reactiontime1">
-										<div class="playerNameWon1">${player1.username}</div>
-										<div class="playerNameReaction1">Score: ${updatedScore[0]}</div>
-									</div>
-									<div class="reactiontime2">
-										<div class="playerNameWon2">${player2.username}</div>
-										<div class="playerNameReaction2">Score: ${updatedScore[1]}</div>
-									</div>
-								</div>
-								`
-
-						} else {
-							matchWinner = updatedScore[0] > updatedScore[1]
-								? player1.username
-								: player2.username
-
-							gameInfoMessage = `
-								<div class="playerwon"><span class="playerwonspan">Game Over! Winner:</span> ${matchWinner}</div>
-								<div class="reactiontime-wrapper">
-									<div class="reactiontime1">
-										<div class="playerNameWon1">${player1.username}</div>
-										<div class="playerNameReaction1">Score: ${updatedScore[0]}</div>
-									</div>
-									<div class="reactiontime2">
-										<div class="playerNameWon2">${player2.username}</div>
-										<div class="playerNameReaction2">Score: ${updatedScore[1]}</div>
-									</div>
-								</div>
-								`
-						}
-
-						const gameData: FinishedGameData = {
-							title: `${player1.username} vs ${player2.username}`,
-							score: updatedScore
-						}
-
-						finishedGame(gameRoom.id, false, gameData);
-
-						io.to(gameRoom.id).emit("stc_finishedGameScore", updatedScore)
-						io.to(gameRoom.id).emit("stc_gameInfo", gameInfoMessage)
-						socket.to(gameRoom.id).emit("stc_finishedgame");
-						return;
-					}
-
-					// Update GameRoom in DB with new score
-					await updateGameRoomScore(gameRoom.id, updatedScore);
-
-					// emit shit to start next round?
-					 const RoundResultData: RoundResultData = {
-						roomId: gameRoom.id,
-						currentRound,
-						reactionTimes: [player1.reactionTime, player2.reactionTime],
-						score: updatedScore,
-						draw,
-					}
-
-					if (draw) {
-						gameInfoMessage = `
-								<div class="playerwon">It's a draw!</div>
-								<div class="reactiontime-wrapper">
-									<div class="reactiontime1">
-										<div class="playerNameWon1">${player1.username}</div>
-										<div class="playerNameReaction1">Reaction Time: ${(player1.reactionTime / 1000).toFixed(2)}</div>
-									</div>
-									<div class="reactiontime2">
-										<div class="playerNameWon2">${player2.username}</div>
-										<div class="playerNameReaction2">Reaction Time: ${(player2.reactionTime / 1000).toFixed(2)}</div>
-									</div>
-								</div>
-								`
-					} else {
-						gameInfoMessage = `
-								<div class="playerwon">Round Winner: ${winner.username}</div>
-								<div class="reactiontime-wrapper">
-									<div class="reactiontime1">
-										<div class="playerNameWon1">${player1.username}</div>
-										<div class="playerNameReaction1">Reaction Time: ${(player1.reactionTime / 1000).toFixed(2)}</div>
-									</div>
-									<div class="reactiontime2">
-										<div class="playerNameWon2">${player2.username}</div>
-										<div class="playerNameReaction2">Reaction Time: ${(player2.reactionTime / 1000).toFixed(2)}</div>
-									</div>
-								</div>
-								`
-					}
-					debug("RoundResultData: %O", RoundResultData);
-					const data = generateGameData(gameRoom.id);
-					const { id, ...updateData } = data;
-					// Create GameData in DB
-					await createOrUpdateGameData(id, updateData, data);
-					io.to(gameRoom.id).emit("stc_gameInfo", gameInfoMessage)
-					io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
-				});
+				gameInfoMessage = `
+					<div class="playerwon"><span class="playerwonspan">Game Over! Winner:</span> ${matchWinner}</div>
+					<div class="reactiontime-wrapper">
+						<div class="reactiontime1">
+							<div class="playerNameWon1">${player1.username}</div>
+							<div class="playerNameReaction1">Score: ${updatedScore[0]}</div>
+						</div>
+						<div class="reactiontime2">
+							<div class="playerNameWon2">${player2.username}</div>
+							<div class="playerNameReaction2">Score: ${updatedScore[1]}</div>
+						</div>
+					</div>
+					`
 			}
-		})
+
+			const gameData: FinishedGameData = {
+				title: `${player1.username} vs ${player2.username}`,
+				score: updatedScore
+			}
+
+			finishedGame(gameRoom.id, false, gameData);
+
+			io.to(gameRoom.id).emit("stc_finishedGameScore", updatedScore)
+			io.to(gameRoom.id).emit("stc_gameInfo", gameInfoMessage)
+			socket.to(gameRoom.id).emit("stc_finishedgame");
+			return;
+		}
+
+		// Update GameRoom in DB with new score
+		await updateGameRoomScore(gameRoom.id, updatedScore);
+
+		// emit shit to start next round?
+		 const RoundResultData: RoundResultData = {
+			roomId: gameRoom.id,
+			currentRound,
+			reactionTimes: [player1.reactionTime, player2.reactionTime],
+			score: updatedScore,
+			draw,
+		}
+
+		if (draw) {
+			gameInfoMessage = `
+					<div class="playerwon">It's a draw!</div>
+					<div class="reactiontime-wrapper">
+						<div class="reactiontime1">
+							<div class="playerNameWon1">${player1.username}</div>
+							<div class="playerNameReaction1">Reaction Time: ${(player1.reactionTime / 1000).toFixed(2)}</div>
+						</div>
+						<div class="reactiontime2">
+							<div class="playerNameWon2">${player2.username}</div>
+							<div class="playerNameReaction2">Reaction Time: ${(player2.reactionTime / 1000).toFixed(2)}</div>
+						</div>
+					</div>
+					`
+		} else {
+			gameInfoMessage = `
+					<div class="playerwon">Round Winner: ${winner.username}</div>
+					<div class="reactiontime-wrapper">
+						<div class="reactiontime1">
+							<div class="playerNameWon1">${player1.username}</div>
+							<div class="playerNameReaction1">Reaction Time: ${(player1.reactionTime / 1000).toFixed(2)}</div>
+						</div>
+						<div class="reactiontime2">
+							<div class="playerNameWon2">${player2.username}</div>
+							<div class="playerNameReaction2">Reaction Time: ${(player2.reactionTime / 1000).toFixed(2)}</div>
+						</div>
+					</div>
+					`
+		}
+		debug("RoundResultData: %O", RoundResultData);
+		const data = generateGameData(gameRoom.id);
+		const { id, ...updateData } = data;
+		// Create GameData in DB
+		await createOrUpdateGameData(id, updateData, data);
+		io.to(gameRoom.id).emit("stc_gameInfo", gameInfoMessage)
+		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
 
 

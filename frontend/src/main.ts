@@ -115,10 +115,7 @@ socket.on("stc_Message", (payload)=> {
 // Listen for when we're reconnected (either due to our or the servers connection)
 socket.io.on("reconnect", () => {
 	console.log("😊 Reconnected to server:", socket.io.opts.hostname + ":" + socket.io.opts.port);
-	const username = playerNameEl.value.trim();
-	if (username) {
-		socket.emit("cts_joinRequest", { content: username });
-	}
+	backToLobby();
 });
 
 playerFormEl.addEventListener("submit", (e) => {
@@ -170,7 +167,16 @@ const startgameCallback = (response: GameDataOmitID) => {
 	}
 
     setTimeout(() => {
+
 		timeStamp = Date.now();
+		const forfeittimer = setTimeout(()=> {
+			const payload: ReactionTime= {
+				roundstart: timeStamp,
+				playerclicked: Date.now(),
+				forfeit: true,
+			}
+			socket.emit("cts_clickedVirus", payload)
+		}, 300000)
 		roundInfoEl.classList.add("hide");
 		countdownEl.classList.add("hide");
 
@@ -208,13 +214,7 @@ const startgameCallback = (response: GameDataOmitID) => {
 				if(userTwo.id === socket.id){
                     playerTwoTimer = false;
 				}
-
-				socket.on("stc_requestclickorforfeit", (callback)=> {
-					if (socket.id) {
-						callback(socket.id);
-					}
-
-				});
+				clearTimeout(forfeittimer);
 
 				clickStamp = Date.now();
 
