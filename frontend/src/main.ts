@@ -137,7 +137,6 @@ playerFormEl.addEventListener("submit", (e) => {
 
 
 const startgameCallback = (response: GameDataOmitID) => {
-	canClickvirus = !canClickvirus
 	gridContainer.innerHTML = "";
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
@@ -509,7 +508,8 @@ socket.on("stc_roundUpdate", (payload) => {
 	console.log("This is an array of gamescoores:", playerScore);
 	gameHighscores();
 
-	socket.emit("cts_startRequest", payload.roomId, (startgameCallback))
+	socket.emit("cts_startRequest", payload.roomId, (startgameCallback));
+	canClickvirus = true
 })
 
 socket.on("stc_finishedgame", () => {
