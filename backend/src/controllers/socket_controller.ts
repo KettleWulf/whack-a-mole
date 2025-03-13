@@ -3,7 +3,7 @@
  */
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, Gamelobby, Messagedata, ServerToClientEvents, RoundResultData, ActiveRooms } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, Gamelobby, ServerToClientEvents, RoundResultData, ActiveRooms } from "@shared/types/SocketEvents.types";
 import { createGameroom, findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service";
 import { User } from "@prisma/client";
 import { createUser, findUserById, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
@@ -68,11 +68,7 @@ export const handleConnection = (
 
 		await updateUserRoomId(socket.id, createRoom.id);
 		socket.join(createRoom.id);
-		const message: Messagedata = {
-			content: "Joined gameroom" + createRoom.id + " Gamerooms:" + gameRooms,
-			timestamp: Date.now()
-		}
-		io.to(createRoom.id).emit("stc_Message", message);
+		io.to(socket.id).emit("stc_Message", 0);
 		return;
 	}
 		//join player 2 to room which is missing a player
@@ -89,6 +85,7 @@ export const handleConnection = (
 			await createUser(userdata);
 		}
 		await updateUserRoomId(socket.id, roomId);
+		io.to(socket.id).emit("stc_Message", 1);
 		socket.join(roomId);
 		const getUsers = await getUsersByRoomId(roomId);
 		const message: Gamelobby = {
@@ -98,6 +95,7 @@ export const handleConnection = (
 
 		//room is ready for game, broadcast!
 		io.to(roomId).emit("stc_GameroomReadyMessage", message);
+
         return;
     }
 	});
@@ -111,16 +109,27 @@ export const handleConnection = (
 		}
 
 		callback(gameData)
-		const payload: Messagedata = {
-			content: "Game is starting",
-			timestamp: Date.now()
-		}
-		io.to(roomId).emit("stc_Message", payload);
 		const forfeitTimer = gameData.startDelay + 30000
 		io.timeout(forfeitTimer).to(roomId).emit("stc_requestclickorforfeit", async (err, callbacks)=> {
 			if (err) {
+				if (callbacks[0]) {
+					handlePlayerForfeit(callbacks[0])
+					const gameInfoMessage = `
+						<div class="playerwon">Opponent disconnected...</div>
+						<div class="reactiontime-wrapper">
+							<div class="reactiontime1">
+								You won by forfeit, yay!
+							</div>
+						</div>
+						`
+					socket.to(callbacks[0]).emit("stc_gameInfo", gameInfoMessage)
+				}
 				debug("we didnt get response!!", callbacks);
+				const gameInfoMessage = `
+						<div class="playerwon">Why no one wants to play? :(</div>
+						`
 				// debug("we didnt get response!!", err, callbacks);
+				io.to(roomId).emit("stc_gameInfo", gameInfoMessage);
 				socket.to(roomId).emit("stc_finishedgame");
 				return;
 			}
@@ -128,31 +137,26 @@ export const handleConnection = (
 	});
 
 	socket.on("cts_clickedVirus", async (payload)=> {
-		
+
 		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
 
 		// Assume it's not a draw, for now
 		let draw = false;
+		let gameInfoMessage: string;
 
 		// Get gameroom, including users[] from DB
 		const gameRoom = await getGameRoomAndUsers(socket.id);
-		
+
 		if(!gameRoom) {
 			debug("GameRoom not found!");
 			return;
 		}
 		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
-		socket.to(gameRoom.id).emit("stc_sendingTime", false);
-
-		// Handle player forfeiting
-		if (payload.forfeit === true) {
-			handlePlayerForfeit(socket.id);
-			return;
-		}
 
 
 		// Calculate reactiontime
 		const reactionTime = payload.playerclicked - payload.roundstart;
+		socket.to(gameRoom.id).emit("stc_sendingTime", reactionTime);
 		debug("Players reaction time: %s", reactionTime)
 
 		// Upload reactiontime to user
@@ -184,7 +188,7 @@ export const handleConnection = (
 		// Create score array to update and replace in DB - (manipulating arrays in DB not possible using prisma?)
 		const updatedScore = [...gameRoom.score]
 
-		// Determine draw or winner		
+		// Determine draw or winner
 		if (player1.reactionTime === player2.reactionTime) {
 			debug("It's a draw!")
 			updatedScore[2] = (updatedScore[2] || 0) + 1;
@@ -193,17 +197,20 @@ export const handleConnection = (
 
 		} else if (player1.reactionTime < player2.reactionTime) {
 			updatedScore[0]++
+
 		} else {
 			updatedScore[1]++
 		}
 
-		debug("And the winner is: %o", player1.reactionTime < player2.reactionTime ? player1 : player2);
+		const winner = player1.reactionTime < player2.reactionTime
+				? player1
+				: player2;
 
-		
+
 		// As winner is determined, reset reactionTime on both users
 		await resetReactionTimes(gameRoom.id);
-		debug("userReactions length after reset: %s", userReactionTimes.length);		
-		
+		debug("userReactions length after reset: %s", userReactionTimes.length);
+
 		debug("Current score: %s", updatedScore);
 
 		// Accumulate score of players to determine current round
@@ -212,8 +219,45 @@ export const handleConnection = (
 		debug("Current Round: %s", currentRound)
 
 		// If current round is 10, call the game!
-		if (currentRound === 2) {
+		if (currentRound === 10) {
 			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
+			let matchWinner: string;
+
+			if (updatedScore[0] === updatedScore[1]) {
+
+				gameInfoMessage = `
+					<div class="playerwon">It's a draw! You both loose :D</div>
+					<div class="reactiontime-wrapper">
+						<div class="reactiontime1">
+							<div class="playerNameWon1">${player1.username}</div>
+							<div class="playerNameReaction1">Score: ${updatedScore[0]}</div>
+						</div>
+						<div class="reactiontime2">
+							<div class="playerNameWon2">${player2.username}</div>
+							<div class="playerNameReaction2">Score: ${updatedScore[1]}</div>
+						</div>
+					</div>
+					`
+
+			} else {
+				matchWinner = updatedScore[0] > updatedScore[1]
+					? player1.username
+					: player2.username
+
+				gameInfoMessage = `
+					<div class="playerwon"><span class="playerwonspan">Game Over! Winner:</span> ${matchWinner}</div>
+					<div class="reactiontime-wrapper">
+						<div class="reactiontime1">
+							<div class="playerNameWon1">${player1.username}</div>
+							<div class="playerNameReaction1">Score: ${updatedScore[0]}</div>
+						</div>
+						<div class="reactiontime2">
+							<div class="playerNameWon2">${player2.username}</div>
+							<div class="playerNameReaction2">Score: ${updatedScore[1]}</div>
+						</div>
+					</div>
+					`
+			}
 
 			const gameData: FinishedGameData = {
 				title: `${player1.username} vs ${player2.username}`,
@@ -221,7 +265,9 @@ export const handleConnection = (
 			}
 
 			finishedGame(gameRoom.id, false, gameData);
-			// last socket to click emits the finished game event
+
+			io.to(gameRoom.id).emit("stc_finishedGameScore", updatedScore)
+			io.to(gameRoom.id).emit("stc_gameInfo", gameInfoMessage)
 			socket.to(gameRoom.id).emit("stc_finishedgame");
 			return;
 		}
@@ -238,11 +284,41 @@ export const handleConnection = (
 			draw,
 		}
 
+		if (draw) {
+			gameInfoMessage = `
+					<div class="playerwon">It's a draw!</div>
+					<div class="reactiontime-wrapper">
+						<div class="reactiontime1">
+							<div class="playerNameWon1">${player1.username}</div>
+							<div class="playerNameReaction1">Reaction Time: ${(player1.reactionTime / 1000).toFixed(2)}</div>
+						</div>
+						<div class="reactiontime2">
+							<div class="playerNameWon2">${player2.username}</div>
+							<div class="playerNameReaction2">Reaction Time: ${(player2.reactionTime / 1000).toFixed(2)}</div>
+						</div>
+					</div>
+					`
+		} else {
+			gameInfoMessage = `
+					<div class="playerwon">Round Winner: ${winner.username}</div>
+					<div class="reactiontime-wrapper">
+						<div class="reactiontime1">
+							<div class="playerNameWon1">${player1.username}</div>
+							<div class="playerNameReaction1">Reaction Time: ${(player1.reactionTime / 1000).toFixed(2)}</div>
+						</div>
+						<div class="reactiontime2">
+							<div class="playerNameWon2">${player2.username}</div>
+							<div class="playerNameReaction2">Reaction Time: ${(player2.reactionTime / 1000).toFixed(2)}</div>
+						</div>
+					</div>
+					`
+		}
 		debug("RoundResultData: %O", RoundResultData);
 		const data = generateGameData(gameRoom.id);
 		const { id, ...updateData } = data;
 		// Create GameData in DB
 		await createOrUpdateGameData(id, updateData, data);
+		io.to(gameRoom.id).emit("stc_gameInfo", gameInfoMessage)
 		io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 	});
 
@@ -278,14 +354,14 @@ export const handleConnection = (
 
 	socket.on("cts_getHighscores", async (roomid, callback)=> {
 		const highscoreCollection = await GetHighscores();
-			callback({...highscoreCollection})
+			callback(highscoreCollection)
 	});
 	socket.on("stc_getActiveRooms", async (callback)=> {
 		const roomcollection: ActiveRooms[] = await GetActiveRooms();
 		if (roomcollection) {
-			callback({...roomcollection})
+			callback(roomcollection)
 		}
-		
+
 	})
 
 }

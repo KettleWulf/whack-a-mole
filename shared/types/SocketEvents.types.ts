@@ -9,12 +9,14 @@ export {}
 // Events emitted by the server to the client
 export interface ServerToClientEvents {
     // generic server event
-    stc_Message: (payload: Messagedata) => void;
+    stc_Message: (payload: number) => void;
     stc_GameroomReadyMessage: (payload: Gamelobby) => void;
-	stc_sendingTime: (playerclicked: boolean) => void;
+	stc_sendingTime: (playerclicked: number) => void;
     stc_roundUpdate: (payload: RoundResultData) => void;
     stc_opponentleft: ()=> void;
     stc_finishedgame: ()=>void;
+    stc_finishedGameScore: (payload: number[]) => void;
+    stc_gameInfo: (payload: string) =>void;
     stc_requestclickorforfeit: (callback: (clicked: string)=> void)=>void;
 }
 
@@ -75,4 +77,8 @@ export interface ActiveRooms {
     title: string;
     score: number[];
     users: UserData[];
+}
+
+export interface HighscoresData {
+   playerOne: number
 }

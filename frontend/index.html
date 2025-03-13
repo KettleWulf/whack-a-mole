@@ -9,38 +9,57 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Frijole&family=Henny+Penny&family=Monoton&family=Mystery+Quest&family=Rubik+Moonrocks&family=Spicy+Rice&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="/src/assets/scss/style.scss">
-	<title>VIRUS ALERT 🚨🚨</title>
+	<title>WHACK-A-MOLE</title>
 </head>
 
 <body>
 	<main>
         <div class="loby">
-			<h1>Wellcome to a FOO creation!!</h1>
-            <div id="sektion1">
-                <div class="game-logo">
-					<img src="/Images/WhackAMole.jpeg" alt="Picture of a Mole" class="logo-image">
+			<div class="sektion1">
+				<h1>Welcome to a <span class="FOO">FOO</span> creation!!</h1>
+				<div class="sektion1-wrapper">
+					<div class="game-logo">
+						<img src="/Images/WhackAMole.jpeg" alt="Picture of a Mole" class="logo-image">
+					</div>
+					<div class="player-wrapper">
+						<form id="player-form">
+							<div class="create-player">
+								<label for="playername" class="input-label">Insert your Player Name</label>
+								<input type="text" id="playername" class="input-field" placeholder="Player Name" required>
+							</div>
+							<div>
+								<button type="submit" id="connectBtn" class="playerBtn">Play</button>
+							</div>
+						</form>
+						<button class="highscoreBtn">Stats</button>
+					</div>
 				</div>
-                <div class="player-wrapper">
-                    <form id="player-form">
-                        <div class="create-player">
-                            <label for="playername" class="input-label">Insert your Player Name</label>
-                            <input type="text" id="playername" class="input-field" placeholder="Player Name">
-                        </div>
-                        <button type="submit" id="connectBtn" class="playerBtn">Play</button>
-                    </form>
-                </div>
-				<div class="player-wrapper2 hide">
-                    <form id="player-form2">
-						<h4 class="playagain">Whack Some More</h4>
-                        <button type="submit" id="connectBtn" class="playerBtn2">Play</button>
-                    </form>
-                </div>
-				<div class="player-wrapper3 hide">
-					<h4 class="waiting">Waiting for player...</h4>
-                </div>
+				<div class="sektion2-wrapper hide">
+					<div class="game-logo2">
+						<img src="/Images/WhackAMole.jpeg" alt="Picture of a Mole" class="logo-image">
+					</div>
+					<div class="player-wrapper2">
+						<form id="player-form2">
+							<h4 class="playagain">Whack Some More</h4>
+							<button type="submit" class="playerBtn2">Play</button>
+						</form>
+						<button class="highscoreBtn2">Stats</button>
+					</div>
+				</div>
+				<div class="sektion3-wrapper hide">
+					<div class="game-logo3">
+						<img src="/Images/WhackAMole.jpeg" alt="Picture of a Mole" class="logo-image">
+					</div>
+					<div class="player-wrapper3">
+						<h4 class="waiting">Waiting for player...</h4>
+					</div>
+				</div>
             </div>
-            <div id="sektion2">
-				<div class="highscores"></div>
+            <div class="sektion2 hide">
+				<div class="highscoresdiv">
+					<button class="lobyBtn">Loby</button>
+					<div class="highscores"></div>
+				</div>
                 <div class="games-wrapper">
                     <div class="ongoing-games-data"></div>
 					<div class="games-data"></div>
@@ -49,13 +68,14 @@
         </div>
 		<div id="game-board" class="game-board hide">
 			<div class="game-field">
-				<div id="countdown-timer" class="hide"></div>
+				<div id="countdown-timer"></div>
+				<div class="round-info hide"></div>
 				<div class="grid-container"></div>
 			</div>
 			<div class="game-info">
 				<div class="round-wrapper">
 					<div class="round">Round</div>
-					<div class="round-data">10</div>
+					<div class="round-data">1</div>
 				</div>
 				<div class="player-info">
 					<div class="playersInGame">
@@ -72,8 +92,8 @@
 				</div>
 				<div class="scores-wrapper">
 					<div class="score">Score</div>
-					<div class="score-data">10-1</div>
-					<button class="backtolobby">Loby</button>
+					<div class="score-data">0 - 0</div>
+					<button class="backtolobby">X</button>
 				</div>
 			</div>
 		</div>
