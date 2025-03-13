@@ -19,9 +19,6 @@ export const handleConnection = (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
 	io: Server<ClientToServerEvents, ServerToClientEvents>
 ) => {
-	addToHighscores({title: "Kalle vs. Hobbe", score: [3,7]});
-
-
 	// Handle a user disconnecting
 	socket.on("disconnect", () => {
 
