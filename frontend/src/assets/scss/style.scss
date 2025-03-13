@@ -1,1 +1,1078 @@
 @import "bootstrap/scss/bootstrap";
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+	height: 100vh;
+}
+
+body {
+	background-color: black;
+	height: 100vh;
+}
+
+.loby {
+	background: url('/Images/Universe2.gif') no-repeat center/cover;
+}
+
+h1 {
+	color: white;
+    font-size: 3.2rem;
+    text-align: center;
+	padding: 0.7em 0.7em 0 0.7em;
+	font-family: 'Rubik Moonrocks', sans-serif;
+	word-spacing: 15px;
+	text-shadow: 0 0 20px black, 0 0 40px black;
+}
+
+h5 {
+	margin-bottom: 0.8em;
+	font-style: italic;
+	padding-top: 0.8em;
+	font-size: 1.5rem;
+	font-family: 'Frijole', sans-serif;
+	text-shadow: 0 0 20px darkmagenta, 0 0 40px darkmagenta;
+	color: plum;
+}
+
+h1 {
+    animation: slideInAndBounce 2.4s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+}
+
+@keyframes slideInAndBounce {
+    0% {
+        transform: translateX(-100vw);
+    }
+    52% {
+        transform: translateX(8.5vw);
+    }
+    70% {
+        transform: translateX(-6vw);
+    }
+    85% {
+        transform: translateX(3.5vw);
+    }
+    100% {
+        transform: translateX(0);
+		display: block;
+    	text-shadow: 0px 5px 5px rgba(0, 0, 0, 0.5);
+   		transform: perspective(300px) rotateX(15deg);
+		color: rgb(235, 129, 147);
+    }
+}
+
+.player-wrapper {
+    animation: fadeInLogoAndForm 4.8s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+}
+
+@keyframes fadeInLogoAndForm {
+    0% {
+        opacity: 0;
+    }
+	15% {
+        opacity: 0.01;
+    }
+	30% {
+        opacity: 0.01;
+    }
+	45% {
+        opacity: 0.02;
+    }
+	60% {
+        opacity: 0.06;
+    }
+	75% {
+        opacity: 0.2;
+    }
+	90% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+button:disabled {
+    background-color: gray;
+    color: black;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+button:disabled:hover {
+    background-color: gray;
+	border: gray;
+    cursor: not-allowed;
+}
+
+.FOO {
+	color: white;
+}
+
+.game-logo,
+.game-logo3 {
+	width: 92%;
+	border: 5px solid white;
+	border-radius: 50%;
+	box-shadow: 0 0 70px pink, 0 0 140px pink;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.game-logo2 {
+	width: 91.408%;
+	border: 5px solid white;
+	border-radius: 50%;
+	box-shadow: 0 0 70px pink, 0 0 140px pink;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.logo-image {
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+}
+
+.player-wrapper,
+.player-wrapper2 {
+	border: 6px outset black;
+	border-radius: 20px;
+	box-shadow: 0 0 70px pink, 0 0 140px pink;
+	padding: 1em;
+	width: 300px;
+	height: 450px;
+	background: url('/Images/Kalle och Hobbe.gif') no-repeat center/cover;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	position: relative;
+}
+
+.player-wrapper3 {
+	border: 4px double white;
+	border-radius: 20px;
+	box-shadow: 0 0 70px pink, 0 0 140px pink;
+	padding: 1em;
+	width: 300px;
+	height: 450px;
+	background: url('/Images/Waiting for player.gif') no-repeat;
+	background-size: cover;
+	background-position: 80% 20%;
+	color: white;
+	position: relative;
+}
+
+.waiting {
+	position: absolute;
+    top: 30px;
+    left: 30px;
+	font-family: 'Spicy Rice', sans-serif;
+	word-spacing: 7px;
+	color: whitesmoke;
+	text-shadow: 0 0 1px purple, 0 0 2px purple;
+}
+
+#player-form,
+#player-form2 {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20em;
+}
+
+#player-form2 {
+	gap: 12em;
+}
+
+.create-player {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1em;
+}
+
+.input-label {
+	color: black;
+	font-weight: bolder;
+	font-size: 1.3rem;
+	text-align: center;
+	font-family: 'Henny Penny', sans-serif;
+	word-spacing: 2px;
+}
+
+.input-field {
+	color: black;
+	border: 2px solid black;
+	border-radius: 10px;
+	box-shadow: 0 0 4px plum, 0 0 8px plum;
+	text-align: center;
+	padding: 0.5em;
+	width: 100%;
+	font-family: 'Henny Penny', sans-serif;
+	word-spacing: 12px;
+	opacity: 0.9;
+}
+
+input:focus {
+	border: 2px solid black;
+	box-shadow: 0 0 12px plum, 0 0 24px plum;
+	outline: none;
+  }
+
+.playagain {
+	font-size: 1.6rem;
+	font-family: 'Henny Penny', sans-serif;
+	word-spacing: 10px;
+	padding-top: 0.5em;
+}
+
+.playerBtn,
+.playerBtn2,
+.highscoreBtn,
+.highscoreBtn2 {
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: white;
+	border: 2px solid pink;
+	box-shadow: 0 0 5px plum, 0 0 10px plum;
+	background-color: black;
+	width: 70px;
+    height: 70px;
+    border-radius: 50%;
+	margin-top: 3em;
+	font-family: 'Henny Penny', sans-serif;
+	font-size: 1.3rem;
+}
+
+.playerBtn,
+.playerBtn2 {
+    position: absolute;
+    left: 7%;
+    top: 74%;
+    transform: translateY(-50%);
+	opacity: 0.85;
+}
+
+.highscoreBtn,
+.highscoreBtn2 {
+    position: absolute;
+    right: 7%;
+    top: 74%;
+    transform: translateY(-50%);
+	opacity: 0.85;
+}
+
+.sektion1 {
+    display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 0.3em;
+}
+
+.sektion1-wrapper,
+.sektion2-wrapper,
+.sektion3-wrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 3.5em;
+	padding: 3em 0 3em 0;
+}
+
+.sektion2 {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 95%;
+}
+
+.highscoresdiv {
+	margin-top: 3em;
+	width: 90%;
+}
+
+.lobyBtn {
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: white;
+	border: 2px solid white;
+	box-shadow: 0 0 20px rgb(255, 128, 255), 0 0 40px rgb(255, 128, 255);
+	background-color: rgb(88, 4, 88);
+	width: 100%;
+    height: 100%;
+    border-radius: 20%;
+	font-family: 'Henny Penny', sans-serif;
+	font-size: 1.6rem;
+	padding: 1em;
+}
+
+.highscores {
+	width: 100%;
+	background-color: black;
+	border-radius: 20px;
+	margin-top: 3em;
+}
+
+.highscores-wrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	border: 2px solid white;
+	border-radius: 20px;
+	box-shadow: 0 0 5px rgb(255, 128, 255), 0 0 10px rgb(255, 128, 255);
+	padding: 1em;
+	padding-bottom: 2em;
+	width: 100%;
+	color: white;
+	text-align: center;
+}
+
+.game-stats-wrapper,
+.game-stats,
+.game-stats-highscore,
+.game-stats-reactiontime {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+}
+
+.games-wrapper {
+	width: 90%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 3em;
+	padding-bottom: 2em;
+
+}
+
+.ongoing-games, .games {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	border: 2px solid white;
+	border-radius: 20px;
+	box-shadow: 0 0 5px rgb(255, 128, 255), 0 0 10px rgb(255, 128, 255);
+	padding: 0.3em;
+	width: 100%;
+	min-height: 100%;
+	color: rgb(255, 43, 43);
+	padding-bottom: 1em;
+	background-color: black;
+}
+
+.ongoing-games {
+	color: greenyellow;
+}
+
+.ongoing-games-layout,
+.ongoing-games-layout2 {
+	display: flex;
+	justify-content: center;
+	gap: 1.3em;
+	padding: 0.2em;
+}
+
+.game-stats-wrapper,
+.ongoing-games-layout,
+.ongoing-games-layout2 {
+	font-family: 'Mystery Quest', sans-serif;
+	word-spacing: 6px;
+
+}
+
+.game-stats,
+.game-stats-highscore,
+.game-stats-reactiontime,
+.ongoing-games-layout,
+.ongoing-games-layout2 {
+		font-size: 1.3rem;
+	}
+
+.games-info-text {
+	color: yellow;
+}
+
+.games-info-text2 {
+ 	color: white;
+}
+
+.game-board {
+    display: flex;
+	flex-direction: column;
+    width: 100%;
+    height: 100vh;
+	padding-bottom: 0.2em;
+    justify-content: center;
+	align-items: center;
+	background: url('/Images/Universe2.gif') no-repeat center/cover;
+  }
+
+.ongoing-games-data {
+	width: 100%;
+	margin-top: 3em;
+}
+
+.games-data {
+	width: 100%;
+}
+
+.game-field {
+    width: 100%;
+    height: 80%;
+    background: url('/Images/Grass2.jpg') no-repeat center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	position: relative;
+	border: 0.5px solid green;
+}
+
+#countdown-timer {
+	font-size: 8rem;
+	color: orange;
+	text-shadow: 0 0 5px black, 0 0 10px black;
+	text-align: center;
+	position: absolute;
+	top: 30%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	padding: 20px;
+	font-family: 'Rubik Moonrocks', sans-serif;
+  }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    width: 100%;
+    height: 85%;
+	position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.grid-field {
+    display: flex;
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+	background-color: transparent;
+	overflow: visible;
+}
+
+.mole {
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+	height: 105%;
+	width: 105%;
+}
+
+.mole:hover {
+	cursor: url('/Images/Hammer.png'), auto;
+}
+
+.mole:active {
+	cursor: url('/Images/HammerDown.png'), auto;
+  }
+
+.game-info {
+	width: 100%;
+    height: 20%;
+    background: url('/Images/UndergroundBackground.png') no-repeat center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	background-size: 100% 145%;
+	background-position: center;
+	border: 0.5px solid rgb(56, 38, 38);
+	border-top: none;
+	border-radius: 0px 0px 20px 20px;
+	gap: 2em;
+	position: relative;
+}
+
+.round-wrapper {
+	position: absolute;
+    top: 0.5em;
+    left: 0.60em;
+}
+
+.round {
+	font-size: 1rem;
+	color: white;
+	font-family: 'Frijole', sans-serif;
+}
+
+.round-data,
+.score-data {
+	font-size: 1rem;
+	font-family: 'Frijole', sans-serif;
+	color: yellow;
+	text-align: center;
+	margin-top: -0.3em;
+}
+
+.scores-wrapper {
+	position: absolute;
+    top: 0.5em;
+    right: 0.30em;
+}
+
+.score {
+	font-size: 1rem;
+	color: white;
+	font-family: 'Frijole', sans-serif;
+	text-align: center;
+}
+
+.playersInGame {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 2em;
+	margin-top: 2em;
+}
+
+.players-names {
+	font-size: 1.3rem;
+	font-family: 'Mystery Quest', sans-serif;
+	color: yellow;
+	text-shadow: 0 0 5px pink, 0 0 10px pink;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	gap: 1em;
+}
+
+.vs {
+	font-size: 1.3rem;
+	font-family: 'Mystery Quest', sans-serif;
+	text-shadow: 0 0 5px pink, 0 0 10px pink;
+	color: yellow;
+	text-align: center;
+	margin-top: 0.9em;
+}
+
+.players-timers {
+	font-size: 1rem;
+	color: red;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	min-width: 80px;
+}
+
+.backtolobby {
+	text-align: center;
+	color: black;
+	border: 2px solid black;
+	box-shadow: 0 0 5px yellow, 0 0 10px yellow;
+	background-color: red;
+	width: 30px;
+    height: 30px;
+    border-radius: 50%;
+	margin-top: 3em;
+	margin-left: 1em;
+	font-family: 'Mystery Quest', sans-serif;
+	font-size: 1.1rem;
+}
+
+.round-info {
+	width: 50%;
+	height: 50%;
+	border: 2px solid yellow;
+	box-shadow: 0 0 20px black, 0 0 40px black;
+	border-radius: 20px;
+	color: white;
+	font-size: 1.1rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1em;
+	padding: 0.5em;
+	position: absolute;
+	right: 26%;
+    top: 45%;
+	background: black;
+}
+
+.reactiontime1,
+.reactiontime2 {
+	display: flex;
+	gap: 1em;
+	font-family: 'Mystery Quest', sans-serif;
+	text-align: center;
+	color: yellow;
+}
+
+.draw {
+	font-family: 'Mystery Quest', sans-serif;
+	color: yellow;
+	text-align: center;
+}
+
+.gameover {
+	font-family: 'Mystery Quest', sans-serif;
+	color: red;
+	text-align: center;
+}
+
+.hide {
+	display: none;
+}
+
+@media all and (min-width: 660px) {
+
+	h1 {
+		font-size: 4.3rem;
+	}
+
+	h5 {
+		font-size: 2rem;
+	}
+
+	.game-logo,
+	.game-logo2,
+	.game-logo3 {
+		width: 75%;
+	}
+
+	.player-wrapper,
+	.player-wrapper2 {
+		width: 50%;
+	}
+
+	.player-wrapper3 {
+		width: 50%;
+	}
+
+	.mole {
+		height: 100%;
+		width: 100%;
+	}
+
+	.input-label,
+	.round,
+	.round-data,
+	.score,
+	.score-data {
+		font-size: 1.3rem;
+	}
+
+	.game-stats,
+	.game-stats-highscore,
+	.game-stats-reactiontime,
+	.ongoing-games-layout,
+	.ongoing-games-layout2 {
+		font-size: 1.6rem;
+	}
+
+	.round-wrapper {
+		position: absolute;
+		top: 0.5em;
+		left: 1em;
+	}
+
+	.scores-wrapper {
+		position: absolute;
+		top: 0.5em;
+		right: 1em;
+	}
+
+	.playersInGame {
+		gap: 3em;
+		margin-top: 0;
+	}
+
+	.players-names {
+		font-size: 1.8rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 1.8rem;
+		margin-top: 0.6em;
+	}
+
+	.players-timers {
+		font-size: 1.1rem;
+	}
+
+	.backtolobby {
+		width: 40px;
+		height: 40px;
+		margin-top: 2em;
+		margin-left: 1.5em;
+	}
+
+	.round-info {
+		font-size: 1.3rem;
+	}
+
+}
+
+@media all and (min-width: 860px) {
+
+	h1 {
+		padding: 0.4em 0.4em 0 0.4em;
+		margin-top: -2.1em;
+	}
+
+	h5 {
+		font-size: 1.7rem;
+	}
+
+	.sektion1, .sektion2 {
+		height: 120vh;
+	}
+
+	.game-logo,
+	.game-logo2,
+	.game-logo3 {
+		width: 45%;
+	}
+
+	.player-wrapper,
+	.player-wrapper2,
+	.player-wrapper3 {
+		width: 22%;
+	}
+
+	.input-field {
+		width: 100%;
+	}
+
+	.playerBtn:hover,
+	.playerBtn2:hover,
+	.highscoreBtn:hover,
+	.highscoreBtn2:hover  {
+		color: black;
+		background-color: pink;
+		border-color: purple;
+	}
+
+	.playerBtn:active,
+	.playerBtn2:active,
+	.highscoreBtn:active,
+	.highscoreBtn2:active  {
+		background-color: plum;
+		border-color: black;
+	}
+
+	.lobyBtn{
+		width:40%;
+	}
+
+	.lobyBtn:hover {
+		color: black;
+		background-color: magenta;
+		border-color: white;
+	}
+
+	.lobyBtn:active  {
+		background-color: rgb(97, 68, 105);
+		border-color: white;
+		color: white;
+	}
+
+	.sektion1-wrapper,
+	.sektion2-wrapper,
+	.sektion3-wrapper {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		gap: 10em;
+		padding-bottom: 10em;
+	}
+
+	.game-stats-wrapper {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		gap: 3em;
+	}
+
+	.highscoresdiv {
+		margin-top: 3em;
+		width: 90%;
+		display: flex;
+		gap: 3em;
+	}
+
+ 	.highscore-wrapper{
+		width: 30%;
+	}
+
+	.games-wrapper {
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+		margin-top: 3em;
+	}
+
+	.ongoing-games,
+	.games {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: stretch;
+	}
+
+	.ongoing-games-data {
+		width: 50%;
+		display: flex;
+		flex-wrap: wrap;
+		margin-top: 0em;
+	}
+
+	.games-data {
+		width: 50%;
+	}
+
+	.game-stats,
+	.game-stats-highscore,
+	.game-stats-reactiontime {
+		font-size: 1.2rem;
+	}
+
+	.ongoing-games-layout,
+	.ongoing-games-layout2 {
+		font-size: 1.5rem;
+	}
+
+	.playersInGame {
+		gap: 3.5em;
+	}
+
+	.players-names {
+		font-size: 2.4rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 2rem;
+		margin-top: 0.4em;
+	}
+
+	.players-timers {
+		font-size: 1.3rem;
+	}
+
+	.round,
+	.round-data,
+	.score,
+	.score-data  {
+		font-size: 1.5rem;
+	}
+
+	.backtolobby {
+		width: 45px;
+		height: 45px;
+		margin-top: 1.2em;
+		margin-left: 1.8em;
+	}
+
+	.hide {
+		display: none;
+	}
+
+	.round-info {
+		font-size: 1.5rem;
+		padding: 1em;
+	}
+}
+
+@media all and (min-width: 1060px) {
+
+	.loby {
+		align-items: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	h1 {
+		font-size: 5.8rem;
+		padding: 0.4em 0.4em 0 0.4em;
+		margin-top: -2.2em;
+	}
+
+	h5 {
+		font-size: 2.1rem;
+	}
+
+	.game-logo {
+		width: 48.3%;
+	}
+
+	.game-logo2 {
+		width: 48.6%;
+	}
+
+	.game-logo3 {
+		width: 48%;
+	}
+
+	.player-wrapper2 {
+		width: 22.5%;
+	}
+
+
+	.player-wrapper3 {
+		padding: 14em 9em 14em 9em;
+	}
+
+	.sektion1-wrapper {
+		padding: 3em 0 3em 0;
+		gap: 10em;
+		justify-content: space-evenly;
+	}
+
+	.sektion2-wrapper {
+		padding-bottom: 3em;
+		gap: 10em;
+		justify-content: space-evenly;
+	}
+
+	.sektion3-wrapper {
+		padding-bottom: 3em;
+		gap: 9.61em;
+		justify-content: space-evenly;
+	}
+
+	.sektion2 {
+		width: 100%;
+	}
+
+	.highscoresdiv {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 95%;
+		margin-top: -1.5em;
+	}
+
+	.lobyBtn {
+		width: 15%;
+		height: 280px;
+		margin-top: 2em;
+	}
+
+	.highscores {
+		width: 50%;
+	}
+
+	.game-stats,
+	.game-stats-highscore,
+	.game-stats-reactiontime,
+	.ongoing-games-layout2 {
+		font-size: 1.6rem;
+	}
+
+	.ongoing-games-layout {
+		font-size: 1.5rem;
+		word-spacing: 4px;
+	}
+
+	.ongoing-games-layout2 {
+		font-size: 1.6rem;
+		word-spacing: 4px;
+	}
+
+	.game-stats-wrapper {
+		gap: 5em;
+	}
+
+    .ongoing-games {
+        justify-content: start;
+        align-items: center;
+		padding-left: 1.5em;
+    }
+
+	.ongoing-games-display-wrapper {
+		display: flex;
+		// justify-content: center;
+		flex-wrap: wrap;
+		column-gap: 3.7em;
+
+	}
+
+	.games-wrapper {
+		justify-content: space-between;
+		width: 95%;
+		margin-top: 1.5em;
+	}
+
+	.ongoing-games-data {
+		width: 70%;
+	}
+
+	.games-data {
+		width: 30%;
+	}
+
+	.playersInGame {
+		gap: 5.5em;
+	}
+
+	.players-names {
+		font-size: 2.6rem;
+		gap: 1em;
+	}
+
+	.vs {
+		font-size: 2.3rem;
+		margin-top: 0.4em;
+	}
+
+	.players-timers {
+		font-size: 1.5rem;
+	}
+
+	.round,
+	.round-data,
+	.score,
+	.score-data {
+		font-size: 1.7rem;
+	}
+
+	.hide {
+		display: none;
+	}
+
+	.round-info {
+		font-size: 1.7rem;
+		padding: 2em;
+	}
+}
