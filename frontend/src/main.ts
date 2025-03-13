@@ -281,8 +281,6 @@ const gameTimer = (playerOne: boolean) => {
 				playerTwoTimerEl.innerText = formatTimer(playerTwoelapsedTime);
 
 			}
-
-
 		} else {
 			clearInterval(timerInterval);
 		}
@@ -372,28 +370,6 @@ const gameHighscores = () => {
     const averageTime = parseFloat(((playerTime.reduce((sum, time) => sum + time, 0) / playerTime.length) / 1000).toFixed(3));
     const gamePlayed = playerScore.length;
 
-    let highestScore = 0;
-	let highestScoreMatch: number[] = [0, 0];
-	let lowestLossMatch: number[] = [0, 0];
-
-	for (const score of playerScore) {
-		if (score[myIndex] > highestScore) {
-			highestScore = score[myIndex];
-			highestScoreMatch = score;
-		}
-		else {
-			lowestLossMatch = score;
-		}
-	}
-
-	const HighestScoreMatch = myIndex === 0
-		? `${highestScoreMatch[0]} - ${highestScoreMatch[1]}`
-		: `${highestScoreMatch[1]} - ${highestScoreMatch[0]}`;
-
-	const LowestLossMatch = myIndex === 0
-		? `${lowestLossMatch[0]} - ${lowestLossMatch[1]}`
-		: `${lowestLossMatch[1]} - ${lowestLossMatch[0]}`;
-
 	const matchresults = {
 		wins: 0,
 		losses: 0,
@@ -419,6 +395,7 @@ playerScore.map((game: number[])=>{
 					<div><span class="games-info-text">Total Games Played:</span> ${gamePlayed}</div>
 					<div><span class="games-info-text">Games Wins:</span> ${matchresults.wins}</div>
 					<div><span class="games-info-text">Games Losses:</span> ${matchresults.losses}</div>
+					<div><span class="games-info-text">Games Draws:</span> ${matchresults.draws}</div>
 				</div>
 				<div class="game-stats-reactiontime">
 					<div><span class="games-info-text">Best Reaction Time:</span> ${minTime} sec.</div>
@@ -426,9 +403,7 @@ playerScore.map((game: number[])=>{
 					<div><span class="games-info-text">Average Reaction Time:</span> ${averageTime} sec.</div>
 				</div>
 				<div class="game-stats-highscore">
-					<div><span class="games-info-text">Best Win:</span> ${HighestScoreMatch}</div>
-					<div><span class="games-info-text">Worst Lost:</span> ${LowestLossMatch}</div>
-					<div><span class="games-info-text">Games Draws:</span> ${matchresults.draws}</div>
+
 				</div>
 			</div>
 		</div>
@@ -489,12 +464,12 @@ socket.on("stc_finishedGameScore", (payload)=> {
 		return;
 	}
 	const temparray:number[] = [...payload];
-	if (temparray.length === 3) {
+	if ( temparray.length === 3) {
 		temparray.pop();
 	}
 	if (myIndex) {
 		playerScore.push(temparray.reverse())
-	} else {
+	}else {
 		playerScore.push(temparray);
 	}
 })
