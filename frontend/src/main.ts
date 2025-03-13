@@ -363,31 +363,6 @@ const gameHighscores = () => {
     const averageTime = parseFloat(((playerTime.reduce((sum, time) => sum + time, 0) / playerTime.length) / 1000).toFixed(3));
     const gamePlayed = playerScore.length;
 
-<<<<<<< HEAD
-=======
-    let highestScore = 0;
-	let highestScoreMatch: number[] = [0, 0];
-	let lowestLossMatch: number[] = [0, 0];
-
-	for (const score of playerScore) {
-		if (score[myIndex] > highestScore) {
-			highestScore = score[myIndex];
-			highestScoreMatch = score;
-		}
-		else {
-			lowestLossMatch = score;
-		}
-	}
-
-	const HighestScoreMatch = myIndex === 0
-		? `${highestScoreMatch[0]} - ${highestScoreMatch[1]}`
-		: `${highestScoreMatch[1]} - ${highestScoreMatch[0]}`;
-
-	const LowestLossMatch = myIndex === 0
-		? `${lowestLossMatch[0]} - ${lowestLossMatch[1]}`
-		: `${lowestLossMatch[1]} - ${lowestLossMatch[0]}`;
-
->>>>>>> 6e3bf6ca5b50b5a3a93515229f124dd24400a14c
 	const matchresults = {
 		wins: 0,
 		losses: 0,
