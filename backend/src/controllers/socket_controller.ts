@@ -4,13 +4,14 @@
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Gamelobby, ServerToClientEvents, RoundResultData, ActiveRooms } from "@shared/types/SocketEvents.types";
-import { createGameroom, findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service";
+import { createGameroom, findSingleGameRoom ,findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore, deleteEmptyGameRoom, GetActiveRooms } from "../services/gameroom_service";
 import { User } from "@prisma/client";
-import { createUser, findUserById, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
+import { createUser, deleteUser, deleteUsersInGameRoom, findUserById, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { createOrUpdateGameData, getGameData, } from "../services/gamedata_service";
-import prisma from "../prisma";
+import { handlePlayerForfeit, generateGameData, finishedGame } from "../utensils/utensils"
+
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -26,13 +27,7 @@ export const handleConnection = (
 	// Handle a user disconnecting
 	socket.on("disconnect", () => {
 		debug("👋 A user disconnected", socket.id);
-		prisma.user.delete({
-			where: {
-				id: socket.id
-			}, include: {
-				room: true
-			}
-		})
+		deleteUser(socket.id)
 	});
 
 	socket.on("cts_joinRequest", async (payload)=> {
@@ -143,7 +138,6 @@ export const handleConnection = (
 		if (payload.forfeit) {
 			const isforfeited = await handlePlayerForfeit(socket.id);
 			if (isforfeited) {
-				io.to(gameRoom.id).emit("stc_gameInfo", "FORFEEEEITEEEEEEEED");
 				io.to(gameRoom.id).emit("stc_finishedgame");
 				return;
 			}
@@ -221,7 +215,7 @@ export const handleConnection = (
 			if (updatedScore[0] === updatedScore[1]) {
 
 				gameInfoMessage = `
-					<div><span class="playerwonspan">It's a draw! You both loose :D</span></div>
+					<div class="draw">It's a draw! You both loose :D</div>
 					<div class="reactiontime-wrapper">
 						<div class="reactiontime1">
 							<div class="playerNameWon1">${player1.username}</div>
@@ -240,7 +234,7 @@ export const handleConnection = (
 					: player2.username
 
 				gameInfoMessage = `
-					<div><span class="playerwonspan">Game Over! Winner:</span> ${matchWinner}</div>
+					<div class="gameover">Game Over! Winner: ${matchWinner}</div>
 					<div class="reactiontime-wrapper">
 						<div class="reactiontime1">
 							<div class="playerNameWon1">${player1.username}</div>
@@ -281,7 +275,7 @@ export const handleConnection = (
 
 		if (draw) {
 			gameInfoMessage = `
-					<div class="playerwon">It's a draw!</div>
+					<div class="draw">It's a draw!</div>
 					<div class="reactiontime-wrapper">
 						<div class="reactiontime1">
 							<div class="playerNameWon1">${player1.username}</div>
@@ -320,9 +314,7 @@ export const handleConnection = (
 
 
 	socket.on("cts_quitGame", async (roomId, callback)=> {
-		const gameroom = await prisma.gameroom.findUnique({where: {
-			id: roomId
-		}})
+		const gameroom = await findSingleGameRoom(roomId);
 		if (!gameroom) {
 			return;
 		}
@@ -335,13 +327,9 @@ export const handleConnection = (
 		 * disconnect sockets from roomId,
 		 * if everything is successful, acknowledge callback
 		 */
-		await prisma.user.deleteMany({where: {
-			roomId
-		}}).then(async()=> {
-			await prisma.gameroom.delete({
-				where: {id: roomId
-				}
-			})
+		await deleteUsersInGameRoom(roomId)
+		.then(async()=> {
+			await deleteEmptyGameRoom(roomId)
 		});
 		socket.to(roomId).emit("stc_opponentleft");
 		io.socketsLeave(roomId);
@@ -363,75 +351,7 @@ export const handleConnection = (
 
 }
 
-const finishedGame = async (roomId: string, forfeit: boolean, gameData: FinishedGameData | null)=> {
-	// await deleteRoomById(roomId);
-	if (!forfeit && gameData) {
-		const addFinishedGame = await addToHighscores(gameData);
-		return addFinishedGame;
-	}
-}
 
-const generateGameData = (roomId: string) => {
-	const x = Math.floor(Math.random() * 10) + 1;
-	const y = Math.floor(Math.random() * 10) + 1;
-	const startDelay = (Math.random() * (10 - 1.5) + 1.5) * 1000;
-	const moleImages = ["Mole1", "Mole2", "Mole3", "Mole4", "Mole5"];
-	const randomImage = Math.floor(Math.random() * moleImages.length);
 
-	return {
-		id: roomId,
-		coordinates: `${x}-${y}`,
-		startDelay,
-		randomImage,
-	};
-};
 
-const handlePlayerForfeit = async (userId: string) => {
 
-		debug("Player %s forfeited the game", userId);
-
-		const gameRoom = await getGameRoomAndUsers(userId);
-		if(!gameRoom) {
-			debug("GameRoom not found!");
-			return;
-		}
-
-		// Get opponent (winner by forfeit)
-		const opponent = gameRoom.users.find(user => user.id !== userId);
-		if (!opponent) {
-			debug("Could not verify opponent: %o", opponent)
-			return;
-		}
-
-		// Get usernames to include in title
-		const [player1, player2] = gameRoom.users;
-		const updatedScore = [...gameRoom.score]
-
-		if (opponent.id === player1.id) {
-			updatedScore[0]++;
-		} else {
-			updatedScore[1]++;
-		}
-
-		// Update GameRoom in DB with new score
-		await updateGameRoomScore(gameRoom.id, updatedScore);
-
-		// UserWhoStayed vs UserWholeft 10-0
-		// Call the game
-		const gameData: FinishedGameData = {
-			title: `${player1.username} vs ${player2.username}`,
-			score: updatedScore
-		}
-
-		finishedGame(gameRoom.id, true, gameData);
-		return true;
-}
-
-const GetActiveRooms = async() => {
-	return prisma.gameroom.findMany({
-		include: {
-			users: true
-		}
-	})
-
-}

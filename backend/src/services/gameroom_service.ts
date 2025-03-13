@@ -6,6 +6,12 @@ export const deleterooms = async () => {
     return prisma.gameroom.deleteMany({});
 }
 
+export const findSingleGameRoom = (roomId: string) => {
+    return prisma.gameroom.findUnique({
+        where: {
+            id: roomId,
+    }})
+}
 
 export const findPendingGameroom = async () => {
     return prisma.gameroom.findMany({
@@ -28,11 +34,19 @@ export const updateRoomById = async (roomId: string, data:Gameroom) => {
     return prisma.gameroom.update({
         where: {
             id: roomId,
-            
+
         }, data: {
             ...data
         }
 
+    })
+}
+
+export const deleteEmptyGameRoom = (roomId: string) => {
+    return prisma.gameroom.delete({
+        where: {
+            id: roomId
+        }
     })
 }
 
@@ -51,11 +65,11 @@ export const getGameRoomAndUsers = (userId: string) => {
     return prisma.gameroom.findFirst({
         where: {
             users: {
-                some: { id: userId } 
+                some: { id: userId }
             }
         },
         include: {
-            users: true 
+            users: true
         }
     });
 };
@@ -69,4 +83,12 @@ export const updateGameRoomScore = (roomId: string, score: number[]) => {
             score,
         }
     });
+}
+
+export const GetActiveRooms = async() => {
+	return prisma.gameroom.findMany({
+		include: {
+			users: true
+		}
+	})
 }

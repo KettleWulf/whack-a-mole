@@ -629,21 +629,20 @@ input:focus {
 	display: flex;
 	gap: 1em;
 	font-family: 'Mystery Quest', sans-serif;
+	text-align: center;
+	color: yellow;
 }
 
-.playerNameWon1{
-	font-family: 'Mystery Quest', sans-serif;
-}
-
-// .playerwon {
-// 	color: red;
-// 	font-family: 'Mystery Quest', sans-serif;
-// 	font-size: 1.4rem;
-// }
-
-.playerwonspan {
+.draw {
 	font-family: 'Mystery Quest', sans-serif;
 	color: yellow;
+	text-align: center;
+}
+
+.gameover {
+	font-family: 'Mystery Quest', sans-serif;
+	color: red;
+	text-align: center;
 }
 
 .hide {

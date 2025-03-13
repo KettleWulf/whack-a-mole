@@ -5,7 +5,22 @@ export const deleteUsers = async () => {
     return prisma.user.deleteMany();
 }
 
+export const deleteUsersInGameRoom = (roomId: string) => {
+    return prisma.user.deleteMany({
+        where: {
+        roomId,
+    }})
+}
 
+export const deleteUser = (userId: string) => {
+    prisma.user.delete({
+        where: {
+            id: userId
+        }, include: {
+            room: true
+        }
+    })
+}
 export const createUser = async (data: User) => {
     return prisma.user.create({
         data
@@ -69,6 +84,6 @@ export const getUsersByRoomId = async (roomId: string) =>{
         where: {
             roomId
         }
-        
+
     })
 }

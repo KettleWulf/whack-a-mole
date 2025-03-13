@@ -48,7 +48,7 @@ const roundInfoEl = document.querySelector(".round-info") as HTMLDivElement;
 let myIndex:number;
 const games: Gamelobby[] = [];
 const playerTime: number[] = [];
-const playerScore: number[][] = [[2,8], [5,5], [6,4], [10,0], [4,6], [2,8], [8,2], [3,7]];
+const playerScore: number[][] = [];
 console.log("This is an array of gamescoores:", playerScore);
 const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 let playerOneTimer = false;
@@ -260,12 +260,12 @@ const gameTimer = (playerOne: boolean) => {
 		playerOnestartTime = Date.now() - playerOneelapsedTime;
 		playerOneTimer = true;
 		playerTwoTimer = false;
-		playerTwoTimerEl.innerText = "Don't look here wack the mole!, Duuhh!!";
+		playerTwoTimerEl.innerText = "Waiting for player...";
 	} else {
 		playerTwostartTime = Date.now() - playerTwoelapsedTime;
 		playerTwoTimer = true;
 		playerOneTimer = false;
-		playerOneTimerEl.innerText = "Don't look here wack the mole!, Duuhh!!";
+		playerOneTimerEl.innerText = "Waiting for player...";
 	}
 
 
