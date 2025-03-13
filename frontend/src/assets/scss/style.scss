@@ -607,7 +607,33 @@ input:focus {
 .round-info {
 	width: 50%;
 	height: 50%;
-	border: 2px solid red;
+	border: 2px solid yellow;
+	box-shadow: 0 0 20px black, 0 0 40px black;
+	border-radius: 20px;
+	color: white;
+	font-size: 1.1rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1em;
+	padding: 0.5em;
+	position: absolute;
+	right: 26%;
+    top: 45%;
+	background: black;
+}
+
+.reactiontime1,
+.reactiontime2 {
+	display: flex;
+	gap: 1em;
+	font-family: 'Mystery Quest', sans-serif;
+}
+
+.playerwonspan {
+	font-family: 'Mystery Quest', sans-serif;
+	color: red;
 }
 
 .hide {
@@ -698,6 +724,10 @@ input:focus {
 		margin-left: 1.5em;
 	}
 
+	.round-info {
+		font-size: 1.3rem;
+	}
+
 }
 
 @media all and (min-width: 860px) {
@@ -711,7 +741,7 @@ input:focus {
 		font-size: 1.7rem;
 	}
 
-	.sektion1 {
+	.sektion1, .sektion2 {
 		height: 120vh;
 	}
 
@@ -850,6 +880,11 @@ input:focus {
 
 	.hide {
 		display: none;
+	}
+
+	.round-info {
+		font-size: 1.5rem;
+		padding: 1em;
 	}
 }
 
@@ -1010,5 +1045,10 @@ input:focus {
 
 	.hide {
 		display: none;
+	}
+
+	.round-info {
+		font-size: 1.7rem;
+		padding: 2em;
 	}
 }
