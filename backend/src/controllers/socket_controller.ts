@@ -26,6 +26,13 @@ export const handleConnection = (
 	// Handle a user disconnecting
 	socket.on("disconnect", () => {
 		debug("👋 A user disconnected", socket.id);
+		prisma.user.delete({
+			where: {
+				id: socket.id
+			}, include: {
+				room: true
+			}
+		})
 	});
 
 	socket.on("cts_joinRequest", async (payload)=> {
