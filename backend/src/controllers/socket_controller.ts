@@ -74,6 +74,10 @@ export const handleConnection = (
 		//join player 2 to room which is missing a player
 	if (findfreeGameroom) {
 		const roomId = findfreeGameroom[0].id;
+		const socketCount = io.in(roomId).fetchSockets();
+		if ((await socketCount).length !== 1) {
+			return
+		}
 		const findUser = await findUserById(socket.id);
 		if (!findUser) {
 			const userdata: User = {
