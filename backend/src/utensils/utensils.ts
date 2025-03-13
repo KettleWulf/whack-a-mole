@@ -1,26 +1,25 @@
-import Debug from "debug";
+
 import { addToHighscores } from "../services/highscore.service";
 import { getGameRoomAndUsers, updateGameRoomScore } from "../services/gameroom_service"
 import { FinishedGameData } from "../types/gameroom_types";
 
 
 // Create a new debug instance
-const debug = Debug("backend:utensils");
 
 export const handlePlayerForfeit = async (userId: string) => {
 
-    debug("Player %s forfeited the game", userId);
+
 
     const gameRoom = await getGameRoomAndUsers(userId);
     if(!gameRoom) {
-        debug("GameRoom not found!");
+
         return;
     }
 
     // Get opponent (winner by forfeit)
     const opponent = gameRoom.users.find(user => user.id !== userId);
     if (!opponent) {
-        debug("Could not verify opponent: %o", opponent)
+
         return;
     }
 

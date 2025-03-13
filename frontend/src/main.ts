@@ -12,7 +12,6 @@ import { NewHighscoreRecord } from "../../backend/src/types/highscore.types";
 
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
-console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
 
 // Connect to Socket.IO Server
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOST);
@@ -49,7 +48,6 @@ let myIndex:number;
 const games: Gamelobby[] = [];
 const playerTime: number[] = [];
 const playerScore: number[][] = [];
-console.log("This is an array of gamescoores:", playerScore);
 const moleImages = [Mole1, Mole2, Mole3, Mole4, Mole5];
 let playerOneTimer = false;
 let playerTwoTimer = false;
@@ -81,8 +79,6 @@ playerNameEl.addEventListener("input", () => {
 
 // Listen for when connection is established
 socket.on("connect", () => {
-	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
-	console.log("🔗 Socket ID:", socket.id);
 	socket.emit("cts_getHighscores", "room" ,(displayPlayedGames));
 	socket.emit("stc_getActiveRooms", (displayOngoingGames));
 	gameHighscores();
@@ -90,7 +86,6 @@ socket.on("connect", () => {
 
 // Listen for when server got tired of us
 socket.on("disconnect", () => {
-	console.log("🥺 Got disconnected from server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 });
 
 socket.on("stc_gameInfo", (payload) => {
@@ -105,16 +100,10 @@ socket.on("stc_gameInfo", (payload) => {
 // Listen for server messages
 socket.on("stc_Message", (payload)=> {
 	myIndex = payload;
-	if (myIndex) {
-		console.log("My index should only be 1 with this msg", myIndex);
-	}else {
-		console.log("My index should only be 0 with this msg", myIndex)
-	}
 });
 
 // Listen for when we're reconnected (either due to our or the servers connection)
 socket.io.on("reconnect", () => {
-	console.log("😊 Reconnected to server:", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	backToLobby();
 });
 
@@ -128,7 +117,6 @@ playerFormEl.addEventListener("submit", (e) => {
 		playerWraperEl.classList.add("hide");
 		playAgainEl.classList.add("hide");
 		waitingForPlayerEl.classList.remove("hide");
-        console.log("Sent join request:", { playerName, id: socket.id });
     }
 });
 
@@ -171,14 +159,12 @@ const startgameCallback = (response: GameDataOmitID) => {
 
 		timeStamp = Date.now();
 		const forfeittimer = setTimeout(()=> {
-			console.log("Forfeit should be emitted")
 			const payload: ReactionTime= {
 				roundstart: timeStamp,
 				playerclicked: Date.now(),
 				forfeit: true,
 			}
 			socket.emit("cts_clickedVirus", payload);
-			console.log("forfeit was emitted", payload);
 			return;
 		}, 30000);
 		roundInfoEl.classList.add("hide");
@@ -227,7 +213,6 @@ const startgameCallback = (response: GameDataOmitID) => {
 					playerclicked: clickStamp,
 					forfeit: false
 				}
-				console.log("Här är time data", data);
 				socket.emit("cts_clickedVirus", data);
 			};
 		});
@@ -236,11 +221,8 @@ const startgameCallback = (response: GameDataOmitID) => {
 
 socket.on('stc_GameroomReadyMessage', (message) => {
 	const roomId = message.room.id;
-
 	userOne = message.users[0];
-	console.log("Player1:",userOne);
 	userTwo = message.users[1];
-	console.log("Player2:",userTwo);
 	games.push(message);
 
 	if(roomId) {
@@ -251,10 +233,7 @@ socket.on('stc_GameroomReadyMessage', (message) => {
 });
 
 const gameTimer = (playerOne: boolean) => {
-	/**
-	 * playerOne = false om myindex != 0
-	 * playerOne = true om myindex = 0
-	 */
+
 	if (!gameOn) return;
 	if (playerOne) {
 		playerOnestartTime = Date.now() - playerOneelapsedTime;
@@ -357,14 +336,6 @@ const displayOngoingGames = (payload: ActiveRooms[]) => {
 const gameHighscores = () => {
     if (playerTime.length === 0 || playerScore.length === 0) return;
 
-	const opponentIndex = myIndex === 0
-		? 1
-		: 0;
-
-	console.log("This is opponentIndex:", opponentIndex);
-	console.log("This is myIndex:", myIndex);
-
-
     const minTime = Math.min(...playerTime) / 1000;
     const maxTime = Math.max(...playerTime) / 1000;
     const averageTime = parseFloat(((playerTime.reduce((sum, time) => sum + time, 0) / playerTime.length) / 1000).toFixed(3));
@@ -428,11 +399,7 @@ playerFormTwoEl.addEventListener("submit", (e) => {
 		playerOneelapsedTime = 0;
 		playerTwoelapsedTime = 0;
 		gameHighscores();
-		console.log("Array of reaction times",playerTime);
-		console.log("Array of games",playerScore);
         gridContainer.innerHTML = "";
-        console.log("Sent join request for replay:", { playerName: userOne.username, id: socket.id });
-		console.log("Sent join request for replay:", { playerName: userTwo.username, id: socket.id });
     }
 });
 
@@ -484,8 +451,6 @@ socket.on("stc_roundUpdate", (payload) => {
 	roundDataEl.innerText = String(payload.currentRound + 1);
 	scoreDataEl.innerText = String(payload.score.join(" - "));
 	roundInfoEl.classList.remove("hide");
-	console.log("This is an array of timereaction:", playerTime);
-	console.log("This is an array of gamescoores:", playerScore);
 	gameHighscores();
 
 	setTimeout(() => {

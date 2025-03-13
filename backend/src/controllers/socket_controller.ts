@@ -1,7 +1,7 @@
 /**
  * Socket Controller
  */
-import Debug from "debug";
+
 import { Server, Socket } from "socket.io";
 import { ClientToServerEvents, Gamelobby, ServerToClientEvents, RoundResultData, ActiveRooms } from "@shared/types/SocketEvents.types";
 import { createGameroom, findSingleGameRoom ,findPendingGameroom, getGameRoomAndUsers, updateGameRoomScore, deleteEmptyGameRoom, GetActiveRooms } from "../services/gameroom_service";
@@ -13,8 +13,6 @@ import { createOrUpdateGameData, getGameData, } from "../services/gamedata_servi
 import { handlePlayerForfeit, generateGameData, finishedGame } from "../utensils/utensils"
 
 
-// Create a new debug instance
-const debug = Debug("backend:socket_controller");
 // Handle a user connecting
 export const handleConnection = (
 	socket: Socket<ClientToServerEvents, ServerToClientEvents>,
@@ -22,11 +20,11 @@ export const handleConnection = (
 	io: Server<ClientToServerEvents, ServerToClientEvents>
 ) => {
 	addToHighscores({title: "Kalle vs. Hobbe", score: [3,7]});
-	debug("🙋 A user connnected", socket.id);
+
 
 	// Handle a user disconnecting
 	socket.on("disconnect", () => {
-		debug("👋 A user disconnected", socket.id);
+
 		deleteUser(socket.id)
 	});
 
@@ -42,8 +40,7 @@ export const handleConnection = (
 	 */
 	const gameRooms = await findPendingGameroom();
 	const findfreeGameroom = gameRooms.filter((gameRoom)=> {return gameRoom.users.length < 2})
-	debug("Getting GameRooms: %O", gameRooms);
-	debug("Getting fullrooms: %O", findfreeGameroom);
+
 	// if no room or no room with only 1 player, create a new room
 	if (!gameRooms.length || !findfreeGameroom.length) {
 		const createRoom = await createGameroom("Gameroom");
@@ -59,7 +56,6 @@ export const handleConnection = (
 		}
 
 		if (!createRoom) {
-			debug("Failed to retrieve created room from DB");
 			return;
 		}
 		const data = generateGameData(createRoom.id);
@@ -110,7 +106,6 @@ export const handleConnection = (
 		// Generate GameData
 		const gameData = await getGameData(roomId);
 		if(!gameData) {
-			debug("Couldn't find GameData in relation to roomId: %s", roomId);
 			return;
 		}
 
@@ -118,9 +113,6 @@ export const handleConnection = (
 
 	});
 	socket.on("cts_clickedVirus", async (payload)=> {
-
-
-		debug("Player %s wacked a mole! Payload: %o", socket.id, payload)
 
 		// Assume it's not a draw, for now
 		let draw = false;
@@ -130,10 +122,8 @@ export const handleConnection = (
 		const gameRoom = await getGameRoomAndUsers(socket.id);
 
 		if(!gameRoom) {
-			debug("GameRoom not found!");
 			return;
 		}
-		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
 
 		if (payload.forfeit) {
 			const isforfeited = await handlePlayerForfeit(socket.id);
@@ -146,19 +136,16 @@ export const handleConnection = (
 		// Calculate reactiontime
 		const reactionTime = payload.playerclicked - payload.roundstart;
 		socket.to(gameRoom.id).emit("stc_sendingTime", reactionTime);
-		debug("Players reaction time: %s", reactionTime)
 
 		// Upload reactiontime to user
-		debug("updating user reactiontime %s!: %s", reactionTime, socket.id);
+
 		const userupdated = await updateUserReactionTime(socket.id, reactionTime);
 		if (!userupdated) {
-			debug("userReactions wasnt updated!: %s", userupdated);
 			return
 		}
 		// Check if both players has an uploaded reactiontime using roomId
 		const userReactionTimes = await getUsersReactionTimes(gameRoom.id)
 
-		debug("userReactions length: %s", userReactionTimes.length);
 
 		// Determine if both users has a registered reactiontime, otherwise bail
 		if (userReactionTimes.length !== 2) return;
@@ -170,7 +157,6 @@ export const handleConnection = (
 		const [player1, player2] = gameRoomWhenBothPlayershasClicked.users;
 
 		if (!player1.reactionTime || !player2.reactionTime) {
-			debug("One or both reactionTimes are null. Player one: %o Player two: %o", player1, player2);
 			return;
 		}
 
@@ -179,7 +165,6 @@ export const handleConnection = (
 
 		// Determine draw or winner
 		if (player1.reactionTime === player2.reactionTime) {
-			debug("It's a draw!")
 			updatedScore[2] = (updatedScore[2] || 0) + 1;
 
 			draw = true;
@@ -198,18 +183,12 @@ export const handleConnection = (
 
 		// As winner is determined, reset reactionTime on both users
 		await resetReactionTimes(gameRoom.id);
-		debug("userReactions length after reset: %s", userReactionTimes.length);
-
-		debug("Current score: %s", updatedScore);
 
 		// Accumulate score of players to determine current round
 		const currentRound = updatedScore.reduce((sum, score) => sum + score, 0);
 
-		debug("Current Round: %s", currentRound)
-
 		// If current round is 10, call the game!
 		if (currentRound === 10) {
-			debug("Game finished! Score: Player 1 %s Player 2 %s", updatedScore[0], updatedScore[1]);
 			let matchWinner: string;
 
 			if (updatedScore[0] === updatedScore[1]) {
@@ -302,7 +281,6 @@ export const handleConnection = (
 					</div>
 					`
 		}
-		debug("RoundResultData: %O", RoundResultData);
 		const data = generateGameData(gameRoom.id);
 		const { id, ...updateData } = data;
 		// Create GameData in DB
@@ -334,7 +312,6 @@ export const handleConnection = (
 		socket.to(roomId).emit("stc_opponentleft");
 		io.socketsLeave(roomId);
 		callback(true)
-		debug("Socket left gameroom", roomId)
 	});
 
 	socket.on("cts_getHighscores", async (roomid, callback)=> {
