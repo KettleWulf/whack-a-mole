@@ -134,6 +134,7 @@ export const handleConnection = (
 		debug("User %s corresponding roomId: %s", socket.id, gameRoom.id);
 
 		if (payload.forfeit) {
+			io.to(gameRoom.id).emit("stc_gameInfo", "FORFEEEEITEEEEEEEED");
 			io.to(gameRoom.id).emit("stc_finishedgame");
 			return;
 		}

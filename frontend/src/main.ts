@@ -64,7 +64,7 @@ let playerTwostartTime = 0;
 let playerOneelapsedTime = 0;
 let playerTwoelapsedTime = 0;
 let timerInterval:number;
-let canClickvirus = true
+let canClickvirus:boolean;
 
 
 playBtnEl.disabled = true;
@@ -134,6 +134,7 @@ playerFormEl.addEventListener("submit", (e) => {
 
 
 const startgameCallback = (response: GameDataOmitID) => {
+	canClickvirus = true
 	gridContainer.innerHTML = "";
 	for (let i = 1; i <= 10; i++) {
         for (let j = 1; j <= 10; j++) {
@@ -170,12 +171,15 @@ const startgameCallback = (response: GameDataOmitID) => {
 
 		timeStamp = Date.now();
 		const forfeittimer = setTimeout(()=> {
+			console.log("Forfeit should be emitted")
 			const payload: ReactionTime= {
 				roundstart: timeStamp,
 				playerclicked: Date.now(),
 				forfeit: true,
 			}
-			socket.emit("cts_clickedVirus", payload)
+			socket.emit("cts_clickedVirus", payload);
+			console.log("forfeit was emitted", payload);
+			return;
 		}, 30000);
 		roundInfoEl.classList.add("hide");
 		countdownEl.classList.add("hide");
