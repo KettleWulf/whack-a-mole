@@ -9,7 +9,7 @@ import { User } from "@prisma/client";
 import { createUser, findUserById, getUsersByRoomId, getUsersReactionTimes, resetReactionTimes, updateUserReactionTime, updateUserRoomId } from "../services/user_service";
 import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
-import {  createOrUpdateGameData, getGameData,  } from "../services/gamedata_service";
+import { createOrUpdateGameData, getGameData, } from "../services/gamedata_service";
 import prisma from "../prisma";
 
 // Create a new debug instance
@@ -94,7 +94,7 @@ export const handleConnection = (
 		}
 
 		//room is ready for game, broadcast!
-		io.to(roomId).emit("stc_GameroomReadyMessage", message);
+		io.to(roomId).emit("stc_Message", message);
 
         return;
     }
@@ -131,7 +131,6 @@ export const handleConnection = (
 				// debug("we didnt get response!!", err, callbacks);
 				io.to(roomId).emit("stc_gameInfo", gameInfoMessage);
 				socket.to(roomId).emit("stc_finishedgame");
-				return;
 			}
 		})
 	});

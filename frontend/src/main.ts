@@ -207,12 +207,13 @@ const startgameCallback = (response: GameDataOmitID) => {
                     playerTwoTimer = false;
 				}
 
-				socket.on("stc_requestclickorforfeit",(callback)=> {
+				socket.on("stc_requestclickorforfeit", (callback)=> {
 					if (socket.id) {
 						callback(socket.id);
 					}
 
-				})
+				});
+
 				clickStamp = Date.now();
 
 				const data: ReactionTime = {
