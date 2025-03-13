@@ -13,7 +13,7 @@ export const GetHighscores = async ()=> {
     return prisma.finishedGame.findMany({
         take: 10,
         orderBy: {
-            date: 'asc'
+            date: 'desc'
         }
     })
 }
