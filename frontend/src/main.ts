@@ -380,7 +380,7 @@ const gameHighscores = () => {
 	}
 
 	const HighestScoreMatch = myIndex === 0
-		? `${highestScoreMatch[0]} - ${highestScoreMatch[1]}`;
+		? `${highestScoreMatch[0]} - ${highestScoreMatch[1]}`
 		: `${highestScoreMatch[1]} - ${highestScoreMatch[0]}`;
 
 	const LowestLossMatch = myIndex === 0
