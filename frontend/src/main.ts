@@ -452,7 +452,7 @@ statsLobyBtnEl.addEventListener("click", () => {
 });
 
 socket.on("stc_opponentleft", ()=> {
-
+	gameHighscores();
 	backToLobby();
 });
 
