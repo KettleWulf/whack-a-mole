@@ -9,43 +9,43 @@ const debug = Debug("backend:utensils");
 
 export const handlePlayerForfeit = async (userId: string) => {
 
-    debug("Player %s forfeited the game", userId);
-
+    
     const gameRoom = await getGameRoomAndUsers(userId);
     if(!gameRoom) {
         debug("GameRoom not found!");
         return;
     }
-
+    
     // Get opponent (winner by forfeit)
     const opponent = gameRoom.users.find(user => user.id !== userId);
     if (!opponent) {
         debug("Could not verify opponent: %o", opponent)
         return;
     }
-
+    debug("Player %s forfeited the game", opponent.username);
+    
     // Get usernames to include in title
-    const [player1, player2] = gameRoom.users;
+    const [playerOne, playerTwo] = gameRoom.users;
     const updatedScore = [...gameRoom.score]
 
-    if (opponent.id === player1.id) {
-        updatedScore[0]++;
-    } else {
+    if (opponent.id === playerOne.id) {
         updatedScore[1]++;
+    } else {
+        updatedScore[0]++;
     }
 
     // Update GameRoom in DB with new score
     await updateGameRoomScore(gameRoom.id, updatedScore);
 
-    // UserWhoStayed vs UserWholeft 10-0
+    
     // Call the game
-    const gameData: FinishedGameData = {
-        title: `${player1.username} vs ${player2.username}`,
+    const finishedGameData: FinishedGameData = {
+        title: `${playerOne.username} vs ${playerTwo.username}`,
         score: updatedScore
     }
 
-    finishedGame(gameRoom.id, true, gameData);
-    return true;
+    finishedGame(gameRoom.id, true, finishedGameData);
+    return opponent.username;
 }
 
 export const finishedGame = async (roomId: string, forfeit: boolean, gameData: FinishedGameData | null)=> {

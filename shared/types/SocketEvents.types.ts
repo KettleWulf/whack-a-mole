@@ -18,6 +18,8 @@ export interface ServerToClientEvents {
     stc_finishedGameScore: (payload: number[]) => void;
     stc_gameInfo: (payload: string) =>void;
     stc_requestclickorforfeit: (callback: (clicked: string)=> void)=>void;
+
+    stc_roundStart: (roundCallback: (clicked: ClickedMole) => void) => void;
 }
 
 // Events emitted by the client to the server
@@ -59,9 +61,15 @@ export interface GameEvaluation {
 	forfeit: boolean;
 }
 export interface ReactionTime {
-    roundstart: number;          // timestamp
-    playerclicked: number;       // timestamp
-    forfeit: boolean;
+    userId: string; 
+    roundStart: number;          // timestamp
+    playerClicked: number;       // timestamp
+}
+
+export interface ClickedMole {
+    userId: string; 
+    roundStart: number;          // timestamp
+    playerClicked: number;       // timestamp
 }
 
 export interface RoundResultData {

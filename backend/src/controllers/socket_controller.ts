@@ -11,6 +11,7 @@ import { FinishedGameData } from "../types/gameroom_types";
 import { addToHighscores, GetHighscores } from "../services/highscore.service";
 import { createOrUpdateGameData, getGameData, } from "../services/gamedata_service";
 import { handlePlayerForfeit, generateGameData, finishedGame } from "../utensils/utensils"
+import { gameInfoMessages } from "../utensils/gameInfoMessages";
 
 
 // Create a new debug instance
@@ -107,7 +108,6 @@ export const handleConnection = (
 	});
 	socket.on("cts_startRequest", async (roomId, callback)=> {
 
-		// Generate GameData
 		const gameData = await getGameData(roomId);
 		if(!gameData) {
 			debug("Couldn't find GameData in relation to roomId: %s", roomId);
@@ -115,6 +115,131 @@ export const handleConnection = (
 		}
 
 		callback(gameData);
+
+		const forfeitTimer = 3000 + gameData.startDelay;
+		io.timeout(forfeitTimer).to(roomId).emit("stc_roundStart", async (err, callback) => {
+			let gameInfoMessage: string;
+
+			if (err) {
+				if (callback.length) {
+					debug("Only one player clicked in time");
+					
+					const opponentName = await handlePlayerForfeit(callback[0].userId); // handlePlayerForfeit kallar på finishedGame åt oss
+
+					gameInfoMessage = `Opponent ${opponentName} forfeited. You win!`
+					io.to(roomId).emit("stc_gameInfo", gameInfoMessage);
+					io.to(roomId).emit("stc_finishedgame");
+					return;
+				}
+				debug("Neither player clicked in time")
+				
+				gameInfoMessage = "Both players forfeited... Game over.";
+				io.to(roomId).emit("stc_gameInfo", gameInfoMessage); 
+				io.to(roomId).emit("stc_finishedgame");  
+				return;
+			}
+		
+			if (callback.length === 2) {
+				
+				let draw = false;
+				// callback.sort((a, b) => a.playerClicked - b.playerClicked);
+				// Deconstruct callback, first player should be winner (if not, sort them on callback playerClicked first)
+				const [ rawWinner, rawLoser ] = callback;
+
+				const roundStart = rawWinner.roundStart;
+				const reactionTimes = [rawWinner, rawLoser].map(player => player.playerClicked - roundStart);
+
+
+				// Get gameRoom and users
+				const gameRoom = await getGameRoomAndUsers(rawWinner.userId);
+
+				if(!gameRoom) {
+					debug("GameRoom not found!");
+					return;
+				}
+
+				const [ playerOne, playerTwo] = gameRoom.users;
+
+				const winner = rawWinner.userId === playerOne.id
+					? playerOne
+					: playerTwo
+
+				const updatedScore = [...gameRoom.score];
+
+				debug("Reactiontimes with winner on index 0: %o", reactionTimes)
+
+				if (reactionTimes[0] === reactionTimes[1]) {
+					debug("It's a draw!")
+					updatedScore[2] = (updatedScore[2] || 0) + 1;
+					draw = true;
+
+				} else if (winner === playerOne) {
+					updatedScore[0]++
+					debug("Player One won the round! Score: %o", updatedScore)
+
+				} else {
+					updatedScore[1]++
+					reactionTimes.reverse();
+					debug("Player two won the round! Score: %o", updatedScore)
+				}
+				debug("ReactionTimes with playerOne's on index 0: %o", reactionTimes)
+
+				const currentRound = updatedScore.reduce((sum, score) => sum + score, 0);
+				debug("Current Round: %d", currentRound)
+
+				if (currentRound === 10) {
+					// handle finished match
+
+					if (updatedScore[0] === updatedScore[1]) {
+						debug("Game Over! It's a draw!");
+						gameInfoMessage = gameInfoMessages.draw(playerOne.username, playerTwo.username, updatedScore[0], updatedScore[1])
+					} else {
+						const matchWinner = updatedScore[0] > updatedScore[1]
+							? playerOne
+							: playerTwo
+
+						gameInfoMessage = gameInfoMessages.gameOver(matchWinner.username, playerOne.username, playerTwo.username, updatedScore[0], updatedScore[1]);
+
+					}
+
+					const finishedGameData: FinishedGameData = {
+						title: `${playerOne.username} vs ${playerTwo.username}`,
+						score: updatedScore
+					}
+		
+					finishedGame(gameRoom.id, false, finishedGameData);
+		
+					io.to(gameRoom.id).emit("stc_finishedGameScore", updatedScore)
+					io.to(gameRoom.id).emit("stc_gameInfo", gameInfoMessage)
+					socket.to(gameRoom.id).emit("stc_finishedgame");
+					return;
+				}
+					
+				if (draw) {
+					gameInfoMessage = gameInfoMessages.roundDraw(playerOne.username, playerTwo.username, updatedScore[0], updatedScore[1])
+				} else {
+					gameInfoMessage = gameInfoMessages.roundWin(winner.username, playerOne.username, playerTwo.username, updatedScore[0], updatedScore[1])
+				}
+
+				await updateGameRoomScore(gameRoom.id, updatedScore);
+
+				const RoundResultData: RoundResultData = {
+					roomId: gameRoom.id,
+					currentRound,
+					reactionTimes,
+					score: updatedScore,
+					draw,
+				}
+				
+				const data = generateGameData(gameRoom.id);
+				const { id, ...updateData } = data;
+				await createOrUpdateGameData(id, updateData, data);
+				
+				io.to(gameRoom.id).emit("stc_gameInfo", gameInfoMessage)
+				io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
+				
+			}
+		});
 
 	});
 	socket.on("cts_clickedVirus", async (payload)=> {
