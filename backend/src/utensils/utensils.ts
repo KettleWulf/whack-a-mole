@@ -44,7 +44,7 @@ export const handlePlayerForfeit = async (userId: string) => {
         score: updatedScore
     }
 
-    finishedGame(gameRoom.id, true, finishedGameData);
+    await finishedGame(gameRoom.id, true, finishedGameData);
     return opponent.username;
 }
 

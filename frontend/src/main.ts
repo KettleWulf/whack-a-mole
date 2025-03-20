@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, ReactionTime,   Gamelobby, ServerToClientEvents, ActiveRooms } from "@shared/types/SocketEvents.types";
+import { ClientToServerEvents, ReactionTime,   Gamelobby, ServerToClientEvents, ActiveRooms, ClickedMole } from "@shared/types/SocketEvents.types";
 import { UserData } from "../../backend/src/types/user_types";
 import Mole1 from "./assets/images/Mole1.png";
 import Mole2 from "./assets/images/Mole2.png";
@@ -167,71 +167,63 @@ const startgameCallback = (response: GameDataOmitID) => {
 		countdown();
 	}
 
-    setTimeout(() => {
-
-		timeStamp = Date.now();
-		const forfeittimer = setTimeout(()=> {
-			console.log("Forfeit should be emitted")
-			const payload: ReactionTime= {
-				roundstart: timeStamp,
-				playerclicked: Date.now(),
-				forfeit: true,
+	socket.on("stc_roundStart", (callback) => {
+		setTimeout(() => {
+			
+			timeStamp = Date.now();
+			roundInfoEl.classList.add("hide");
+			countdownEl.classList.add("hide");
+	
+			playerOneTimer = true;
+			playerTwoTimer = true;
+			gameOn = true;
+			if (myIndex) {
+				gameTimer(false);
+			} else {
+				gameTimer(true);
 			}
-			socket.emit("cts_clickedVirus", payload);
-			console.log("forfeit was emitted", payload);
-			return;
-		}, 30000);
-		roundInfoEl.classList.add("hide");
-		countdownEl.classList.add("hide");
-
-		playerOneTimer = true;
-		playerTwoTimer = true;
-		gameOn = true;
-		if (myIndex) {
-			gameTimer(false);
-		}else {
-			gameTimer(true);
-		}
-
-
-		const molePosition = response.coordinates;
-		const moleElement = document.querySelector(`[data-coords="${molePosition}"]`) as HTMLDivElement;
-
-		if (moleElement) {
-			const randomMoleImage = moleImages[response.randomImage];
-			moleElement.classList.add("mole");
-			moleElement.style.backgroundImage = `url('${randomMoleImage}')`;
-		}
-
-		gridContainer.addEventListener("click", (e) => {
-			const target = e.target as HTMLElement;
-			const moleElement = document.querySelector(`[data-coords="${response.coordinates}"]`);
-			if (!canClickvirus) {
-				return;
+	
+	
+			const molePosition = response.coordinates;
+			const moleElement = document.querySelector(`[data-coords="${molePosition}"]`) as HTMLDivElement;
+	
+			if (moleElement) {
+				const randomMoleImage = moleImages[response.randomImage];
+				moleElement.classList.add("mole");
+				moleElement.style.backgroundImage = `url('${randomMoleImage}')`;
 			}
-			if (target === moleElement) {
-				canClickvirus = false
-				if(userOne.id === socket.id) {
-                    playerOneTimer = false;
-                }
-
-				if(userTwo.id === socket.id){
-                    playerTwoTimer = false;
+	
+			gridContainer.addEventListener("click", (e) => {
+				const target = e.target as HTMLElement;
+				const moleElement = document.querySelector(`[data-coords="${response.coordinates}"]`);
+				if (!canClickvirus) {
+					return;
 				}
-				clearTimeout(forfeittimer);
+				if (target === moleElement) {
+					canClickvirus = false
+					if(userOne.id === socket.id) {
+						playerOneTimer = false;
+					}
+	
+					if(userTwo.id === socket.id){
+						playerTwoTimer = false;
+					}
+	
+					if (socket.id) {
+						const clickedMole = {
+							userId: socket.id,
+							roundStart: timeStamp,
+							playerClicked: Date.now(),
+						}
+						console.log("Skickar klickdata till servern:", clickedMole);
+						callback(clickedMole);
+					}
+										
+				};
+			});
+		}, response.startDelay);
 
-				clickStamp = Date.now();
-
-				const data: ReactionTime = {
-					roundstart: timeStamp,
-					playerclicked: clickStamp,
-					forfeit: false
-				}
-				console.log("Här är time data", data);
-				socket.emit("cts_clickedVirus", data);
-			};
-		});
-    }, response.startDelay);
+	})
 };
 
 socket.on('stc_GameroomReadyMessage', (message) => {
