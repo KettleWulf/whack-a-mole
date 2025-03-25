@@ -119,12 +119,11 @@ export const handleConnection = (
 		const forfeitTimer = 30000 + gameData.startDelay;
 		const responses: ClickedMole[] = [];
 		io.timeout(forfeitTimer).to(roomId).emit("stc_roundStart", async (err, response) => {
-			// responses.push(callback[0]);
-			debug("Current length of responses: %d", responses.length);
+		
 			let gameInfoMessage: string;
 
-			debug("Current state of callback: %o", response);
-			debug("Current length of callback: %d", response.length);
+			debug("Current state of response: %o", response);
+			debug("Current length of response: %d", response.length);
 			if (err) {
 
 				debug("Neither player clicked in time")
@@ -134,8 +133,10 @@ export const handleConnection = (
 				io.to(roomId).emit("stc_finishedgame");  
 				return;
 			}
-		
-			if (response.length === 2) {
+			else {
+				const responseBundle: ClickedMole[] = response
+				debug("responseBundle: %o", responseBundle)
+			 	if (responseBundle.length === 2) {
 				
 				let draw = false;
 				// callback.sort((a, b) => a.playerClicked - b.playerClicked);
@@ -235,7 +236,7 @@ export const handleConnection = (
 				io.to(gameRoom.id).emit("stc_roundUpdate", RoundResultData);
 				return;
 			}
-
+		}
 			if (responses.length === 1) {
 				debug("Only one player clicked in time");
 				
