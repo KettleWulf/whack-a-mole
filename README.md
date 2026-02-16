@@ -1,5 +1,11 @@
 # Whack-a-Mole (Realtime Multiplayer)
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/05cfd923-a269-4ee0-b615-a0e9fbf5c450" alt="landing page" height="280" />
+  <img src="https://github.com/user-attachments/assets/d62ace91-fce0-413f-835b-20408d47b128" alt="game board" height="280" />
+</p>
+
+
 A realtime, round-based multiplayer reaction game built with Socket.IO.
 Two players are matched into a room, race to click the mole first each round, and play to 10 total rounds.
 
