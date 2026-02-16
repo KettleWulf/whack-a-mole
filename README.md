@@ -1,8 +1,8 @@
 # Whack-a-Mole (Realtime Multiplayer)
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/05cfd923-a269-4ee0-b615-a0e9fbf5c450" alt="landing page" height="280" />
-  <img src="https://github.com/user-attachments/assets/d62ace91-fce0-413f-835b-20408d47b128" alt="game board" height="280" />
+  <img src="https://github.com/user-attachments/assets/05cfd923-a269-4ee0-b615-a0e9fbf5c450" alt="landing page" height="250" />
+  <img src="https://github.com/user-attachments/assets/d62ace91-fce0-413f-835b-20408d47b128" alt="game board" height="250" />
 </p>
 
 
